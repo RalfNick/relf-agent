@@ -2,7 +2,9 @@
 
 **当前候选（2026-10-24）：`relf-agent==0.1.0a7`。** 纳入 `2d17808` 的装配中断清理修复，沿用 `relf_agent`、`relf` 及原执行协议，不扩功能。独立目录 `dist/alpha7-candidate/` 和 `tools/release_gate_manifest.alpha7.json` 固定新两包；原 311／16／两 starter 加独立 9 项中断清理，原期限和 Linux 2 CPU／2 GiB 条件保持。实际成绩、SHA 与外部待办见[a7 说明](releases/0.1.0a7.md)、[a7 清单](alpha7-validation-status.md)及[准备记录](../architecture/reviews/2026-10-24-alpha7-candidate.md)。
 
-仅手动 `alpha7-stage-candidate.yml` → `alpha7-release-gate.yml` → `alpha7-pypi-publish.yml`，使用同一提交、准确 run／attempt 和两份原包；账号及流程见[PyPI 准备](pypi-publishing.md)。本轮只本地提交，不推送或公开发布；远端 CI 需另行授权。原 a6 及更早制品、manifest、工作流与历史成绩保持。官网继续固定已部署的 a6 源码，网站部署不授予 a7 SDK 资格。
+准备提交 `8a58986` 已以 RalfNick 推送 main，保留 `[skip ci]`，当次 Actions 为0、网站构建跳过。相同 a7 原包的本地 Linux ARM64 三 Python 已[独立验收](../architecture/reviews/2026-10-24-alpha7-linux-arm64.md)，复验命令见[当前 a7 门禁](release-gate.md#复验当前-a7-原包)。本轮不改 SDK、不重建制品，文档仅本地提交。
+
+后续仅手动 `alpha7-stage-candidate.yml` → `alpha7-release-gate.yml` → `alpha7-pypi-publish.yml`，使用同一提交、准确 run／attempt 和两份原包；账号及流程见[PyPI 准备](pypi-publishing.md)。原生 AMD64／远端 CI 需另行授权，本批不触发或公开发布。原 a6 及更早制品、manifest、工作流与历史成绩保持。官网继续固定已部署的 a6 源码，网站部署不授予 a7 SDK 资格。
 
 ## a6 及更早准备记录（历史）
 

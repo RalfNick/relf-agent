@@ -9,10 +9,11 @@
 | 当前 a7 候选 | `relf-agent==0.1.0a7` 纳入已推送的 `2d17808` 中断清理修复；导入 `relf_agent`、CLI `relf`／`relf-*` 保持，不新增能力、依赖或执行权威。新包与门禁独立冻结，实际成绩见[a7 清单](alpha7-validation-status.md)和[准备记录](../architecture/reviews/2026-10-24-alpha7-candidate.md) |
 | 历史冻结 a6 | 原 wheel／sdist 和 manifest 不变，不含 `2d17808` 修复。[原包清单](alpha6-validation-status.md)中的全量、本地安装及 ARM64 成绩仍只对应原制品 |
 | 官网与源码入口 | `ba1c81f` 已推送；官网教程固定该 a6 源码并完成独立部署、网站 CI 与 HTTP 核对，见[网站验收](../website/reviews/2026-10-23-relf-a6-docs-acceptance.md)。固定教程不自动采用后续维护代码 |
-| SDK 公开交付 | 原公开 GitHub Alpha 仍为 a2，使用旧导入／CLI；a7 的 Linux、原生 AMD64／远端门禁、账号、上传及公开安装仍待各自证据。不得用网站 CI 或任一旧包成绩放行 a7 |
+| a7 Linux ARM64 | 原两包在本机 Docker 按 2 CPU／2 GiB／swap0、断网、Python 3.11–3.13 串行通过；每版311＋16＋9项及两 starter，零失败／跳过／OOM，最高326.79 MiB，自有容器全部移除。见[追加验收](../architecture/reviews/2026-10-24-alpha7-linux-arm64.md)；不代签原生 AMD64 |
+| SDK 公开交付 | a7 准备提交 `8a58986` 已以 RalfNick 推送 main，保留 `[skip ci]`，当次 Actions 为0、网站构建跳过。原公开 GitHub Alpha 仍为 a2，使用旧导入／CLI；a7 原生 AMD64／远端门禁、账号、上传及公开安装仍待各自证据。不得用网站 CI 或任一旧包成绩放行 a7 |
 | 历史专项与长期能力 | 原 dev19 所选 S2 18/18 和函数指纹资格保持其原制品／环境；所有历史失败保留。完整 M1、企业目标、R01–R26、更多模型质量与独立采用不由本次维护验收 |
 
-本次仅本地准备 a7 并提交，单次跳过钩子，不推送或公开发布。原 a6 不重建、不覆盖；[2d17808 维护回归](../architecture/reviews/2026-10-24-alpha6-review-fixes.md)保持其原范围，不能替代 a7 原包验证。
+a7 原包已冻结且不重建。本次只追加本地 Linux 验收和操作文档，不改 SDK、版本或固定门禁，不触发远端 CI、部署官网或公开发布；文档仅本地提交。原 a6 不覆盖；[2d17808 维护回归](../architecture/reviews/2026-10-24-alpha6-review-fixes.md)保持其原范围，不能替代 a7 原包验证。
 
 ## a6 及更早批次记录（历史状态）
 

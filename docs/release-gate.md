@@ -2,6 +2,43 @@
 
 **当前 a7 候选（2026-10-24）：** 使用 `tools/release_gate_manifest.alpha7.json` 与两份 `relf_agent-0.1.0a7` 原包。发行名、导入和 CLI 为 `relf-agent`／`relf_agent`／`relf`；纳入 `2d17808` 中断清理修复，不扩展功能。原 311 基础／16 恢复／两 starter 保持，新增独立 9 项中断清理阶段。Linux 仍为 2 CPU／2 GiB／swap0、断网、Python 3.11–3.13 串行。实际本地成绩与未执行的平台见 [a7 清单](alpha7-validation-status.md)，远端流程见 [PyPI 准备](pypi-publishing.md)。本批不推送、触发远端 CI 或公开发布。
 
+## 复验当前 a7 原包
+
+在包含 a7 外置 manifest 的维护 checkout 中执行。两份原包使用[a7 清单](alpha7-validation-status.md)的准确 SHA；依赖 wheelhouse 需事先按 `tools/release_gate_requirements.lock` 准备。输出目录必须不存在。
+
+先只读核对范围，输出版本应为 `0.1.0a7`，测试阶段为 `main=311`、`related=16`、`interruptions=9`：
+
+```bash
+python3.12 tools/release_gate.py --plan \
+  --manifest tools/release_gate_manifest.alpha7.json
+```
+
+macOS ARM64／Python 3.12 的隔离安装验证：
+
+```bash
+python3.12 tools/release_gate.py \
+  --manifest tools/release_gate_manifest.alpha7.json \
+  --wheel /ABS/relf_agent-0.1.0a7-py3-none-any.whl \
+  --sdist /ABS/relf_agent-0.1.0a7.tar.gz \
+  --wheelhouse /ABS/locked-wheelhouse --output /ABS/new-a7-macos-evidence
+```
+
+本机 Docker 已缓存 manifest 中三份 ARM64 镜像、wheelhouse 具备三版 Linux 依赖时，可串行复验：
+
+```bash
+python3.12 tools/run_release_gate_linux.py --platform linux/arm64 \
+  --manifest tools/release_gate_manifest.alpha7.json \
+  --wheel /ABS/relf_agent-0.1.0a7-py3-none-any.whl \
+  --sdist /ABS/relf_agent-0.1.0a7.tar.gz \
+  --wheelhouse /ABS/locked-wheelhouse --output /ABS/new-a7-arm64-evidence
+```
+
+脚本使用 `--pull=never` 和 `--network none`，每次只运行一个容器，限制 2 CPU／2 GiB／swap0。只有三个版本的报告、节点身份、原包与工具摘要、资源条件及自有容器移除全部通过，矩阵才通过；`--plan`、镜像存在或某一个版本成功都不能代替实际验收。缺镜像或依赖时保留失败，在准备阶段补齐固定输入，不改为浮动标签或在线安装。
+
+Mac 上的 ARM64 Docker 结果只对应所选容器平台。原生 AMD64 门禁另在 Linux x86_64 宿主运行，使用 `--platform linux/amd64 --require-native` 和同两份原包；不能用 Mac 模拟结果代替。后续远端运行须按[发布流程](pypi-publishing.md)获准，并固定同一源码提交和准确 run／attempt。本地复验不会上传、配置账号或触发远端工作流。
+
+## 历史门禁与原制品
+
 以下为 a6 及更早候选的历史范围和记录；其中“当前”仅指原批次，不授予 a7 资格。默认 manifest 仍固定原 a2，运行 a7 必须显式传入 `--manifest tools/release_gate_manifest.alpha7.json`。
 
 **当前a6入口迁移（2026-10-23）：** `relf-agent==0.1.0a6`统一Python导入`relf_agent`、CLI`relf`／`relf-*`。仅移动已有实现和公共入口，不扩功能；`RALF_*`、`.ralf`、数据库及协议标识保持。新旧任务使用独立版本环境，不提供自动History或指纹迁移。原a5及更早制品、记录和历史失败保留。当前独立制品、实际验收和待办见[a6说明](releases/0.1.0a6.md)、[a6清单](alpha6-validation-status.md)和[PyPI准备](pypi-publishing.md)。本轮只本地提交，不推送、触发远端CI、配置账号或公开发布。
