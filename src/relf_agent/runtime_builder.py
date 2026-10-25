@@ -19,7 +19,12 @@ from .memory import InMemoryMemory, SQLiteMemory
 from .model_native import AnthropicProvider, GeminiProvider
 from .model_protocol import ModelCapabilities
 from .model_responses import OpenAIResponsesProvider
-from .ports import is_async_callable, validate_component_identity, validate_engine
+from .ports import (
+    _has_engine_close,
+    is_async_callable,
+    validate_component_identity,
+    validate_engine,
+)
 from .ports import is_sync_callable as _synchronous
 from .providers import DeepSeekChatProvider, OpenAIChatProvider
 from .recall import FixedRecallPlanner, MemoryRecallPolicy, RecallQuery
@@ -901,12 +906,12 @@ class RuntimeBuilder:
             )
             return RuntimeInstance(candidate, context)
         except BaseException as exc:
-            # A rejected value without close cannot own execution resources.
-            # Close the authority we created instead; actual close-capable
-            # engines retain ownership until their close completes.
-            owner = candidate if callable(getattr(candidate, "close", None)) else None
-            cleanup = RuntimeInstance(owner, context, drain_engine=False)
+            # Retain the candidate before inspecting its cleanup port: even
+            # metadata lookup can fail while it still owns the coordinator.
+            cleanup = RuntimeInstance._for_cleanup(candidate, context)
             try:
+                if not _has_engine_close(candidate):
+                    cleanup = RuntimeInstance._for_cleanup(None, context)
                 cleanup.close()
             except BaseException as cleanup_error:
                 raise RuntimeBuildError(cleanup) from cleanup_error
@@ -985,11 +990,12 @@ class RuntimeBuilder:
             )
             return RuntimeInstance(candidate, context)
         except BaseException as exc:
-            owner = candidate if callable(getattr(candidate, "close", None)) else None
             # Rejected candidates may not implement a valid drain port. Their
             # synchronous close remains responsible for the authority gate.
-            cleanup = RuntimeInstance(owner, context, drain_engine=False)
+            cleanup = RuntimeInstance._for_cleanup(candidate, context)
             try:
+                if not _has_engine_close(candidate):
+                    cleanup = RuntimeInstance._for_cleanup(None, context)
                 await cleanup.aclose()
             except BaseException as cleanup_error:
                 raise RuntimeBuildError(cleanup) from cleanup_error

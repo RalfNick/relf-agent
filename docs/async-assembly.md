@@ -67,13 +67,15 @@ own 管理同步 close；own_async 管理 async aclose。同对象同模式去�
 
 先完成或取消并 await 自己的驱动 Task，再 await runtime.aclose。框架等待托管同步线程，Engine.close 检查实际驱动/调用是否结束；不自动取消驱动。Engine 确认关闭后，逆序清理客户端。客户端 aclose 只清理资源，不能启动新的业务操作。
 
-关闭开始后新的公开入口和预先缓存的方法都拒绝使用；实际执行尚在途时执行权保留。同步 close/with 遇异步资源在关闭 Engine 前拒绝，提示使用 aclose/async with。
+异步关闭开始后，或同步 Engine 已成功关闭后，新的公开入口和预先缓存的方法都拒绝使用；实际执行尚在途时执行权保留。正常实例因忙碌而在同步关闭前拒绝时，仍可通过原实例取消该 Run。同步 close/with 遇异步资源在关闭 Engine 前拒绝，提示使用 aclose/async with。
 
 取消外层 aclose 等待，实际清理 Task 仍被保留。随后 aclose 等待同一个 Task；失败资源保留，完成资源不重复关闭。取消之后晚到的清理失败在下一次等待报告，再次重试才发起新关闭。资源清理 Task 再次调用所属 Runtime/Context 清理会明确拒绝，避免等待自身；客户端及自建后台任务须遵循真实完成与幂等清理契约。
 
 owned 异步资源绑定创建循环；drive、排空与 aclose 使用同一循环，错误循环在调用 Engine 前拒绝。停止循环前完成清理；不隐藏 asyncio.run，不在线程里关闭 loop-bound 客户端。没有异步 owned 资源的同步实例保留原跨循环行为。
 
 构造失败/取消会清理已登记资源。清理成功后传播原 RalfError/CancelledError；清理失败或再次取消时 RuntimeBuildError.cleanup 保留句柄，调用 await error.cleanup.aclose()。Store/Engine 工厂仍同步；被拒绝的部分 Engine 通过同步 close 检查并关闭执行权，不要求其提供合格的排空接口。正常实例仍严格检查排空完成，不能据此绕过实际线程存活检查。
+
+a7 后维护源码在校验失败后先接管原候选，再读取关闭接口；关闭属性的读取错误也保留重试责任。此类被拒绝的 Builder cleanup 句柄从生成时就拒绝业务访问，只用于排空和关闭，不能被用来提交新 Run。原 a7 两包不含该修复；同步／异步反例和安装证据见[稳定性维护记录](../architecture/reviews/2026-10-25-runtime-failure-ownership.md)。
 
 ## 当前边界
 

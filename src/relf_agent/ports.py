@@ -313,7 +313,15 @@ def _invoke_sync_none(method, label):
 
 
 def close_engine(engine):
-    _invoke_sync_none(getattr(engine, "close", None), "ExecutionEngine.close")
+    _invoke_sync_none(engine.close, "ExecutionEngine.close")
+
+
+def _has_engine_close(engine):
+    """Retain declared cleanup owners even when their port cannot be read yet."""
+    missing = object()
+    if inspect.getattr_static(engine, "close", missing) is not missing:
+        return True
+    return callable(getattr(engine, "close", None))
 
 
 @runtime_checkable

@@ -108,6 +108,8 @@ Chat adapter 接收 model、base_url、max_output_tokens、token_parameter、tim
 
 `BuildContext.own(resource)` 只接管显式声明的同步 close 资源，去重后逆序清理；close 必须返回 None。RuntimeInstance 先关闭引擎，成功后才关闭附属资源。附属关闭失败时实例已停止，只允许重试 close；已完成清理的资源不再关闭。构造或清理失败的 RuntimeBuildError 提供 cleanup 句柄，可在故障解除后重试 `.cleanup.close()`；未返回的工厂内部资源仍由工厂自己负责。
 
+a7 后维护源码中，`build`／`abuild` 在探查候选的关闭接口前就保留原实例和资源；即使 `close` 属性读取失败，也不能提前关闭 Store／客户端或丢失重试入口。被拒绝的 Builder `cleanup` 句柄只用于排空和关闭，不接受 `submit`／`drive`／读取／控制等业务访问。`ProfiledEngine` 对配置工厂和原历史工厂使用相同的失败清理规则，校验中断也会清理；关闭失败时阻断新运行，调用路由器 `close()` 重试。正常已接受实例因仍在运行而拒绝同步关闭时，仍可取消原 Run；这与失败装配后的清理句柄不同。范围和证据见[稳定性维护记录](../architecture/reviews/2026-10-25-runtime-failure-ownership.md)。原 a7 包不含本段维护修复。
+
 a7 候选纳入同步 `build` 的中断修复：工厂抛出 `KeyboardInterrupt`／`asyncio.CancelledError`／`SystemExit` 时，也清理已登记资源；清理成功后原样传播中断。关闭 Engine 或附属资源时再次中断，返回 `RuntimeBuildError.cleanup` 供重试；Engine 尚未关闭时仍保留租约。原冻结 a6 包不包含此修复，原失败与修复见[维护记录](../architecture/reviews/2026-10-24-alpha6-review-fixes.md)，新包资格见[a7 清单](alpha7-validation-status.md)。
 
 async close 客户端可以在 abuild 中用 own_async 注册，通过 async with/aclose 管理；不能直接传给同步 own 或 build。未登记客户端仍由应用管理，见[异步资源指南](async-assembly.md)。服务仍应停止新请求，完成／取消自己的 Task，等待 `wait_for_threads`，再关闭 runtime。自定义执行后端须实现同样的执行归属和关闭语义。

@@ -13,7 +13,7 @@ from .errors import (
     NotFound,
     ValidationError,
 )
-from .ports import validate_engine
+from .ports import _has_engine_close, close_engine, validate_engine
 from .runtime_builder import RuntimeBuilder, _close_complete, _synchronous
 from .runtime_config import RuntimeCatalog
 from .storage import SQLiteStore
@@ -177,16 +177,12 @@ class ProfiledEngine:
         )
         try:
             validate_engine(runtime)
-        except Exception:
-            close = getattr(runtime, "close", None)
-            if callable(close):
-                self._active = runtime
-                try:
-                    _close_complete(close(), "Rejected runtime close")
-                except BaseException:
-                    self._lifecycle = "close_failed"
-                    raise
-                self._active = None
+        except BaseException:
+            # Take cleanup ownership before reading the close descriptor.
+            self._active, self._lifecycle = runtime, "close_failed"
+            if _has_engine_close(runtime):
+                close_engine(runtime)
+            self._active, self._lifecycle = None, "open"
             raise
         self._active, self._identity = runtime, identity
         return runtime
@@ -321,7 +317,7 @@ class ProfiledEngine:
         self._lifecycle = "closing"
         try:
             if self._active is not None:
-                _close_complete(self._active.close(), "Runtime close")
+                close_engine(self._active)
         except BaseException:
             self._lifecycle = "close_failed"
             raise

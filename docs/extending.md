@@ -1,6 +1,6 @@
 # Relf-Agent 扩展指南
 
-更新：2026-10-25。面向 SDK／适配器开发者；a2 是历史公开入口，a7 已冻结原包，后续维护源码的 CLI 扩展清理修复尚未打包，原 a6 及更早包与证据保持。本指南描述执行、装配、召回和知识端口；当前扩展组件、限制和候选资格见[实现清单](implementation-status.md)、[a7 清单](alpha7-validation-status.md)及[首版范围](releases/0.1.0a2.md)，企业适配与完整 M1 仍未验收。
+更新：2026-10-25。面向 SDK／适配器开发者；a2 是历史公开入口，a7 已冻结原包，后续维护源码的扩展清理修复仅有独立私有安装验证包，未形成新的公开候选，原 a6 及更早包与证据保持。本指南描述执行、装配、召回和知识端口；当前扩展组件、限制和候选资格见[实现清单](implementation-status.md)、[a7 清单](alpha7-validation-status.md)及[首版范围](releases/0.1.0a2.md)，企业适配与完整 M1 仍未验收。
 
 完整目标要求每层交付公共契约、默认实现、替换示例和共同验收，见[通用框架能力矩阵](../architecture/viewpoints/framework-capabilities.md)。静态图／并行、动态规划／团队和远程数据已有实现，分别见[静态 Workflow](static-workflows.md)、[编排](orchestration.md)与[远程数据](remote-data.md)。默认实现不一定默认启用；每 Agent 能力绑定、推荐组合与 Local/Temporal 契约差异见[整体审查](../architecture/reviews/2026-10-08-agent-framework-alignment.md)。下表以本地装配契约为主，Temporal 支持范围单独声明。
 
@@ -134,6 +134,8 @@ acquire 抛异常时，适配器负责清理本次获取产生的临时资源，
 a7 后维护源码中，Engine 方法属性或方法形状读取的普通异常统一为 `ValidationError`，不把底层异常正文放进 CLI 输出；已有 `RalfError` 保持原类型。CLI 在工厂已经返回对象后校验失败时，尝试其受支持的同步关闭；`KeyboardInterrupt`、`CancelledError`、`SystemExit` 在清理成功后原样传播。关闭方法读取（包括已声明属性抛 `AttributeError`）或调用失败时，`RuntimeBuildError.cleanup` 保留原对象供明确重试；未关闭的原 Engine 继续持有租约。这是失败清理，不执行模型、工具或新 Run，不自动恢复业务。
 
 工厂返回前产生的资源、直接借用的客户端及不满足同步关闭契约的对象，仍由工厂或宿主管理；框架不猜测隐藏资源，不等待不受支持的异步 close。上述维护修复不在 a7 原包中，不能按源码测试成绩认定原包已修复，见[验证记录](../architecture/reviews/2026-10-25-cli-factory-cleanup.md)。
+
+同批后续维护将声明过的关闭端口判断用于 Builder 和配置路由：先保留原候选，再读取或调用 `close`；不能将属性暂时抛 `AttributeError` 当成没有资源。Builder 校验失败后保留的 cleanup 句柄拒绝业务访问，路由器清理失败后也阻断新任务，保留原持有者直到关闭成功。可信工厂仍应提供可安全重试的同步关闭，不隐藏未返回资源；正常活动实例在同步关闭前置检查被拒绝后仍可取消原 Run。反例、回归和独立私有安装范围见[稳定性维护记录](../architecture/reviews/2026-10-25-runtime-failure-ownership.md)。
 
 SDK 入口程序应导入同一个配置模块，工具实现保留稳定的包／模块名。示例入口已经这样装配；在 `__main__` 重新定义工具后，再从其他模块加载同名函数，属于不同的发布身份。
 

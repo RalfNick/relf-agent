@@ -14,7 +14,7 @@ from . import __version__
 from .cli_views import diagnostics_inspection, inspection, render_inspection, render_result
 from .demo import create_demo_engine, demo_spec
 from .errors import AuthorizationDenied, DefinitionMismatch, RalfError, ValidationError
-from .ports import close_engine, is_sync_callable, validate_engine
+from .ports import _has_engine_close, close_engine, is_sync_callable, validate_engine
 from .storage import SQLiteStore
 from .types import RunSnapshot, Scope
 
@@ -56,17 +56,8 @@ def load_engine(db, factory_path=None, config_path=None):
         try:
             if inspect.iscoroutine(engine) or inspect.isgenerator(engine):
                 engine.close()
-            else:
-                try:
-                    method = engine.close
-                except AttributeError:
-                    # A declared descriptor may be temporarily unreadable;
-                    # do not confuse that failure with an absent cleanup port.
-                    if inspect.getattr_static(engine, "close", None) is not None:
-                        raise
-                else:
-                    if is_sync_callable(method):
-                        close_engine(engine)
+            elif _has_engine_close(engine):
+                close_engine(engine)
         except BaseException as exc:
             from .runtime_builder import RuntimeBuildError
 

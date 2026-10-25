@@ -166,14 +166,21 @@ class RuntimeInstance:
     def __init__(self, engine, context, *, drain_engine=True):
         self._engine, self._context = engine, context
         self._drain_engine = drain_engine
+        self._cleanup_only = False
         self._engine_closed = False
         self._async_shutdown = False
         self._aclosing = False
         self._coding_shutdown = False
         self._coding_cleanup_token = None
 
+    @classmethod
+    def _for_cleanup(cls, engine, context):
+        instance = cls(engine, context, drain_engine=False)
+        instance._cleanup_only = True
+        return instance
+
     def _ensure_open(self):
-        if self._engine_closed or self._async_shutdown:
+        if self._cleanup_only or self._engine_closed or self._async_shutdown:
             raise ValidationError("Runtime is closing or closed; retry resource cleanup only")
 
     def __getattr__(self, name):
@@ -216,7 +223,7 @@ class RuntimeInstance:
     def _close_engine(self):
         if not self._engine_closed:
             owner = self._engine if self._engine is not None else self._context.store
-            _invoke_sync_none(getattr(owner, "close", None), "Engine close")
+            _invoke_sync_none(owner.close, "Engine close")
             self._engine_closed = True
 
     def close(self):
