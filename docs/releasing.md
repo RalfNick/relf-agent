@@ -1,5 +1,7 @@
 # 预览版本验证与发布
 
+**维护源码（2026-10-25）：** 自定义 CLI Engine 失败清理补丁尚未打包，原 a7 两包与成绩保持。带补丁发行须另行准备唯一版本；继续原 a7 流程则选产品匹配的固定源码，不能以维护 HEAD 的来源预检代替原候选。见[修复与验证](../architecture/reviews/2026-10-25-cli-factory-cleanup.md)。本轮仅本地提交，不推送、触发远端 CI 或公开发布。
+
 **当前候选（2026-10-24）：`relf-agent==0.1.0a7`。** 纳入 `2d17808` 的装配中断清理修复，沿用 `relf_agent`、`relf` 及原执行协议，不扩功能。独立目录 `dist/alpha7-candidate/` 和 `tools/release_gate_manifest.alpha7.json` 固定新两包；原 311／16／两 starter 加独立 9 项中断清理，原期限和 Linux 2 CPU／2 GiB 条件保持。实际成绩、SHA 与外部待办见[a7 说明](releases/0.1.0a7.md)、[a7 清单](alpha7-validation-status.md)及[准备记录](../architecture/reviews/2026-10-24-alpha7-candidate.md)。
 
 准备提交 `8a58986` 已以 RalfNick 推送 main，保留 `[skip ci]`，当次 Actions 为0、网站构建跳过。相同 a7 原包的本地 Linux ARM64 三 Python 已[独立验收](../architecture/reviews/2026-10-24-alpha7-linux-arm64.md)，复验命令见[当前 a7 门禁](release-gate.md#复验当前-a7-原包)。本轮不改 SDK、不重建制品，文档仅本地提交。

@@ -52,16 +52,25 @@ def load_engine(db, factory_path=None, config_path=None):
         raise ValidationError("Configured engine factory failed to construct its runtime") from exc
     try:
         return validate_engine(engine)
-    except ValidationError:
-        if inspect.iscoroutine(engine) or inspect.isgenerator(engine):
-            engine.close()
-        elif is_sync_callable(getattr(engine, "close", None)):
-            try:
-                close_engine(engine)
-            except Exception as exc:
-                from .runtime_builder import RuntimeBuildError
+    except BaseException:
+        try:
+            if inspect.iscoroutine(engine) or inspect.isgenerator(engine):
+                engine.close()
+            else:
+                try:
+                    method = engine.close
+                except AttributeError:
+                    # A declared descriptor may be temporarily unreadable;
+                    # do not confuse that failure with an absent cleanup port.
+                    if inspect.getattr_static(engine, "close", None) is not None:
+                        raise
+                else:
+                    if is_sync_callable(method):
+                        close_engine(engine)
+        except BaseException as exc:
+            from .runtime_builder import RuntimeBuildError
 
-                raise RuntimeBuildError(engine) from exc
+            raise RuntimeBuildError(engine) from exc
         raise
 
 

@@ -229,17 +229,22 @@ class EffectJournal(Protocol):
 
 def validate_engine(engine):
     # Method-based checks support delegation without requiring inheritance.
-    for name in vars(ExecutionEngine):
-        if name.startswith("_"):
-            continue
-        method = getattr(engine, name, None)
-        if not callable(method):
-            raise ValidationError(f"ExecutionEngine requires {name}")
-        if name in {"drive", "wait_for_threads"}:
-            if not is_async_callable(method):
-                raise ValidationError(f"ExecutionEngine.{name} must be async")
-        elif not is_sync_callable(method):
-            raise ValidationError(f"ExecutionEngine.{name} must be synchronous")
+    try:
+        for name in vars(ExecutionEngine):
+            if name.startswith("_"):
+                continue
+            method = getattr(engine, name, None)
+            if not callable(method):
+                raise ValidationError(f"ExecutionEngine requires {name}")
+            if name in {"drive", "wait_for_threads"}:
+                if not is_async_callable(method):
+                    raise ValidationError(f"ExecutionEngine.{name} must be async")
+            elif not is_sync_callable(method):
+                raise ValidationError(f"ExecutionEngine.{name} must be synchronous")
+    except RalfError:
+        raise
+    except Exception as exc:
+        raise ValidationError("Cannot validate ExecutionEngine configuration") from exc
     return engine
 
 

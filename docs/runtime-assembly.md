@@ -124,6 +124,8 @@ ExecutionStore 的操作必须同步；CoordinatorLease 的 acquire/release 和 
 
 ExecutionEngine 定义 submit、async drive、status/events、approve/cancel/reconcile、async wait_for_threads 和同步 close。CLI --factory 按方法契约接受代理或自定义实现，不要求继承 LocalEngine，也不要求暴露 .store。
 
+a7 后维护源码补齐了自定义 Engine 的校验失败清理：普通属性读取错误返回配置错误，中断在同步关闭完成后原样传播；关闭受阻时保留 `RuntimeBuildError.cleanup` 供重试，不提前释放原租约。包括 `close` 属性临时抛 `AttributeError` 的情况，也不视为已经清理。工厂返回前的自有资源仍由工厂负责；不支持的异步关闭不会自动执行。该修复尚未进入 a7 原包，范围和证据见[维护记录](../architecture/reviews/2026-10-25-cli-factory-cleanup.md)。
+
 可选 RuntimeDiagnostics.diagnostics 返回 RunDiagnostics(snapshot, manifest, release_digest, budget, workflow=None)，用于丰富文本报告；没有时输出普通结果。默认 LocalEngine、SQLiteRunReader 与 ProfiledEngine 使用相同 Workflow 投影，包含图计划、节点状态与并行分支 Session，隐藏内部执行 frame；配置方式的文本 run/resume 同样显示节点。CLI status/inspect/events 仍是默认 Scope 的只读 SQLite 观察，不通过自定义工厂执行远程读取。SDK 可通过 RunReader 接入自己的读端口；当前只交付 SQLiteRunReader 默认实现。
 
 ## 8. 兼容与剩余工作

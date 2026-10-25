@@ -16,6 +16,8 @@ Relf-Agent 把模型决策、工具调用、人工审批和业务结果保存为
 
 > a7 使用独立制品和门禁，已冻结 a6 wheel／sdist 不含上述修复，原包与历史记录保留。官网教程继续固定已部署的 a6 源码；各候选与网站分别核对，见[当前交付摘要](https://github.com/RalfNick/relf-agent/blob/main/docs/implementation-status.md#当前交付摘要)。
 
+> a7 后维护源码另有自定义 CLI 工厂失败清理修复，尚未形成新制品；原 a7 两包不包含该补丁，版本字段相同也不代表产品树相同。验证范围与后续发行边界见[维护记录](https://github.com/RalfNick/relf-agent/blob/main/architecture/reviews/2026-10-25-cli-factory-cleanup.md)。
+
 > 源码默认分支为 `main`，基于已审核的 `b545aba`；原 `feat/m1-local-runtime` 分支保留，以维持既有包内链接。官网已经上线。a6 制品、平台与公开发行分别验收；原公开 a2 使用旧入口，不与当前源码示例混用。
 
 ## 为什么使用 Relf-Agent

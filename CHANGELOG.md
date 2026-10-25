@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased — a7 后维护源码
+
+- 自定义 CLI Engine 的方法属性读取失败时，返回结构化配置错误并清理已接管对象；校验中断完成清理后传播原异常，清理失败保留可重试句柄和原租约。
+- 该补丁尚未进入新的冻结制品；原 a7 两包、固定门禁和历史验收保持，不以当前维护源码替代原包资格。
+
 ## 0.1.0a7 — 中断清理修复候选
 
 - 同步 RuntimeBuilder 在工厂或清理受到 KeyboardInterrupt、CancelledError、SystemExit 中断时保留资源清理责任；清理成功后原样传播中断，未完成时提供可重试的 cleanup 句柄。
