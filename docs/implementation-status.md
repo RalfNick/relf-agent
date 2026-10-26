@@ -2,19 +2,19 @@
 
 ## 当前交付摘要
 
-更新：2026-10-25。本节是当前状态入口；下方按日期保留原批次记录，其中“当前／后置／不推送”描述当时范围，不覆盖本节。
+更新：2026-10-26。本节是当前状态入口；下方按日期保留原批次记录，其中“当前／后置／不推送”描述当时范围，不覆盖本节。
 
 | 范围 | 当前事实与边界 |
 | --- | --- |
-| a7 后维护源码 | 补齐 CLI、RuntimeBuilder 和 ProfiledEngine 校验错误／中断／关闭属性失败的清理与重试；被拒绝 Builder 的 cleanup 句柄阻断业务，正常活动 Run 的同步关闭前置拒绝保留取消能力。完整离线14,334通过／891条件跳过；仅有独立私有安装验证包，未准备新公开候选，原 a7 不含补丁。见[稳定性维护](../architecture/reviews/2026-10-25-runtime-failure-ownership.md) |
-| 当前 a7 候选 | `relf-agent==0.1.0a7` 纳入已推送的 `2d17808` 中断清理修复；导入 `relf_agent`、CLI `relf`／`relf-*` 保持，不新增能力、依赖或执行权威。新包与门禁独立冻结，实际成绩见[a7 清单](alpha7-validation-status.md)和[准备记录](../architecture/reviews/2026-10-24-alpha7-candidate.md) |
+| 当前a8候选 | `relf-agent==0.1.0a8`独立纳入`7e9fac1`／`ac92006`的CLI、Builder和路由失败清理修复；不新增功能。新原包／370项固定门禁及本地安装独立验收，原a7不含补丁。见[a8清单](alpha8-validation-status.md)和[准备记录](../architecture/reviews/2026-10-26-alpha8-candidate.md) |
+| 历史冻结a7 | `relf-agent==0.1.0a7` 纳入已推送的 `2d17808` 中断清理修复；导入 `relf_agent`、CLI `relf`／`relf-*` 保持，不新增能力、依赖或执行权威。新包与门禁独立冻结，实际成绩见[a7 清单](alpha7-validation-status.md)和[准备记录](../architecture/reviews/2026-10-24-alpha7-candidate.md) |
 | 历史冻结 a6 | 原 wheel／sdist 和 manifest 不变，不含 `2d17808` 修复。[原包清单](alpha6-validation-status.md)中的全量、本地安装及 ARM64 成绩仍只对应原制品 |
 | 官网与源码入口 | `ba1c81f` 已推送；官网教程固定该 a6 源码并完成独立部署、网站 CI 与 HTTP 核对，见[网站验收](../website/reviews/2026-10-23-relf-a6-docs-acceptance.md)。固定教程不自动采用后续维护代码 |
 | a7 Linux ARM64 | 原两包在本机 Docker 按 2 CPU／2 GiB／swap0、断网、Python 3.11–3.13 串行通过；每版311＋16＋9项及两 starter，零失败／跳过／OOM，最高326.79 MiB，自有容器全部移除。见[追加验收](../architecture/reviews/2026-10-24-alpha7-linux-arm64.md)；不代签原生 AMD64 |
-| SDK 公开交付 | a7 准备提交 `8a58986` 已以 RalfNick 推送 main，保留 `[skip ci]`，当次 Actions 为0、网站构建跳过。原公开 GitHub Alpha 仍为 a2，使用旧导入／CLI；a7 原生 AMD64／远端门禁、账号、上传及公开安装仍待各自证据。不得用网站 CI 或任一旧包成绩放行 a7 |
+| SDK公开交付 | 当前a8尚未推送或公开发布；原公开GitHub Alpha仍为a2，使用旧导入／CLI。a8本地成绩不代签Linux／原生AMD64／远端CI、账号、上传或公开安装；原a7准备提交`8a58986`及其平台报告按原范围保留 |
 | 历史专项与长期能力 | 原 dev19 所选 S2 18/18 和函数指纹资格保持其原制品／环境；所有历史失败保留。完整 M1、企业目标、R01–R26、更多模型质量与独立采用不由本次维护验收 |
 
-a7 原包已冻结且不重建，其[Linux 追加验收](../architecture/reviews/2026-10-24-alpha7-linux-arm64.md)保持原范围。本次维护仅修复扩展失败清理，独立私有本地版本用于隔离安装验证，不触发远端 CI、部署官网或公开发布；完成后仅本地提交。原 a6／a7 不覆盖，既有成绩不自动授予维护源码。若将新补丁用于发行，必须另行准备唯一版本的新候选；若继续原 a7 流程，使用产品匹配的固定源码，不能用当前维护产品树通过原 a7 来源预检。
+a8以`ac92006`维护基线准备独立制品；原a7不重建，其[Linux追加验收](../architecture/reviews/2026-10-24-alpha7-linux-arm64.md)与后续私有维护包保持各自原范围。a8的本地安装、所选平台、真实质量和公开交付分别记录，不借旧包成绩。本轮只本地提交，单次跳过钩子，保留`[skip ci]`；不推送、触发远端CI、部署官网、配置账号或公开发布。需要远端门禁时先报告并等待授权。原a7与所有历史失败保留。
 
 ## a6 及更早批次记录（历史状态）
 

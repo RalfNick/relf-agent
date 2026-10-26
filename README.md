@@ -12,11 +12,10 @@ Relf-Agent 把模型决策、工具调用、人工审批和业务结果保存为
 
 [官网](https://relfagent.com/) · [快速开始](#快速开始) · [文档目录](https://github.com/RalfNick/relf-agent/blob/main/docs/README.md) · [示例](https://github.com/RalfNick/relf-agent/blob/main/examples/README.md) · [贡献指南](https://github.com/RalfNick/relf-agent/blob/main/CONTRIBUTING.md) · [更新记录](https://github.com/RalfNick/relf-agent/blob/main/CHANGELOG.md)
 
-> 当前源码版本为 **0.1.0a7 Alpha**，纳入 `2d17808` 的同步装配中断清理修复，不新增功能。发行名 `relf-agent`、导入 `relf_agent`、CLI `relf` 保持。各版本的候选／公开状态、安装入口与验收范围以[发行记录](https://github.com/RalfNick/relf-agent/blob/main/docs/releasing.md)和[a7 说明](https://github.com/RalfNick/relf-agent/blob/main/docs/releases/0.1.0a7.md)为准；原公开历史制品为 **[a2 原包](https://github.com/RalfNick/relf-agent/releases/tag/v0.1.0a2)**。API 与部署能力仍在演进，使用范围见[实现清单](https://github.com/RalfNick/relf-agent/blob/main/docs/implementation-status.md)。默认本地入门无需模型密钥、Redis、Temporal 或 Docker。
+> 当前源码版本为 **0.1.0a8 Alpha**，纳入 `7e9fac1`／`ac92006` 的CLI、RuntimeBuilder及ProfiledEngine扩展失败清理与关闭重试修复，不新增功能。发行名 `relf-agent`、导入 `relf_agent`、CLI `relf` 保持。原公开历史制品为 **[a2原包](https://github.com/RalfNick/relf-agent/releases/tag/v0.1.0a2)**；a8原包、实际验收与后续步骤见[a8说明](https://github.com/RalfNick/relf-agent/blob/main/docs/releases/0.1.0a8.md)和[实现清单](https://github.com/RalfNick/relf-agent/blob/main/docs/implementation-status.md)。默认本地入门无需模型密钥、Redis、Temporal或Docker。
 
-> a7 使用独立制品和门禁，已冻结 a6 wheel／sdist 不含上述修复，原包与历史记录保留。官网教程继续固定已部署的 a6 源码；各候选与网站分别核对，见[当前交付摘要](https://github.com/RalfNick/relf-agent/blob/main/docs/implementation-status.md#当前交付摘要)。
+> a8使用独立制品和固定门禁；原a7两包不含上述维护修复，原制品和历史记录保持。官网继续固定已部署的a6教程。本轮仅本地准备与提交，不触发远端CI、配置账号、部署官网或公开发布；各平台成绩分别验收，见[a8清单](https://github.com/RalfNick/relf-agent/blob/main/docs/alpha8-validation-status.md)。
 
-> a7 后维护源码补齐了 CLI、RuntimeBuilder 和 ProfiledEngine 的扩展失败清理与关闭重试；仅有独立私有安装验证包，未准备新的公开候选。原 a7 两包不包含这些补丁，版本字段相同也不代表产品树相同。验证范围与后续发行边界见[稳定性维护记录](https://github.com/RalfNick/relf-agent/blob/main/architecture/reviews/2026-10-25-runtime-failure-ownership.md)。
 
 > 源码默认分支为 `main`，基于已审核的 `b545aba`；原 `feat/m1-local-runtime` 分支保留，以维持既有包内链接。官网已经上线。a6 制品、平台与公开发行分别验收；原公开 a2 使用旧入口，不与当前源码示例混用。
 
@@ -30,7 +29,7 @@ Relf-Agent 把模型决策、工具调用、人工审批和业务结果保存为
 
 ## 快速开始
 
-需要 Python 3.11+。以下命令在包含 a7 的当前源码目录运行，或先安装经过核对的 a7 本地 wheel；具体原包、平台和公开状态见[安装指南](https://github.com/RalfNick/relf-agent/blob/main/docs/installation.md)。
+需要 Python 3.11+。以下命令在包含 a8 的当前源码目录运行，或先安装经过核对的 a8 本地 wheel；具体原包、平台和公开状态见[安装指南](https://github.com/RalfNick/relf-agent/blob/main/docs/installation.md)。
 
 ```bash
 python3 -m venv .venv

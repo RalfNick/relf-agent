@@ -163,7 +163,15 @@ def test_terminal_history_is_not_retained_as_runtime_tasks(tmp_path):
         async with api()(engine(tmp_path / "bounded.sqlite", provider), owned=True) as runtime:
             agent = runtime.create_agent(r.AgentSpec("a", "A"))
             for index in range(100):
-                await agent.run("q", command_id=str(index), wait_timeout=1)
+                result = await agent.run("q", command_id=str(index), wait_timeout=1)
+                assert result.snapshot.state == "succeeded"
+                assert result.snapshot.result == "ok"
+            # A terminal observation can precede the hosted drive's done callback.
+            # Observe actual idle without closing, draining or restarting the host.
+            async with asyncio.timeout(1):
+                while runtime.hosting_status["running"]:  # noqa: ASYNC110 - no public idle event
+                    await asyncio.sleep(0)
+            assert provider.calls == 100
             assert runtime.hosting_status == {"running": 0, "paused": 0, "failed": 0}
 
     asyncio.run(scenario())
