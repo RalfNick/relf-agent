@@ -35,6 +35,7 @@ class BuildContext:
         self.providers = MappingProxyType({})
         self._resources = []
         self._cleaning = False
+        self._cleanup_started = False
         self._allow_async = allow_async
         self._loop = None
         self._resource_owner = resource_owner
@@ -66,6 +67,8 @@ class BuildContext:
     def _own(self, resource, *, asynchronous):
         if self._resource_owner is not None:
             return self._resource_owner._own(resource, asynchronous=asynchronous)
+        if self._cleanup_started:
+            raise ValidationError("Cannot register owned resources after cleanup starts")
         method = getattr(resource, "aclose" if asynchronous else "close", None)
         if not (is_async_callable(method) if asynchronous else is_sync_callable(method)):
             raise ValidationError(
@@ -115,6 +118,7 @@ class BuildContext:
     def _cleanup_guard(self):
         if self._cleaning:
             raise ValidationError("Resource cleanup is already in progress")
+        self._cleanup_started = True
         self._cleaning = True
         try:
             yield

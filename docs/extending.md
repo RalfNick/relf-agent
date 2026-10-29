@@ -22,6 +22,8 @@ CLI 的 `--factory`／底层 ExecutionEngine 可按公共端口替换；高层 L
 
 使用 RuntimeBuilder 的自定义资源只需实现自己的 `close()`／`aclose()`，并通过 `context.own()`／`own_async()` 登记；资源回调重入整个 Runtime／Context 的清理会被拒绝。已有可选回复、计划修订、消息压缩与阶段观察接口也遵循 RuntimeInstance 的关闭保护，缓存方法不能绕过。取消和失败后的原实例重试见[异步装配](async-assembly.md#关闭取消与错误)；这不改变 Local／Temporal 的执行权威或原任务身份。
 
+`own`／`own_async` 只有成功返回才表示新资源已被台账接管。实际清理开始后，包含共享 Context 在内的登记入口都拒绝新资源；失败和取消不会重新开放登记。创建方须关闭被拒绝的对象，已有资源继续沿原台账重试，不在清理回调中追加依赖。高层 `Agent(definition=...)` 也只把 `None` 视为省略；使用显式 Spec 或 AgentHarness，错误的空配置会在入口报告。维护范围见[本批记录](../architecture/reviews/2026-10-29-resource-and-definition-admission.md)。
+
 ## 1. 装配组件
 
 | 扩展点 | 注入位置 | 必须满足的约束 |

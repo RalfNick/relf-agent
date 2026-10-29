@@ -7,7 +7,7 @@
 | 范围 | 当前事实与边界 |
 | --- | --- |
 | 当前a8候选 | `relf-agent==0.1.0a8`独立纳入`7e9fac1`／`ac92006`的CLI、Builder和路由失败清理修复；不新增功能。新原包／370项固定门禁及本地安装独立验收，原a7不含补丁。见[a8清单](alpha8-validation-status.md)和[准备记录](../architecture/reviews/2026-10-26-alpha8-candidate.md) |
-| a8后维护源码 | `3132c6c`的CLI退出清理修复已按授权推送；后续维护补齐缓存可选端口的关闭保护，以及清理台账的重入／并发拒绝和取消后重试。见[CLI记录](../architecture/reviews/2026-10-29-cli-execution-cleanup.md)与[关闭边界记录](../architecture/reviews/2026-10-29-runtime-cleanup-boundaries.md)。原a8两包不含这些补丁，不以维护源码或私有安装授予原包新资格 |
+| a8后维护源码 | `3132c6c`／`af42496`已按授权推送，见[CLI记录](../architecture/reviews/2026-10-29-cli-execution-cleanup.md)和[关闭边界记录](../architecture/reviews/2026-10-29-runtime-cleanup-boundaries.md)。本轮另补齐清理后的资源登记拒绝、显式Agent定义校验，见[本批记录](../architecture/reviews/2026-10-29-resource-and-definition-admission.md)。原a8两包不含这些补丁，不以维护源码或私有安装授予原包新资格 |
 | 历史冻结a7 | `relf-agent==0.1.0a7` 纳入已推送的 `2d17808` 中断清理修复；导入 `relf_agent`、CLI `relf`／`relf-*` 保持，不新增能力、依赖或执行权威。新包与门禁独立冻结，实际成绩见[a7 清单](alpha7-validation-status.md)和[准备记录](../architecture/reviews/2026-10-24-alpha7-candidate.md) |
 | 历史冻结 a6 | 原 wheel／sdist 和 manifest 不变，不含 `2d17808` 修复。[原包清单](alpha6-validation-status.md)中的全量、本地安装及 ARM64 成绩仍只对应原制品 |
 | 官网与源码入口 | `ba1c81f` 已推送；官网教程固定该 a6 源码并完成独立部署、网站 CI 与 HTTP 核对，见[网站验收](../website/reviews/2026-10-23-relf-a6-docs-acceptance.md)。固定教程不自动采用后续维护代码 |

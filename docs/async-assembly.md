@@ -61,7 +61,9 @@ if __name__ == "__main__":
     print(asyncio.run(application()))
 ```
 
-own 管理同步 close；own_async 管理 async aclose。同对象同模式去重，切换模式拒绝；未登记资源仍由应用/工厂管理。Store 属于执行权威，不能 own_async(Store)。Factory 为本次实例创建 owned 资源，不应让两个 Runtime 同时拥有同一客户端/Store。
+own 管理同步 close；own_async 管理 async aclose。在开放的登记阶段，同对象同模式去重，切换模式拒绝；未登记资源仍由应用/工厂管理。Store 属于执行权威，不能 own_async(Store)。Factory 为本次实例创建 owned 资源，不应让两个 Runtime 同时拥有同一客户端/Store。
+
+资源台账开始实际清理后，`own`／`own_async` 拒绝新的资源登记；这一边界在清理失败、取消外层等待和清理完成后都保持，共享 Context 也遵守原持有者的状态。不要在资源关闭回调中登记新客户端；登记被拒绝时，对象仍由创建方负责关闭。仅因同步清理方式不匹配而被前置拒绝时，尚未开始实际清理，仍可正常登记资源并改用异步关闭。此 a8 后维护行为及实际测试见[资源登记与定义校验](../architecture/reviews/2026-10-29-resource-and-definition-admission.md)。
 
 ## 关闭、取消与错误
 

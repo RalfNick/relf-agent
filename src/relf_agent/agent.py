@@ -35,7 +35,7 @@ class Agent:
                     "Agent tools require a ToolRegistry; register functions with an explicit effect"
                 )
             names = tuple(registry._tools)
-            selected = definition or AgentSpec(name, instructions, names)
+            selected = AgentSpec(name, instructions, names) if definition is None else definition
             harness = selected if isinstance(selected, AgentHarness) else AgentHarness(selected)
             store = SQLiteStore(db_path)
             try:
@@ -52,7 +52,7 @@ class Agent:
                 )
             if not isinstance(runtime, Runtime):
                 raise ValidationError("Shared Agent requires a Runtime")
-            selected = definition or AgentSpec(name, instructions)
+            selected = AgentSpec(name, instructions) if definition is None else definition
             harness = selected if isinstance(selected, AgentHarness) else AgentHarness(selected)
         self.runtime, self.harness = runtime, harness
 

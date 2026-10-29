@@ -14,6 +14,15 @@ Current implementation and acceptance boundaries are listed [separately](impleme
 Provide an explicit model and trusted tools; no credential discovery or paid calls
 occur during construction. Native Providers follow the [model guide](model-adapters.md).
 
+Only `definition=None` selects the convenience default from `name`, `instructions`
+and the registered tool names. An explicitly supplied invalid definition, including
+an empty string, container, number or boolean, raises `ValidationError`; it is not
+replaced by a default Agent. Valid specification objects retain their declared
+identity even if their Python boolean value is false. The standalone constructor
+validates this before creating its database, and a rejected shared entry leaves
+the existing Runtime open. These checks are a8 maintenance source changes; the
+original a8 archives retain their original behavior.
+
 For nonempty tools, pass a `ToolRegistry` and declare each function's `effect`
 through `register_function` or `registry.tool`. A bare function list has no effect
 metadata and is refused before database creation; decorating a function does not
