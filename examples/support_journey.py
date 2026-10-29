@@ -6,6 +6,7 @@ SDK and Python standard library. Offline output demonstrates wiring, not quality
 
 import argparse
 import asyncio
+import inspect
 import json
 from pathlib import Path
 
@@ -96,12 +97,12 @@ def tools_for():
     return tools
 
 
-async def run(args, provider):
+async def run(args, provider, *, tools=None, memory=None):
     directory = Path(args.data_dir)
     store = SQLiteStore(directory / (args.stage + ".sqlite"))
     scope = Scope()
     try:
-        memory = SQLiteMemory(store)
+        memory = SQLiteMemory(store) if memory is None else memory
         knowledge_store = (
             SQLiteKnowledgeStore(store) if args.stage in {"rag", "memory", "workflow"} else None
         )
@@ -113,7 +114,7 @@ async def run(args, provider):
         engine = LocalEngine(
             store,
             providers={"default": provider},
-            tools=tools_for(),
+            tools=tools_for() if tools is None else tools,
             scope=scope,
             session_store=memory,
             memory_store=memory,
@@ -124,8 +125,8 @@ async def run(args, provider):
         store.close()
         raise
 
-    # Knowledge and memory borrow the same SQLite connection. Runtime owns Engine;
-    # incomplete shutdown retains its original obligations rather than force-closing.
+    # Defaults borrow the same SQLite connection; injected adapters stay caller-owned.
+    # Runtime owns Engine; an incomplete shutdown retains its original obligations.
     async with Runtime(engine, owned=True) as runtime:
         if knowledge_store is not None:
             try:
@@ -142,11 +143,16 @@ async def run(args, provider):
                 )
             except KnowledgeVersionConflict:
                 pass  # Never overwrite existing revisions or revive deleted documents.
-        if (
-            args.stage in {"memory", "workflow"}
-            and memory.inspect_fact(scope, "support", "response-style") is None
-        ):
-            memory.put_fact(scope, "support", "response-style", "concise", expected_version=0)
+        if args.stage in {"memory", "workflow"}:
+            current = memory.inspect_fact(scope, "support", "response-style")
+            if inspect.isawaitable(current):
+                current = await current
+            if current is None:
+                written = memory.put_fact(
+                    scope, "support", "response-style", "concise", expected_version=0
+                )
+                if inspect.isawaitable(written):
+                    await written
 
         instructions = (
             "Read ticket INC-001 with lookup_ticket. Use supplied evidence, cite runbooks, "
@@ -173,11 +179,11 @@ async def run(args, provider):
             "run_id": handle.ref.run_id,
             "state": observed.snapshot.state,
             "result": observed.snapshot.result,
-            "model_calls": provider.calls if args.provider == "offline" else None,
+            "model_calls": provider.calls if isinstance(provider, OfflineSupportProvider) else None,
         }
 
 
-def main(argv=None):
+def main(argv=None, *, provider=None, tools=None, memory=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("stage", choices=("agent", "session", "rag", "memory", "workflow"))
     parser.add_argument("--data-dir", default=".ralf/support-journey")
@@ -189,10 +195,13 @@ def main(argv=None):
     parser.add_argument("--model")
     args = parser.parse_args(argv)
     try:
-        provider = provider_for(args)  # Validate live configuration before creating data.
+        if provider is not None and (args.provider != "offline" or args.model is not None):
+            raise ValidationError("Injected Provider and live CLI settings are mutually exclusive")
+        # Validate live configuration before creating data; only None chooses defaults.
+        provider = provider_for(args) if provider is None else provider
         args.data_dir = Path(args.data_dir).resolve()
         args.data_dir.mkdir(parents=True, exist_ok=True)
-        result = asyncio.run(run(args, provider))
+        result = asyncio.run(run(args, provider, tools=tools, memory=memory))
     except RalfError as error:
         print(json.dumps({"error": error.code}, ensure_ascii=False))
         return 2

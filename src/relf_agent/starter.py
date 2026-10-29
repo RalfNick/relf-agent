@@ -294,6 +294,30 @@ Changing providers, tool code, business configuration, or runtime version may
 invalidate a Run's pinned release. Finish old Runs with their original code and
 configuration; use a new submission key for the revised application. The SDK's
 execution credits are a local budget, not a model billing estimate.
+
+## Continue with the same installed application
+
+The optional `agent_app/journey.py` is an editable read-only example: one ticket
+progresses from Agent to Session, local lexical RAG, explicit Facts and Workflow.
+It is included in the installed generator, with no repository download needed.
+
+```sh
+python -m agent_app.journey agent --command-id first
+python -m agent_app.journey session --command-id turn-1
+python -m agent_app.journey session --command-id turn-2
+python -m agent_app.journey rag --command-id rag-1
+python -m agent_app.journey memory --command-id memory-1
+python -m agent_app.journey workflow --command-id workflow-1
+python -m agent_app.customize agent --data-dir .ralf/custom-support --command-id custom-1
+```
+
+`agent_app/customize.py` demonstrates an ordinary Provider and async Python tool.
+Its memory factory defaults to persistent SQLite; explicitly choosing
+InMemoryMemory is for disposable single-process tests, not restart recovery.
+The application `main` accepts borrowed `provider/tools/memory` objects. Keep
+their original identity and code for existing Runs; use separate data/config for
+changed components. Owned Engine cleanup does not close borrowed adapters.
+Offline task output checks wiring, not model diagnosis or semantic RAG quality.
 """,
 }
 
@@ -915,6 +939,19 @@ def create_starter(destination, *, template="oncall") -> StarterProject:
 
         files = fact_index_maintenance_files()
     try:
+        if template == "oncall":
+            from importlib.resources import files as resources
+
+            package = resources("relf_agent")
+            files = {
+                **files,
+                "agent_app/journey.py": package.joinpath("_support_journey.py").read_text(
+                    encoding="utf-8"
+                ),
+                "agent_app/customize.py": package.joinpath("_support_customization.py").read_text(
+                    encoding="utf-8"
+                ),
+            }
         directory = Path(destination).expanduser().resolve()
         if directory == Path.cwd().resolve():
             raise ValidationError(

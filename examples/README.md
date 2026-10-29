@@ -26,7 +26,7 @@
 
 ## 运行源码示例
 
-想在同一业务中逐步增加能力，下载／复制 [support_journey.py](support_journey.py)，按[连续上手教程](../docs/support-journey.md)运行。它只导入已安装 SDK，也可在源码仓库外独立执行；默认离线。
+想在同一业务中逐步增加能力，本批私有包直接用默认 `relf init my-support` 生成 `agent_app/journey.py` 与组件替换示例，按[连续教程](../docs/support-journey.md)运行，不需要下载仓库。[support_journey.py](support_journey.py) 保留为字节一致的独立文件；默认离线，不代表模型质量。
 
 先按[安装指南](../docs/installation.md)从源码安装 SDK，再在仓库根目录运行：
 

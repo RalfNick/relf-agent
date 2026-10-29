@@ -1,5 +1,7 @@
 # Relf-Agent
 
+本地维护体验候选已提供安装后连续教程与模型／异步工具／记忆替换示例，使用[独立私有制品及验收清单](architecture/reviews/2026-10-29-installed-support-journey.md)。未推送或公开发布；原 Alpha、官网固定教程及其资格保持各自版本。
+
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://github.com/RalfNick/relf-agent/blob/main/LICENSE)
 
 **灵活构建智能体，可靠运行智能应用。**

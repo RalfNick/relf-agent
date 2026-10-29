@@ -2,6 +2,8 @@
 
 [文档目录](README.md) · [安装与可选依赖](installation.md) · [核心概念](concepts.md)
 
+**当前维护源码的连续路径：** 本批推荐私有包的默认 `relf init` 还导出 `agent_app/journey.py` 与 `customize.py`，用于同一应用逐步增加能力及替换模型／异步工具／记忆，见[连续工单教程](support-journey.md)。下方原 a8 审批教程仍有效，旧包不包含这两个新增文件，安装证据以[本批清单](../architecture/reviews/2026-10-29-installed-support-journey.md)为准。
+
 本文面向 **0.1.0a8 Alpha 候选**，需要 Python 3.11+。本教程使用本地 SQLite；先用离线项目完成提交、审批和恢复，再接入自己的模型与工具，不需要 Redis、PostgreSQL、Temporal 或 Docker。[基础能力入口](basic-capabilities.md)列出默认组合与定制路径；知识问答可从 [RAG 模板教程](recall-and-rag.md) 开始；无需改 Python 的版本配置从 [运行装配模板](runtime-assembly.md) 开始。其他平台与部署组合的验证范围见[实现清单](implementation-status.md)。
 
 真实模型可用 `relf init my-model-agent --template model` 生成独立项目，先替换 model/协议/凭据环境变量；配置限制与验证等级见 [模型接入](model-adapters.md)。生成模板不执行收费请求，也不表示账户与型号已验证。

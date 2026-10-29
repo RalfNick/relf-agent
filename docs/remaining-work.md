@@ -1,5 +1,7 @@
 # 能力范围与剩余验收清单
 
+**开发体验增量（2026-10-29）：** 默认 starter 直接导出可编辑的 Agent→Session→RAG→Facts→Workflow 应用，以及 Provider／异步工具／组合记忆替换示例。范围和私有包见[本批清单](../architecture/reviews/2026-10-29-installed-support-journey.md)。复用既有能力，不新增或关闭长期 R 项；真实任务质量与有限异步节点独立验收。
+
 **最新批次边界（2026-10-29）：** 当前只收口生命周期／事件／模型工具增量流，见[第一批交付清单](../architecture/reviews/2026-10-29-stream-batch-freeze.md)。R01–R26 是长期路线图；后续先降低开发成本，再单独验收有限异步节点及默认任务，不自动扩展后端、拓扑、适配器或企业能力。直接 Tool 节点草稿已移出本批，不计入能力完成数。
 
 **Temporal增量流实际证据（2026-10-29）：** 原生文本Agent的前缀／观察取消、审批去重、限额gap、等待审批时Worker进程重启与History重放，源码／目录外安装各3项通过。448产品文件未改，不增加R项；高级组合、在途Activity故障、响应／回执独立窗口及真实写／Journal仍待验收。见[Service记录](../architecture/reviews/2026-10-29-temporal-stream-service.md)。以下前批说明保持其原快照范围。

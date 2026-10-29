@@ -1,5 +1,7 @@
 # Implementation status — Local SDK Alpha
 
+**第二阶段开发体验（2026-10-29）：** 默认 oncall starter 增加可编辑的连续应用和模型／异步工具／记忆替换示例；原审批代码与其他模板保持。独立私有版本和验收见[本批清单](../architecture/reviews/2026-10-29-installed-support-journey.md)。不新增后端、拓扑、适配器或长期 R 项，不授予真实质量及平台资格。
+
 **第一批收口（2026-10-29）：** 按最新目标，唯一交付主线是生命周期／事件订阅／模型工具增量流，推荐精确私有包、验收矩阵与边界见[交付清单](../architecture/reviews/2026-10-29-stream-batch-freeze.md)。仅本地交付，不是新的 Alpha 或平台资格。直接 Tool 节点探索已暂存，未进入本批能力。
 
 ## 当前交付摘要

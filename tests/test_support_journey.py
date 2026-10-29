@@ -13,6 +13,12 @@ EXAMPLE = ROOT / "examples" / "support_journey.py"
 
 
 def run_example(directory, stage, command, *options, expected=0):
+    import relf_agent
+
+    environment = {"PATH": os.environ.get("PATH", ""), "PYTHONDONTWRITEBYTECODE": "1"}
+    package_parent = Path(relf_agent.__file__).resolve().parent.parent
+    if package_parent.name == "src":
+        environment["PYTHONPATH"] = str(package_parent)
     result = subprocess.run(
         [
             sys.executable,
@@ -25,7 +31,7 @@ def run_example(directory, stage, command, *options, expected=0):
             *options,
         ],
         cwd=directory.parent,
-        env={"PATH": os.environ.get("PATH", ""), "PYTHONPATH": str(ROOT / "src")},
+        env=environment,
         capture_output=True,
         text=True,
         timeout=30,
