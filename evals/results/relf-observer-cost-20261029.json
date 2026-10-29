@@ -1,0 +1,227 @@
+{
+  "kind": "offline-observer-cost-diagnostic",
+  "date": "2026-10-29",
+  "base_commit": "93c5e80",
+  "environment": {
+    "os": "macOS 15.6.1",
+    "architecture": "ARM64",
+    "python": "3.12.7",
+    "resource_limit": null
+  },
+  "version": "0.1.0a8+maintenance.54f45574ad74b3af",
+  "wheel_sha256": "3ca80c594b9d5e18946f4c016c41655754baee6284c8b96d05bc1107b9f64463",
+  "sdk_product_files_unchanged": 451,
+  "legacy_runner_sha256": "10ab6b55fcb98af1aa3eac778510a4dfb94138f1d77c6708a57305f04996a597",
+  "corrected_runner_sha256": "43391d7611a60224c6c5362696df16654f6284f5e08dde003dfb996ebcca4808",
+  "frozen_task": "original Plan wire-a, one repeat, original offline provider and completion/member gates",
+  "fresh_processes": true,
+  "serial_balanced_order": [
+    [
+      "legacy",
+      "1"
+    ],
+    [
+      "corrected",
+      "1"
+    ],
+    [
+      "disabled",
+      "1"
+    ],
+    [
+      "disabled",
+      "2"
+    ],
+    [
+      "corrected",
+      "2"
+    ],
+    [
+      "legacy",
+      "2"
+    ],
+    [
+      "corrected",
+      "3"
+    ],
+    [
+      "legacy",
+      "3"
+    ],
+    [
+      "disabled",
+      "3"
+    ]
+  ],
+  "samples": {
+    "legacy": {
+      "samples": [
+        {
+          "wall_seconds": 7.122193709015846,
+          "cpu_seconds": 6.84448,
+          "process_high_water_rss_bytes": 68845568
+        },
+        {
+          "wall_seconds": 7.021815290674567,
+          "cpu_seconds": 6.874453,
+          "process_high_water_rss_bytes": 69009408
+        },
+        {
+          "wall_seconds": 6.994662792421877,
+          "cpu_seconds": 6.85709,
+          "process_high_water_rss_bytes": 69632000
+        }
+      ],
+      "median_wall_seconds": 7.021815290674567,
+      "median_cpu_seconds": 6.85709,
+      "median_process_high_water_rss_bytes": 69009408,
+      "engine_sync_control_invocations": {
+        "submit": 5,
+        "status": 5,
+        "diagnostics": 1
+      },
+      "fixture_model_calls_per_sample": 4,
+      "passed_per_sample": 1,
+      "model_quality": null,
+      "hooks_restored": true
+    },
+    "corrected": {
+      "samples": [
+        {
+          "wall_seconds": 1.8879580409266055,
+          "cpu_seconds": 1.7826250000000001,
+          "process_high_water_rss_bytes": 69812224
+        },
+        {
+          "wall_seconds": 1.780670624691993,
+          "cpu_seconds": 1.6608100000000001,
+          "process_high_water_rss_bytes": 67076096
+        },
+        {
+          "wall_seconds": 1.7811322500929236,
+          "cpu_seconds": 1.6485720000000001,
+          "process_high_water_rss_bytes": 67469312
+        }
+      ],
+      "median_wall_seconds": 1.7811322500929236,
+      "median_cpu_seconds": 1.6608100000000001,
+      "median_process_high_water_rss_bytes": 67469312,
+      "engine_sync_control_invocations": {
+        "submit": 5,
+        "status": 5,
+        "diagnostics": 1
+      },
+      "fixture_model_calls_per_sample": 4,
+      "passed_per_sample": 1,
+      "model_quality": null,
+      "hooks_restored": true
+    },
+    "disabled": {
+      "samples": [
+        {
+          "wall_seconds": 1.768384708557278,
+          "cpu_seconds": 1.631729,
+          "process_high_water_rss_bytes": 67796992
+        },
+        {
+          "wall_seconds": 1.7892302079126239,
+          "cpu_seconds": 1.6504159999999999,
+          "process_high_water_rss_bytes": 65552384
+        },
+        {
+          "wall_seconds": 1.7668435834348202,
+          "cpu_seconds": 1.6396410000000001,
+          "process_high_water_rss_bytes": 66928640
+        }
+      ],
+      "median_wall_seconds": 1.768384708557278,
+      "median_cpu_seconds": 1.6396410000000001,
+      "median_process_high_water_rss_bytes": 66928640,
+      "engine_sync_control_invocations": null,
+      "fixture_model_calls_per_sample": 4,
+      "passed_per_sample": 1,
+      "model_quality": null,
+      "hooks_restored": true
+    }
+  },
+  "model_quality": null,
+  "original_live_quality_unchanged": true,
+  "sdk_or_supplier_speedup_claimed": false,
+  "all_python_frames_profiled_with_corrected_backend": false,
+  "source_tests": 319,
+  "installed_tests": 319,
+  "same_test_ids": true,
+  "offline_four_chains": {
+    "business": {
+      "passed": 24,
+      "total": 24,
+      "quality_accepted": false
+    },
+    "plan": {
+      "passed": 15,
+      "total": 15,
+      "quality_accepted": false
+    },
+    "rag": {
+      "passed": 24,
+      "total": 24,
+      "quality_accepted": false
+    },
+    "team": {
+      "passed": 15,
+      "total": 15,
+      "quality_accepted": false
+    }
+  },
+  "offline_quality_accepted": false,
+  "stream_boundary_fixture": {
+    "passed": true,
+    "offline_fixture": true,
+    "model_quality": null,
+    "framework_task_run": true,
+    "configured_pause_seconds": 0.02,
+    "ready_seconds": 0.05346537521108985,
+    "first_framework_delta_seconds": 0.1900299582630396,
+    "first_provider_text_seconds": 0.09928795835003257,
+    "full_result_and_owned_close_seconds": 0.19669175008311868,
+    "provider_requests": 1,
+    "budget": {
+      "limit": 1,
+      "held": 0,
+      "spent": 1
+    },
+    "native_supplier_latency_claimed": false
+  },
+  "monitor_cleanup_failure_proofs": [
+    {
+      "failure": "local",
+      "lease_retained": true,
+      "reentry_refused": true,
+      "original_cleanup_retry_completed": true,
+      "local_events_cleared": true,
+      "callback_cleared": true,
+      "slot_freed": true
+    },
+    {
+      "failure": "callback",
+      "lease_retained": true,
+      "reentry_refused": true,
+      "original_cleanup_retry_completed": true,
+      "local_events_cleared": true,
+      "callback_cleared": true,
+      "slot_freed": true
+    },
+    {
+      "failure": "slot",
+      "lease_retained": true,
+      "reentry_refused": true,
+      "original_cleanup_retry_completed": true,
+      "local_events_cleared": true,
+      "callback_cleared": true,
+      "slot_freed": true
+    }
+  ],
+  "platform_qualified": false,
+  "public_release": false,
+  "pushed": false
+}

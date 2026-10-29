@@ -1,5 +1,7 @@
 # Implementation status — Local SDK Alpha
 
+**当前三批有限目标收口（2026-10-29）：** 生命周期／增量流、安装后连续应用与有限异步Tool配置、同包四条真实参考链路均按各自范围验收。最后分离并修复评测观察器成本：原任务中位7.022→1.781秒，关闭计量1.768秒；这是计量工具收益，不是SDK／模型提速。源码／精确安装各319相关回归通过，SDK451产品、原真实78条和历史制品不变。逐项目标、唯一推荐私有包与未验收边界见[最终核对](../architecture/reviews/2026-10-29-observer-cost.md)。本轮仅本地交付，不新增Alpha、平台或公开发布资格；长期R项、M1、外部采用和对等比较继续独立。
+
 **第三批真实任务（2026-10-29）：** 精确私有包451产品不变；单Agent24/24、语义RAG24/24、规则Plan15/15、固定Supervisor Team15/15，均三次重复。独立冷重连原78Root与204库字节不变、零新调用，测试业务仅9次应有写入。见[记录](../architecture/reviews/2026-10-29-default-task-quality.md)和[复现指南](default-chain-acceptance.md)。性能计量开销尚未分离，不增加默认性能、平台、公开发行或对等框架资格。
 
 **第二阶段工具配置（2026-10-29）：** Local Profile 支持显式空 Provider 映射，现有 graph 模板增加无需模型的可编辑异步 Tool 流程，复用原 Action／预算／审批和恢复；普通 Agent 仍需有效 Provider，Temporal 边界不变。唯一私有包及定向验收见[本批记录](../architecture/reviews/2026-10-29-model-free-local-tools.md)。原 a8／历史制品保持，未授予新平台或真实质量资格。

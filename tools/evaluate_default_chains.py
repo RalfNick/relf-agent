@@ -16,6 +16,7 @@ import os
 import platform
 import resource
 import sys
+import threading
 import time
 from collections import Counter
 from pathlib import Path
@@ -222,16 +223,51 @@ class Measurements:
     def __init__(self):
         from relf_agent import LocalEngine
 
-        self.codes = {
-            inspect.unwrap(getattr(LocalEngine, name)).__code__: name
+        # Retain actual code objects so their identities cannot be recycled.
+        # Hashing CodeType walks constants and may execute unrelated __hash__.
+        self.originals = tuple(
+            (inspect.unwrap(getattr(LocalEngine, name)).__code__, name)
             for name in ("submit", "approve", "cancel", "reconcile", "status", "diagnostics")
-        }
+        )
+        self.codes = {id(code): name for code, name in self.originals}
         self.controls = Counter()
         self.requests = []
+        self.thread = threading.get_ident()
+        self.monitoring = None
+        self.owner_name = "relf-evaluation-controls-" + str(id(self))
+        self.owned = self.registered = False
+        self.active = False
+        self.locals = []
+        self.prior_callback = None
 
     def profile(self, frame, event, arg):
-        if event == "call" and frame.f_code in self.codes:
-            self.controls[self.codes[frame.f_code]] += 1
+        if event == "call" and threading.get_ident() == self.thread:
+            name = self.codes.get(id(frame.f_code))
+            if name is not None:
+                self.controls[name] += 1
+
+    def on_start(self, code, offset):
+        if threading.get_ident() == self.thread:
+            name = self.codes.get(id(code))
+            if name is not None:
+                self.controls[name] += 1
+
+    def release_monitor(self):
+        monitoring = self.monitoring
+        if not self.owned:
+            return
+        if monitoring.get_tool(monitoring.PROFILER_ID) != self.owner_name:
+            raise RuntimeError("Control observer ownership changed")
+        for code in self.locals:
+            monitoring.set_local_events(monitoring.PROFILER_ID, code, 0)
+        self.locals.clear()
+        if self.registered:
+            monitoring.register_callback(
+                monitoring.PROFILER_ID, monitoring.events.PY_START, self.prior_callback
+            )
+            self.registered = False
+        monitoring.free_tool_id(monitoring.PROFILER_ID)
+        self.owned = False
 
     async def on_request(self, request):
         request.extensions["evaluation_request_index"] = len(self.requests)
@@ -250,15 +286,50 @@ class Measurements:
         )
 
     def __enter__(self):
+        if self.active or self.owned:
+            raise RuntimeError("Control observer is already active")
         self.started, self.cpu = time.perf_counter(), resource.getrusage(resource.RUSAGE_SELF)
         self.previous = sys.getprofile()
         if self.previous is not None:
             raise RuntimeError("Existing profiler is active")
-        sys.setprofile(self.profile)
+        self.thread = threading.get_ident()
+        self.monitoring = getattr(sys, "monitoring", None)
+        if self.monitoring is None:
+            self.backend = "sys.setprofile-code-identity"
+            sys.setprofile(self.profile)
+            self.active = True
+            return self
+        monitoring = self.monitoring
+        owner = monitoring.PROFILER_ID
+        if monitoring.get_tool(owner) is not None or monitoring.get_events(owner):
+            raise RuntimeError("Control monitoring slot is already in use")
+        monitoring.use_tool_id(owner, self.owner_name)
+        self.owned = True
+        try:
+            self.prior_callback = monitoring.register_callback(
+                owner, monitoring.events.PY_START, self.on_start
+            )
+            self.registered = True
+            if self.prior_callback is not None:
+                raise RuntimeError("Foreign callback remains registered")
+            for code, _ in self.originals:
+                if monitoring.get_local_events(owner, code):
+                    raise RuntimeError("Foreign local events remain registered")
+                self.locals.append(code)
+                monitoring.set_local_events(owner, code, monitoring.events.PY_START)
+        except BaseException:
+            self.release_monitor()
+            raise
+        self.backend = "sys.monitoring-local-py-start"
+        self.active = True
         return self
 
     def __exit__(self, *args):
-        sys.setprofile(self.previous)
+        if self.monitoring is None:
+            sys.setprofile(self.previous)
+        else:
+            self.release_monitor()
+        self.active = False
 
     def result(self):
         used = resource.getrusage(resource.RUSAGE_SELF)
@@ -269,12 +340,14 @@ class Measurements:
             "process_high_water_rss_bytes": used.ru_maxrss
             * (1 if platform.system() == "Darwin" else 1024),
             "engine_sync_control_invocations": dict(self.controls),
-            "control_scope": "original LocalEngine sync bodies, including internal calls; excludes async drive and transport queries",
+            "control_scope": "owning thread, original LocalEngine sync bodies including internal calls; excludes async drive and transport queries",
             "http_requests": self.requests,
             "http_request_count": len(self.requests),
             "first_incremental_text_seconds": None,
             "incremental_text_reason": "non-streaming default quality configuration",
             "profiling_enabled": True,
+            "control_observer": self.backend,
+            "all_python_frames_profiled": self.backend == "sys.setprofile-code-identity",
             "performance_improvement_claimed": False,
         }
 

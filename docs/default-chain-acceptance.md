@@ -56,6 +56,10 @@ TOKENIZERS_PARALLELISM=false OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
 
 默认质量配置使用 complete；JSON mode 不提供增量文本，因此首段字段为 null。`--stream-probe` 另测一次纯原生 Provider 的首段和完整响应，45秒整次上限，关闭原迭代器；它不执行框架 Run、不进入78行分数，也不是端到端 Agent 首段。
 
-本批计数启用了 Python profiler；性能数据包含观察器开销。它们可用于定位待查项，尚不能代表无 profiler 的默认耗时或证明优化收益。下一步先以同包固定离线任务分离计量开销，再决定是否存在产品热点；不为此改原授权、版本或停止检查。
+原真实批次计数启用了全帧 Python profiler，其性能数据包含观察器开销，不能代表默认耗时。后续已用同包、同任务分离：原观察器／修复局部观察器／关闭观察的三次中位耗时为7.022／1.781／1.768秒，物理任务和原控制计数相同。修复仅影响评测工具，不回填旧成绩，也不宣称SDK或模型提速，见[观察成本验收](../architecture/reviews/2026-10-29-observer-cost.md)。
+
+当前工具在Python3.12+只监听六个原同步控制方法的局部PY_START，限所有者线程，不读帧参数／正文；已有profiler或监控注册会拒绝启动，不接管外部注册。较早Python使用identity查询的全帧回退，仍有计量成本，本轮未重新授予其他Python平台资格。异常退出也清理原注册；清理失败保留所有权并需重试，不能认为槽位已释放。RSS仍是进程累计高水位。
+
+同包另以离线流式夹具测得就绪0.0535秒、框架首段0.1900秒、完整结果与owned关闭0.1967秒；这只验证端到端边界，不是供应商或业务性能。它与默认complete的首段null、原真实Provider独立探针分别保留。
 
 当前结果与独立数据库／冷重连核对见[验收记录](../architecture/reviews/2026-10-29-default-task-quality.md)及[机器可读汇总](../evals/results/relf-default-quality-20261029.json)。这些有限英文参考任务不证明任意自主规划、中文或大规模业务语料质量、外部采用、完整M1、企业生产或跨框架优势；本轮没有进行AgentScope／LangGraph对等试验。
