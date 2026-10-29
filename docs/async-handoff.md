@@ -40,7 +40,13 @@ coexist with the host; writable local CLI controls require stopping that host fi
 ownership only after construction succeeds. Its ASGI lifespan tracks drives, requests
 cancellation on shutdown, waits for actual drives and handler threads, then closes the
 Engine and Inbox in stages. Cancelling the `aclose()` caller preserves the cleanup task
-and lease; a failed stage can be retried. Drive errors expose bounded typed codes through
+and the ownership still needed by actual work; a failed stage can be retried. The Engine
+lease is released after its work drains and the Engine closes, before Inbox cleanup.
+Late cleanup-task failures are observed even after the caller cancels, avoiding an
+unhandled-task report from the event loop. Active waiters still receive the original
+failure, and an explicit retry continues with the failed stage without reopening an
+already closed Engine. This observation fix is a8 maintenance source behavior; the
+original a8 archives remain unchanged. Drive errors expose bounded typed codes through
 `service.errors`. Custom construction failure leaves ownership with the caller.
 
 This default has one HTTP worker and one local coordinator. Authentication maps one

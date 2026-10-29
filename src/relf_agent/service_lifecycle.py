@@ -185,6 +185,9 @@ class LocalA2AService:
         self._closing = True
         if self._close_task is None or self._close_task.done():
             self._close_task = asyncio.create_task(self._close())
+            self._close_task.add_done_callback(
+                lambda task: None if task.cancelled() else task.exception()
+            )
         await asyncio.shield(self._close_task)
 
     async def __call__(self, scope, receive, send):

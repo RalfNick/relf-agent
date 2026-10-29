@@ -138,6 +138,8 @@ dev8 保留 local-4、执行 Schema v1、默认 Manifest 与调用方摘要。�
 
 默认 SQLiteRunReader 在激活运行实例前查询 submit／approve／cancel／reconcile 原回执，按可信 Scope 和完整调用参数校验。重放不会关闭正在执行的新版本，也不要求旧 profile 仍可装配；参数变化仍报 idempotency_conflict。自定义 RunReader 可实现 CommandReceiptReader 获得控制回执的独立读取；仅实现基础端口时，控制请求交给原实例处理。diagnostics 是可选能力，缺失时 CLI 仍输出普通结果。
 
+自定义读端口的回执查询须同步返回 `None` 或已完成的 `CommandReceipt`。路由层核对 command_id、kind、控制请求的 run_id、耐久记录与采纳状态，并检查有限 JSON 后返回独立副本；错误类型、惰性对象或错目标回执返回 `validation_error`，不会作为“缺失回执”而继续装配执行实例。只有 `None` 表示读端口没有可返回的回执。已记录的控制拒绝照常重放，提交回执需支持原 RunHandle 语义。来源真实性、Scope、完整请求摘要及原始耐久事实仍由读端口与执行权威保证。修正适配器后使用原 command_id／请求重试；此为 a8 后维护源码行为，原 a8 两包不含修复，见[本批验收](../architecture/reviews/2026-10-29-receipt-and-close-observation.md)。
+
 本教程的顺序与静态图使用 Local 默认执行。已有 Tool 节点、有界并行、动态规划、Team 与独立 Temporal 按对应指南显式装配，不能仅换一个数据适配器就切换执行后端。MCP HTTP、CLI 工具和沙箱也已有各自的接入范围，见[实现清单](implementation-status.md)；不把某一适配器的支持扩大为所有部署均可用。Provider SSE 不等于 Workflow 数据流编排，实际外部后端仍需按组合验证。
 
 ## 图工作流组件

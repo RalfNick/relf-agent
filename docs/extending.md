@@ -24,6 +24,8 @@ CLI 的 `--factory`／底层 ExecutionEngine 可按公共端口替换；高层 L
 
 `own`／`own_async` 只有成功返回才表示新资源已被台账接管。实际清理开始后，包含共享 Context 在内的登记入口都拒绝新资源；失败和取消不会重新开放登记。创建方须关闭被拒绝的对象，已有资源继续沿原台账重试，不在清理回调中追加依赖。高层 `Agent(definition=...)` 也只把 `None` 视为省略；使用显式 Spec 或 AgentHarness，错误的空配置会在入口报告。维护范围见[本批记录](../architecture/reviews/2026-10-29-resource-and-definition-admission.md)。
 
+替换 `ProfiledEngine` 的 RunReader 时，回执须为匹配原请求的已完成 `CommandReceipt` 或缺失 `None`。无效返回不会触发执行实例装配，合法回执返回独立副本；控制拒绝继续按原回执重放。源记录／Scope和完整payload由读端口保证，详见[装配回执契约](runtime-assembly.md)及[维护验收](../architecture/reviews/2026-10-29-receipt-and-close-observation.md)。
+
 ## 1. 装配组件
 
 | 扩展点 | 注入位置 | 必须满足的约束 |

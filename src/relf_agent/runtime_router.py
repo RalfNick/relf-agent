@@ -2,6 +2,7 @@
 
 import copy
 import json
+from dataclasses import fields
 from functools import wraps
 from pathlib import Path
 from typing import Protocol
@@ -14,7 +15,7 @@ from .errors import (
     ValidationError,
 )
 from .ports import _has_engine_close, close_engine, validate_engine
-from .runtime_builder import RuntimeBuilder, _close_complete, _synchronous
+from .runtime_builder import RuntimeBuilder, _close_complete, _completed, _synchronous
 from .runtime_config import RuntimeCatalog
 from .storage import SQLiteStore
 from .types import (
@@ -23,6 +24,7 @@ from .types import (
     RunHandle,
     RunSnapshot,
     Scope,
+    canonical,
     digest,
     submission_request,
 )
@@ -40,6 +42,34 @@ class CommandReceiptReader(Protocol):
     """Optional scoped lookup that never constructs an execution runtime."""
 
     def command_receipt(self, command_id, kind, payload): ...
+
+
+def _reader_receipt(value, command_id, kind, run_id=None):
+    value = _completed(value, "Run reader receipt")
+    if value is None:
+        return None
+    states = {"applied", "pending"} if kind == "submit" else {"applied", "pending", "rejected"}
+    if (
+        not isinstance(value, CommandReceipt)
+        or not isinstance(value.command_id, str)
+        or not value.command_id
+        or value.command_id != command_id
+        or value.kind != kind
+        or not isinstance(value.run_id, str)
+        or not value.run_id
+        or run_id is not None
+        and value.run_id != run_id
+        or value.record_state != "durably_recorded"
+        or not isinstance(value.apply_state, str)
+        or value.apply_state not in states
+        or not isinstance(value.outcome, dict)
+    ):
+        raise ValidationError("Run reader receipt does not match the original request")
+    try:
+        canonical({field.name: getattr(value, field.name) for field in fields(value)})
+        return copy.deepcopy(value)
+    except (TypeError, ValueError, RecursionError, OverflowError) as exc:
+        raise ValidationError("Run reader receipt must contain finite JSON data") from exc
 
 
 class SQLiteRunReader:
@@ -201,7 +231,9 @@ class ProfiledEngine:
     def submit(self, spec, input, *, command_id, budget=32, session_id=None):
         self._ensure_open()
         payload = submission_request(spec, input, budget=budget, session_id=session_id)
-        receipt = self.reader.submit_receipt(command_id, payload)
+        receipt = _reader_receipt(
+            self.reader.submit_receipt(command_id, payload), command_id, "submit"
+        )
         if receipt is not None:
             return RunHandle(receipt.run_id, receipt)
         runtime = self._activate(self.catalog.default)
@@ -239,7 +271,9 @@ class ProfiledEngine:
         self._ensure_open()
         method = getattr(self.reader, "command_receipt", None)
         if _synchronous(method):
-            return method(command_id, kind, payload)
+            return _reader_receipt(
+                method(command_id, kind, payload), command_id, kind, payload["run_id"]
+            )
         return None
 
     def approve(self, run_id, action_id, target_digest, *, command_id, approved=True):
