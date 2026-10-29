@@ -2,7 +2,8 @@
 
 import copy
 import inspect
-from dataclasses import asdict
+import json
+from dataclasses import fields, is_dataclass
 from typing import Protocol, runtime_checkable
 
 from .errors import AuthorizationDenied, DefinitionMismatch, ValidationError
@@ -15,7 +16,6 @@ from .types import (
     RunSnapshot,
     Scope,
     _require_text,
-    canonical,
 )
 
 
@@ -63,6 +63,28 @@ def _binding(method):
         getattr(implementation, "__code__", None),
         call,
     )
+
+
+def _json_fields(value):
+    if is_dataclass(value) and not isinstance(value, type):
+        return {field.name: getattr(value, field.name) for field in fields(value)}
+    raise TypeError("Task control data requires finite JSON values")
+
+
+def _validate_json(value):
+    # asdict deep-copies arbitrary leaves before validating them. Project fields
+    # during JSON traversal so native/lazy values and cycles are refused first.
+    try:
+        json.dumps(
+            value,
+            default=_json_fields,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+    except (TypeError, ValueError, RecursionError, OverflowError) as exc:
+        raise ValidationError("Task control data requires finite JSON values") from exc
 
 
 class TaskControlBridge:
@@ -192,7 +214,7 @@ class TaskControlBridge:
             or any(char not in "0123456789abcdef" for char in info.release_digest)
         ):
             raise ValidationError("Input discovery requires original RunDiagnostics")
-        canonical(asdict(info))
+        _validate_json(info)
         return copy.deepcopy(info)
 
     async def input_parent(self, run_id):
@@ -226,6 +248,7 @@ class TaskControlBridge:
             or run_id is not None
             and value.run_id != run_id
             or value.record_state != "durably_recorded"
+            or not isinstance(value.apply_state, str)
             or value.apply_state
             not in (
                 {"applied", "pending", "rejected"} if allow_rejected else {"applied", "pending"}
@@ -234,7 +257,7 @@ class TaskControlBridge:
         ):
             raise ValidationError("Task control receipt does not match the request")
         _require_text(value.run_id, "Receipt Run ID")
-        canonical(asdict(value))
+        _validate_json(value)
 
     async def submit(self, spec, input, *, command_id, budget=32, session_id=None):
         _require_text(command_id, "Command ID")
@@ -253,6 +276,7 @@ class TaskControlBridge:
         if (
             not isinstance(value, RunSnapshot)
             or value.run_id != run_id
+            or not isinstance(value.state, str)
             or value.state
             not in {
                 "queued",
@@ -275,7 +299,7 @@ class TaskControlBridge:
             or any(not isinstance(item, dict) for item in (*value.pending, *value.actions))
         ):
             raise ValidationError("Task status returned an invalid snapshot")
-        canonical(asdict(value))
+        _validate_json(value)
         return copy.deepcopy(value)
 
     async def cancel(self, run_id, *, command_id):

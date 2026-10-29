@@ -176,6 +176,8 @@ TemporalRuntime registers Provider/ToolExecutor/EffectJournal independently of t
 
 同步或原生异步的 submit/status/cancel 可通过 TaskControlBridge 统一调用，全部方法须使用同一模式，返回真实完成的 SDK DTO，Scope 与注册方法不能在 await 间漂移。桥接不使用线程模拟 LocalEngine、不隐式 drive 或关闭资源。PostgresInbox/PostgresOutbox 是共享交接的默认实现，用户实现可替换 AsyncInbox/AsyncOutbox，但须满足事务身份、容量和不可变完成契约。默认 LocalA2AService 接管本地 Engine/Inbox 并安全关闭；A2AApplication 借用远程资源。示例与契约见[异步交接](async-handoff.md)。
 
+替换控制端口时，回执、状态与输入诊断内的数据也必须能表达为有限 JSON；协程、锁和循环引用会在复制前以 `ValidationError` 拒绝，回执的 `apply_state` 和状态快照的 `state` 须为原契约允许的字符串。有效返回值与端口数据分离，原控制拒绝回执仍可重放。原命令可能已经受理，返回校验失败不撤销执行事实；修正适配器后应以原 command_id 和相同请求找回回执，不创建替代 Run。无效 DTO 内的原生对象由生产方处置，桥接不执行嵌套协程。此为 a8 后维护源码行为，原包保持；见[回归及隔离安装记录](../architecture/reviews/2026-10-29-task-control-values.md)。
+
 ## Temporal 组件注册
 
 使用 `TemporalRuntime` 的命名 TeamStrategy／Planner／PlanVerifier 注册表可替换默认策略，输出必须为已完成的类型化提案。显式扩展发布保存 identity／config／方法代码摘要，执行前后校验；模型 Planner 声明无工具的 AgentSpec，使用受管理子任务结果。RAG 复用 KnowledgeContext 的异步检索／校验端口，执行限制使用 TemporalExecutionPolicy。详见[分布式编排](temporal-composition.md)。这些注册表不自动发现插件，不执行隐藏的 Provider 调用，不承诺企业身份体系。

@@ -68,8 +68,19 @@ Callable objects and RuntimeInstance delegation work without concrete inheritanc
 Changing a registered method body or callable entry point is refused. Hidden captured
 state still belongs in explicit versioned component configuration.
 
+The a8 maintenance source validates receipt, snapshot and input-discovery data before
+deep-copying it. Native objects, nested coroutines and cyclic data raise
+`ValidationError` in both modes, as do non-string receipt `apply_state` and status
+`state` fields. Valid DTOs are returned as independent
+copies; mutating their nested containers does not change the authority's data.
+The producer remains responsible for disposing of invalid objects inside its DTO;
+the bridge does not run a nested coroutine or acquire its resources. Original a8
+archives do not contain this maintenance fix; see [verification](../architecture/reviews/2026-10-29-task-control-values.md).
+
 A refusal after a remote call does not prove that nothing happened. Repair using
-the original message and command identity, rather than creating a replacement Run.
+the original adapter and retry the same message and command identity to recover
+the original receipt. Validation does not roll back an already accepted command.
+Use a new command ID only for a new business request.
 
 ## Shared PostgreSQL handoff
 

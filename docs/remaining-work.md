@@ -1,5 +1,7 @@
 # 能力范围与剩余验收清单
 
+**控制返回值维护（2026-10-29）：** TaskControlBridge 在深拷贝前校验嵌套 DTO 数据，非法原生对象、循环数据与状态字段统一为 ValidationError；保留原命令恢复、合法拒绝和数据分离。不增加或关闭 R 项，不重建 a8，见[本批验收](../architecture/reviews/2026-10-29-task-control-values.md)。本轮仅本地提交，不推送或公开发布。
+
 **回执与关闭观察维护（2026-10-29）：** 配置路由拒绝未完成、错命令／目标或非有限JSON的回执，合法回执返回独立副本；原控制拒绝和缺失回执路径保持。LocalA2AService观察取消等待后的后台关闭异常，原阶段重试和直接等待失败传播保持。不增加或关闭R项，不重建a8，见[本批验收](../architecture/reviews/2026-10-29-receipt-and-close-observation.md)。仅本地提交，不推送或公开发布。
 
 **资源与定义入口维护（2026-10-29）：** 拒绝实际清理开始后的新资源登记，含失败、取消、完成和共享Context；已有资源继续原关闭重试，被拒绝资源由创建方负责。高层Agent仅在`definition=None`时选择默认值，显式错误空值拒绝，合法Spec不经过真值替换。不增加或关闭R项，不重建a8；见[回归和安装记录](../architecture/reviews/2026-10-29-resource-and-definition-admission.md)。本轮仅本地提交，不推送或公开发布。
