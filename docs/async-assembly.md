@@ -69,7 +69,11 @@ own 管理同步 close；own_async 管理 async aclose。同对象同模式去�
 
 异步关闭开始后，或同步 Engine 已成功关闭后，新的公开入口和预先缓存的方法都拒绝使用；实际执行尚在途时执行权保留。正常实例因忙碌而在同步关闭前拒绝时，仍可通过原实例取消该 Run。同步 close/with 遇异步资源在关闭 Engine 前拒绝，提示使用 aclose/async with。
 
+该保护覆盖 RuntimeInstance 的业务／观察端口，也包括 `send_input`、`patch_plan`、`compact_messages`、`parent_run_id`、`memory_stages`、`context_stages` 和 `context_artifacts`。即使调用方在关闭前缓存这些方法，或取消了外层 `aclose()` 等待，也不能在关闭中的实例上继续提交回复、修订计划或维护命令。需要继续任务时，先在原循环完成原实例的关闭，再用原数据库／Profile 建立新实例，读取原 Run 和回执。自定义 Engine 的额外端口需由扩展实现其生命周期契约。
+
 取消外层 aclose 等待，实际清理 Task 仍被保留。随后 aclose 等待同一个 Task；失败资源保留，完成资源不重复关闭。取消之后晚到的清理失败在下一次等待报告，再次重试才发起新关闭。资源清理 Task 再次调用所属 Runtime/Context 清理会明确拒绝，避免等待自身；客户端及自建后台任务须遵循真实完成与幂等清理契约。
+
+同步资源的 `close()` 回调也不能重入所属 Runtime／Context 的清理；同一 Context 正在清理时，第二个清理调用会被明确拒绝。资源回调只释放自己的资源，完整依赖树由外层持有者逆序关闭。重入错误未被组件处理时，当前资源保留，较早登记的资源尚不关闭；修正原因后对原实例重试。取消外层异步等待后，下一次清理继续等待已保留的资源 Task，不重新派发正在进行的 `aclose()`。这些 a8 后维护修复不在原 a8 两包中，实际回归及隔离安装范围见[关闭边界验收](../architecture/reviews/2026-10-29-runtime-cleanup-boundaries.md)。
 
 owned 异步资源绑定创建循环；drive、排空与 aclose 使用同一循环，错误循环在调用 Engine 前拒绝。停止循环前完成清理；不隐藏 asyncio.run，不在线程里关闭 loop-bound 客户端。没有异步 owned 资源的同步实例保留原跨循环行为。
 
@@ -81,4 +85,4 @@ a7 后维护源码在校验失败后先接管原候选，再读取关闭接口�
 
 配置可由 abuild 装配，但同步 ProfiledEngine 和 CLI --config/--factory 不支持异步工厂；build 选择已注册异步工厂时在创建数据库前拒绝。模板使用自己的 async Python 入口及原 Profile 选择；未交付通用 AsyncProfiledEngine。CLI inspect/status/events 仍可只读观察 SQLite。
 
-dev13 提供可复用的生命周期。dev14 的[真实 Redis/PostgreSQL/Qdrant 适配器](remote-data.md)使用这一入口并通过实际服务测试；分布式执行、热更新、后台自动清理和强制终止外部调用仍未交付。
+dev13 提供可复用的生命周期。dev14 的[真实 Redis/PostgreSQL/Qdrant 适配器](remote-data.md)使用这一入口并通过原批次实际服务测试；后续分布式执行与Worker装配的所选支持范围见[Temporal配置](temporal-profiles.md)和[当前状态](implementation-status.md)。本指南的客户端生命周期不提供配置热监听、后台自动清理或强制终止外部调用。

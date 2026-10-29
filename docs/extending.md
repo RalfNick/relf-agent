@@ -20,6 +20,8 @@ CLI 的 `--factory`／底层 ExecutionEngine 可按公共端口替换；高层 L
 
 `ExecutionEngine.close()` 必须同步完成并返回 `None`，工厂校验通过不代表关闭一定完成。a8 后维护源码在 CLI 正常执行及异常退出时也复用该返回契约；coroutine／generator／上下文管理器或其他非 `None` 结果会被拒绝，不进入惰性清理逻辑。关闭异常脱敏为配置错误，内部 `RuntimeBuildError.cleanup` 保留原 Engine 以便重试。CLI 非零退出不证明原命令未受理；恢复步骤见[关闭失败排障](recovery-guide.md#cli-关闭失败后的恢复)。原 a8 两包不含本补丁。
 
+使用 RuntimeBuilder 的自定义资源只需实现自己的 `close()`／`aclose()`，并通过 `context.own()`／`own_async()` 登记；资源回调重入整个 Runtime／Context 的清理会被拒绝。已有可选回复、计划修订、消息压缩与阶段观察接口也遵循 RuntimeInstance 的关闭保护，缓存方法不能绕过。取消和失败后的原实例重试见[异步装配](async-assembly.md#关闭取消与错误)；这不改变 Local／Temporal 的执行权威或原任务身份。
+
 ## 1. 装配组件
 
 | 扩展点 | 注入位置 | 必须满足的约束 |

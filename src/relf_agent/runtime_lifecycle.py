@@ -1,6 +1,7 @@
 """Owned client lifetime, separate from local execution authority and factories."""
 
 import asyncio
+from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import wraps
 from pathlib import Path
@@ -33,6 +34,7 @@ class BuildContext:
         self.tools = None
         self.providers = MappingProxyType({})
         self._resources = []
+        self._cleaning = False
         self._allow_async = allow_async
         self._loop = None
         self._resource_owner = resource_owner
@@ -109,39 +111,51 @@ class BuildContext:
         if any(owned.task is current for owned in self._resources):
             raise ValidationError("Resource cleanup cannot reenter its owning runtime cleanup")
 
+    @contextmanager
+    def _cleanup_guard(self):
+        if self._cleaning:
+            raise ValidationError("Resource cleanup is already in progress")
+        self._cleaning = True
+        try:
+            yield
+        finally:
+            self._cleaning = False
+
     def cleanup(self):
         self._require_resource_ownership()
         self._require_sync_cleanup()
-        while self._resources:
-            owned = self._resources[-1]
-            _invoke_sync_none(getattr(owned.resource, "close", None), "Resource close")
-            self._resources.pop()
+        with self._cleanup_guard():
+            while self._resources:
+                owned = self._resources[-1]
+                _invoke_sync_none(getattr(owned.resource, "close", None), "Resource close")
+                self._resources.pop()
 
     async def cleanup_async(self):
         self._require_resource_ownership()
         self._check_loop()
         self._check_cleanup_origin()
-        while self._resources:
-            owned = self._resources[-1]
-            if not owned.asynchronous:
-                _invoke_sync_none(getattr(owned.resource, "close", None), "Resource close")
-            else:
-                if owned.task is None:
-                    method = getattr(owned.resource, "aclose", None)
-                    if not is_async_callable(method):
-                        raise ValidationError("Owned resources require async aclose")
-                    owned.task = asyncio.create_task(_close_async(method))
-                    owned.task.add_done_callback(_observe)
-                try:
-                    await asyncio.shield(owned.task)
-                except asyncio.CancelledError:
-                    if owned.task.cancelled():
+        with self._cleanup_guard():
+            while self._resources:
+                owned = self._resources[-1]
+                if not owned.asynchronous:
+                    _invoke_sync_none(getattr(owned.resource, "close", None), "Resource close")
+                else:
+                    if owned.task is None:
+                        method = getattr(owned.resource, "aclose", None)
+                        if not is_async_callable(method):
+                            raise ValidationError("Owned resources require async aclose")
+                        owned.task = asyncio.create_task(_close_async(method))
+                        owned.task.add_done_callback(_observe)
+                    try:
+                        await asyncio.shield(owned.task)
+                    except asyncio.CancelledError:
+                        if owned.task.cancelled():
+                            owned.task = None
+                        raise
+                    except BaseException:
                         owned.task = None
-                    raise
-                except BaseException:
-                    owned.task = None
-                    raise
-            self._resources.pop()
+                        raise
+                self._resources.pop()
 
     def _require_resource_ownership(self):
         if self._resource_owner is not None:
@@ -157,6 +171,13 @@ _GUARDED_METHODS = {
     "cancel",
     "reconcile",
     "diagnostics",
+    "send_input",
+    "patch_plan",
+    "compact_messages",
+    "parent_run_id",
+    "memory_stages",
+    "context_stages",
+    "context_artifacts",
 }
 
 
