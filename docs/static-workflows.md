@@ -1,6 +1,6 @@
 # 静态图 Workflow
 
-版本：0.1.0.dev12；日期：2026-10-06。Agent／Transform 使用计划 v1，受管理 Tool 节点使用 v2，见[工具节点指南](managed-tools.md)。当前支持单 Coordinator 的静态串行／显式有界并行图：依赖、条件、输入映射、显式合并和持久恢复。并行计划使用 v3，见[并行指南](parallel-workflows.md)。循环、动态 Planner、子 Run 和数据流编排继续按[能力路线](../architecture/viewpoints/framework-capabilities.md)交付。
+版本：0.1.0.dev12；日期：2026-10-06。Agent／Transform 使用计划 v1，受管理 Tool 节点使用 v2，见[工具节点指南](managed-tools.md)。当前支持单 Coordinator 的静态串行／显式有界并行图：依赖、条件、输入映射、显式合并和持久恢复。并行计划使用 v3，见[并行指南](parallel-workflows.md)。本页限定静态图。已交付的动态规划、团队及嵌套范围见[当前能力](implementation-status.md)；任意循环和流式数据流不由本页承诺。
 
 ## 1. 安装后直接运行
 
@@ -20,6 +20,8 @@ relf --config runtime.toml --format text inspect RUN_ID
 ```
 
 替换 `RUN_ID` 为提交返回的 ID。`inspect` 显示计划和每个节点的状态；从其他目录运行时使用相同的绝对 `--db` 与 `--config` 路径。只读 SQLite 检查不会启动工厂或取得执行租约。
+
+同一模板另有无需模型的 async Tool 应用 `python -m agent_app.tool_graph`，使用独立的 tool-runtime.toml、tool-graph.json 和恢复工厂，见[工具节点指南](managed-tools.md#安装后配置异步-tool-流程)。原 graph.json／runtime.toml 不需要修改。
 
 ## 2. Python 定义与默认组件
 

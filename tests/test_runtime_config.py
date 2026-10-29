@@ -107,7 +107,7 @@ def test_malformed_catalog_is_rejected_without_importing_code(tmp_path, payload)
 @pytest.mark.parametrize(
     "change",
     [
-        {"providers": {}},
+        {"providers": None},
         {"version": 1},
         {"providers": {"default": {"adapter": "x", "secret": "x"}}},
         {"components": {"unknown": {"adapter": "x"}}},

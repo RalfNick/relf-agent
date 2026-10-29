@@ -55,6 +55,8 @@ max_pages = 1
 
 JSON 使用同样的 schema_version/default/profiles 结构。本节 schema_version=1 的基础 Profile 包含 name、version、providers、components；每个组件包含 adapter 和可选 config。每 Agent 的 binding_components 使用已有 schema_version=2 声明，不能直接放入版本1目录。配置是有限 JSON；重复 JSON 键、未知字段和未注册适配器被拒绝。配置文件上限 1 MB，不执行 Python、不动态导入插件，也不使用 eval。
 
+本批维护 SDK 允许 Local Profile 显式声明 `providers = {}`，用于仅由 Tool／Transform 构成的有限流程，见[安装后异步工具示例](managed-tools.md#安装后配置异步-tool-流程)。providers 字段仍必填；实际 Agent 节点必须能解析出有效 Provider，缺失时在 Run 接受前拒绝。空映射没有隐式模型，也不改变非空 Profile 的规范化或身份。TemporalProfile 保留非空 Provider 要求；旧 SDK 不支持此新声明，不能用旧包恢复它。
+
 `RuntimeProfile` 保存独立配置快照，读取 providers/components 返回副本。`RuntimeCatalog.register` 不允许相同 name/version 对应不同内容；`set_default` 只改变新任务选择。原 Run 保存 profile 身份摘要，`resolve` 必须精确匹配。应保留原声明、原适配器代码版本与原数据；Catalog 不归档 Python 代码、外部服务或数据库，也不自动迁移它们。
 
 ## 3. 默认组件与显式扩展

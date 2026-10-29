@@ -234,12 +234,16 @@ def test_invalid_tool_node_declarations_reject(options):
         GraphNode("n", **options)
 
 
-def test_crash_after_tool_receipt_reuses_confirmed_result(tmp_path):
+@pytest.mark.parametrize("handler_kind", ["sync", "async"])
+def test_crash_after_tool_receipt_reuses_confirmed_result(tmp_path, handler_kind):
     # A real installed interpreter exits after the independent receipt commit.
     fixture = Path(__file__).with_name("workflow_tool_crash_fixture.py")
     for mode, expected in [("crash", 77), ("resume", 0)]:
         child = subprocess.run(
-            [sys.executable, str(fixture), str(tmp_path), mode], capture_output=True, text=True
+            [sys.executable, str(fixture), str(tmp_path), mode, handler_kind],
+            capture_output=True,
+            text=True,
+            timeout=30,
         )
         assert child.returncode == expected, child.stderr
         if mode == "resume":

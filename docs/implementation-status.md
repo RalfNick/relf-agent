@@ -1,5 +1,7 @@
 # Implementation status — Local SDK Alpha
 
+**第二阶段工具配置（2026-10-29）：** Local Profile 支持显式空 Provider 映射，现有 graph 模板增加无需模型的可编辑异步 Tool 流程，复用原 Action／预算／审批和恢复；普通 Agent 仍需有效 Provider，Temporal 边界不变。唯一私有包及定向验收见[本批记录](../architecture/reviews/2026-10-29-model-free-local-tools.md)。原 a8／历史制品保持，未授予新平台或真实质量资格。
+
 **第二阶段开发体验（2026-10-29）：** 默认 oncall starter 增加可编辑的连续应用和模型／异步工具／记忆替换示例；原审批代码与其他模板保持。独立私有版本和验收见[本批清单](../architecture/reviews/2026-10-29-installed-support-journey.md)。不新增后端、拓扑、适配器或长期 R 项，不授予真实质量及平台资格。
 
 **第一批收口（2026-10-29）：** 按最新目标，唯一交付主线是生命周期／事件订阅／模型工具增量流，推荐精确私有包、验收矩阵与边界见[交付清单](../architecture/reviews/2026-10-29-stream-batch-freeze.md)。仅本地交付，不是新的 Alpha 或平台资格。直接 Tool 节点探索已暂存，未进入本批能力。
@@ -14,7 +16,7 @@
 
 | 范围 | 当前事实与边界 |
 | --- | --- |
-| 本轮能力对齐 | 高层持久事件订阅及数据校验已本地提交 `19dcc60`，未推送。其后工作区补齐显式启用的模型文本／异步工具 JSON 增量和类型化 `AgentRun.stream_updates()`，复用原事件日志／History；见[指南](agent-stream-updates.md)、[实现验收](../architecture/reviews/2026-10-29-agent-stream-updates.md)与[原生Agent真实Service追加](../architecture/reviews/2026-10-29-temporal-stream-service.md)。默认关闭，原a8未改；高级组合增量／在途Activity故障窗口仍未验收。通用异步节点、多模态／完整流式展示、企业服务及对等质量仍开放 |
+| 本轮能力对齐 | 高层持久事件订阅及数据校验已本地提交 `19dcc60`，未推送。其后工作区补齐显式启用的模型文本／异步工具 JSON 增量和类型化 `AgentRun.stream_updates()`，复用原事件日志／History；见[指南](agent-stream-updates.md)、[实现验收](../architecture/reviews/2026-10-29-agent-stream-updates.md)与[原生Agent真实Service追加](../architecture/reviews/2026-10-29-temporal-stream-service.md)。默认关闭，原a8未改；高级组合增量／在途Activity故障窗口仍未验收。有限 Local async 业务节点通过原 Tool 实现与配置示例交付；任意异步节点／流式数据流、多模态、企业服务及对等质量仍开放 |
 | 当前a8候选 | `relf-agent==0.1.0a8`独立纳入`7e9fac1`／`ac92006`的CLI、Builder和路由失败清理修复；不新增功能。新原包／370项固定门禁及本地安装独立验收，原a7不含补丁。见[a8清单](alpha8-validation-status.md)和[准备记录](../architecture/reviews/2026-10-26-alpha8-candidate.md) |
 | a8后维护源码 | `3132c6c`／`af42496`／`098c5f7`／`ac86036`／`2f1b5b5`已按授权推送，见[CLI记录](../architecture/reviews/2026-10-29-cli-execution-cleanup.md)、[关闭边界记录](../architecture/reviews/2026-10-29-runtime-cleanup-boundaries.md)、[登记／定义记录](../architecture/reviews/2026-10-29-resource-and-definition-admission.md)、[回执／关闭观察记录](../architecture/reviews/2026-10-29-receipt-and-close-observation.md)与[控制返回值记录](../architecture/reviews/2026-10-29-task-control-values.md)。原a8两包不含这些补丁，不以维护源码或私有安装授予原包新资格 |
 | 历史冻结a7 | `relf-agent==0.1.0a7` 纳入已推送的 `2d17808` 中断清理修复；导入 `relf_agent`、CLI `relf`／`relf-*` 保持，不新增能力、依赖或执行权威。新包与门禁独立冻结，实际成绩见[a7 清单](alpha7-validation-status.md)和[准备记录](../architecture/reviews/2026-10-24-alpha7-candidate.md) |

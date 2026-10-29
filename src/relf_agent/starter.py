@@ -939,6 +939,35 @@ def create_starter(destination, *, template="oncall") -> StarterProject:
 
         files = fact_index_maintenance_files()
     try:
+        if template == "graph":
+            from .workflow_tool_starter import TOOL_GRAPH_FILES
+
+            files = {
+                **files,
+                **TOOL_GRAPH_FILES,
+                "README.md": files["README.md"]
+                + """
+## Optional async Tool workflow without a model
+
+```sh
+python -m agent_app.tool_graph --order-id ORD-1 --command-id order-1
+python -m agent_app.tool_graph --order-id ORD-1 --command-id order-1
+python -m agent_app.tool_graph --order-id ORD-2 --command-id order-2 --submit-only
+relf --db .ralf/tool-graph.sqlite --factory agent_app.tool_runtime:create_engine --format text inspect RUN_ID
+relf --db .ralf/tool-graph.sqlite --factory agent_app.tool_runtime:create_engine resume RUN_ID
+```
+
+Edit tool-graph.json, tool-runtime.toml and agent_app/tool_runtime.py. The two
+async read-only fixtures use existing Tool Actions, mapping and credits, no model
+or synthetic Agent. requires_approval=true in a new profile can pause each Tool;
+use inspect's original Action/digest commands, then resume the same Run.
+Run controls from this project directory, retaining original profiles and code.
+The registration factory is synchronous: it registers handlers without I/O.
+Actual asynchronous startup/client ownership still requires the existing abuild
+path; declaring an async handler does not require an async CLI factory.
+These fixtures verify wiring and recovery, not a real stock service or AI quality.
+""",
+            }
         if template == "oncall":
             from importlib.resources import files as resources
 

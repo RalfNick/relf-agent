@@ -1,6 +1,6 @@
 # 受管理工具节点与 MCP
 
-版本：0.1.0.dev11。ToolSource 将远程工具装配到现有 Registry；Agent 工具调用与显式图 Tool 节点使用相同的审批、预算、稳定 Action、效果核验和独立回执采纳。默认实现是 POSIX MCP stdio；Python 3.11+，无需新增依赖或模型密钥。
+当前维护指南（2026-10-29）。ToolSource 将远程工具装配到现有 Registry；Agent 工具调用与显式图 Tool 节点使用相同的审批、预算、稳定 Action、效果核验和独立回执采纳。默认实现是 POSIX MCP stdio；Python 3.11+，无需新增依赖或模型密钥。
 
 ## 1. 安装后直接运行
 
@@ -59,9 +59,36 @@ with LocalEngine(SQLiteStore(".ralf/order.sqlite"), providers={}, tools=tools) a
     print(asyncio.run(engine.drive(handle.run_id)))
 ```
 
-Tool 节点允许 async 或同步 handler；同步调用走真实线程归属管理。输入必须是匹配 ToolSpec 的 JSON 对象，输出可按节点 Schema 验收。外部结果先保存回执，再采纳并完成节点；完成前崩溃不会再次派发已保存的效果。Tool 节点直接返回工具结果，不制造模型 Action 或会话 assistant 消息。依赖、条件和映射与[静态图](static-workflows.md)一致，当前仍串行。
+Tool 节点允许 async 或同步 handler；同步调用走真实线程归属管理。输入必须是匹配 ToolSpec 的 JSON 对象，输出可按节点 Schema 验收。外部结果先保存回执，再采纳并完成节点；完成前崩溃不会再次派发已保存的效果。Tool 节点直接返回工具结果，不制造模型 Action 或会话 assistant 消息。依赖、条件和映射与[静态图](static-workflows.md)一致；可显式配置有限并发，见[并行指南](parallel-workflows.md)。
 
 Tool 节点的外部效果不可藏在纯 Transform 中。未知写效果继续等待核验；取消允许保存迟到证据，但不会执行后继节点。
+
+### 安装后配置异步 Tool 流程
+
+本批维护 SDK 的现有 graph 模板同时导出可编辑的纯工具应用，无需配置占位模型：
+
+```sh
+relf init my-tool-flow --template graph
+cd my-tool-flow
+python -m agent_app.tool_graph --order-id ORD-1 --command-id order-1
+python -m agent_app.tool_graph --order-id ORD-1 --command-id order-1
+python -m agent_app.tool_graph --order-id ORD-2 --command-id order-2 --submit-only
+relf --db .ralf/tool-graph.sqlite --factory agent_app.tool_runtime:create_engine --format text inspect RUN_ID
+relf --db .ralf/tool-graph.sqlite --factory agent_app.tool_runtime:create_engine resume RUN_ID
+```
+
+`RUN_ID` 使用第三条应用命令返回的 ID。前两条命令复用同一 Run；新订单使用新 command_id。默认执行 lookup → stock 两个 async Python Tool，结果包含 order_id、sku 和 available，成功消耗2个 execution credits，model_actions 为0。它们是只读订单／库存夹具，没有真实网络、业务写入或模型质量结论。原 graph 模板的 `python -m agent_app` 路径保持。
+
+- `tool-graph.json` 使用原节点、依赖与 InputMap；可修改有限图及输出 Schema。
+- `tool-runtime.toml` 显式声明 `providers = {}`，通过已注册的 `order-fixture` 工厂装配工具。省略 providers、错误类型仍拒绝；实际 Agent／混合图需要有效 Provider，不能隐式回退到离线模型。
+- `agent_app/tool_runtime.py` 是普通可编辑应用。替换两个 async 函数接入自己的业务接口；同步注册工厂仅装配工具，不打开异步客户端。真正需要异步构造／关闭的客户端应沿[异步装配](async-assembly.md)的 owned／borrowed 与 abuild 路径管理，不能把 coroutine 当作同步工厂结果。
+- 默认两个工具无需审批。首次提交前，在新项目中将 requires_approval 设为 true，即可用 inspect 的批准命令逐个审批；重复批准返回原回执。已有 Run 的配置与代码不得改写：新增 Profile／工具版本，保留原版本及恢复工厂。
+
+`AgentLimits` 约束其所属 Agent，直接 Tool 节点不产生 Agent 决策；原 Workflow credits、工具 Schema、授权、审批及效果协议继续适用。改成写工具时需明确 effect、版本和下游幂等／核验能力；已保存回执的恢复不重新派发，尚无结果的未知写等待核验，取消后不启动后继。独立的 async 进程崩溃测试核对 Action、effect_key、attempt ID 与摘要保持，仅执行业务一次。
+
+排障时保留应用返回的 run_id，用相同 `--db` 执行 `relf ... inspect RUN_ID` 查看 error、budget、pending 与原工厂恢复命令。示例的简短 JSON 不替代诊断视图。`failed` 且 budget_exceeded 表示原额度不足；相同 command_id 的原请求不会因新预算或新配置被改写。返回码2且没有 Run ID 时先检查 tool-runtime.toml 中必填 providers 和布尔 requires_approval；返回码2本身不证明提交从未受理。definition_mismatch 需要恢复原 Profile／工具实现，不应删除版本固定检查。
+
+此空 Provider 配置只扩展 Local 装配；TemporalProfile 仍要求非空 Provider，本批不增加 Temporal 直接 Tool 节点支持。原 a8 包不会生成这些新增文件；[本批制品与验收](../architecture/reviews/2026-10-29-model-free-local-tools.md)单独记录。
 
 ## 3. 选择性接入 MCP 工具
 

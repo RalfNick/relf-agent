@@ -8,6 +8,8 @@
 
 默认 starter 现在提供可编辑的 `agent_app/journey.py`／`customize.py`：先从三个应用注入位置替换 Provider、异步工具表、同步／异步记忆，不必先实现下方全部端口。运行方式、借用资源及临时记忆限制见[连续示例](support-journey.md#继续定制与恢复)。这些函数属于用户应用，不增加 SDK 抽象、动态模块加载或新的执行权威。
 
+只需串接异步业务接口时，可先用现有 `GraphNode(tool=...)`，在[graph 模板的纯工具应用](managed-tools.md#安装后配置异步-tool-流程)编辑函数与配置。Local 显式空 Provider 不制造模型调用；Tool／Transform 与 Agent 的职责、预算、审批和版本恢复仍按原契约，不能把 I/O 写进同步纯 Transform。
+
 从[连续工单示例](support-journey.md)开始即可完成基础定制，不需要实现所有端口。
 
 | 方式 | 当前适用范围 | 开发者需要承担什么 |

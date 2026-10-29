@@ -15,6 +15,7 @@ from relf_agent import (
 )
 
 root, mode = Path(sys.argv[1]), sys.argv[2]
+handler_kind = sys.argv[3] if len(sys.argv) > 3 else "sync"
 
 
 def handler(arguments, context):
@@ -23,17 +24,32 @@ def handler(arguments, context):
     return arguments
 
 
+async def async_handler(arguments, context):
+    await asyncio.sleep(0)
+    return handler(arguments, context)
+
+
+def identity(action):
+    return {
+        **{key: action[key] for key in ("id", "effect_key", "digest")},
+        "attempt_ids": [attempt["id"] for attempt in action["attempts"]],
+    }
+
+
 class CrashEngine(LocalEngine):
     def _record_tool_observation(self, *args):
         result = super()._record_tool_observation(*args)
         if mode == "crash":
+            action = self.store.run(args[0])["actions"][0]
+            (root / "identity.json").write_text(json.dumps(identity(action)))
             os._exit(77)
         return result
 
 
 registry = ToolRegistry()
 registry.register(
-    ToolSpec("business", "Write", {"type": "object"}, effect="unqueryable_write"), handler
+    ToolSpec("business", "Write", {"type": "object"}, effect="unqueryable_write"),
+    async_handler if handler_kind == "async" else handler,
 )
 with CrashEngine(SQLiteStore(root / "run.sqlite"), providers={}, tools=registry) as engine:
     spec = GraphWorkflowSpec(
@@ -41,6 +57,8 @@ with CrashEngine(SQLiteStore(root / "run.sqlite"), providers={}, tools=registry)
     )
     handle = engine.submit(spec, {"value": 3}, command_id="same")
     result = asyncio.run(engine.drive(handle.run_id))
+    action = engine.store.run(handle.run_id)["actions"][0]
+    assert identity(action) == json.loads((root / "identity.json").read_text())
     print(
         json.dumps(
             {

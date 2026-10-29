@@ -90,8 +90,8 @@ class RuntimeProfile:
     def __init__(self, name, version, providers, components=None, binding_components=None):
         _name(name, "Profile name")
         _name(version, "Profile version")
-        if not isinstance(providers, dict) or not providers:
-            raise ValidationError("A runtime profile requires at least one provider")
+        if not isinstance(providers, dict):
+            raise ValidationError("Runtime providers require an explicit object")
         normalized = {}
         for alias, declaration in providers.items():
             _name(alias, "Provider alias")

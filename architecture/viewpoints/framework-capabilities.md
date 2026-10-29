@@ -1,6 +1,8 @@
 # RALF 通用框架能力与扩展验收
 
-**当前校准（2026-10-23）：** 所选第三阶段含 S2 按 `8e09ec7` 原制品和环境验收；a2 已公开，原 a3 保留且发布暂停。当前独立准备包含维护契约修复和 Coding 夹具修正的 `0.1.0a4`，产品相对 `672d0cf` 仅版本赋值变化，不新增能力或执行权威。a4 的本地／平台／发布资格分别登记，不继承原包成绩；见[a4 清单](../../docs/alpha4-validation-status.md)、[实现状态](../../docs/implementation-status.md)与[剩余清单](../../docs/remaining-work.md)。下列 dev 批次及早期矩阵保留当时状态，不扩张首版范围。
+**当前维护范围（2026-10-29）：** 生命周期／增量流和连续应用分别按其私有制品验收；本批通过现有 Local Tool Action 补齐空 Provider 配置、可安装 async 图示例及恢复验证，见[本批记录](../reviews/2026-10-29-model-free-local-tools.md)。不增加或关闭长期 R 项，不扩 Temporal 直接 Tool、任意循环、流式数据流或企业平台。当前推荐私有包、原 Alpha 和平台资格分别见[交付状态](../../docs/implementation-status.md)。下一批仅按固定最终配置评价实际任务，历史矩阵保留原范围。
+
+**历史校准（2026-10-23）：** 所选第三阶段含 S2 按 `8e09ec7` 原制品和环境验收；a2 已公开，原 a3 保留且发布暂停。当前独立准备包含维护契约修复和 Coding 夹具修正的 `0.1.0a4`，产品相对 `672d0cf` 仅版本赋值变化，不新增能力或执行权威。a4 的本地／平台／发布资格分别登记，不继承原包成绩；见[a4 清单](../../docs/alpha4-validation-status.md)、[实现状态](../../docs/implementation-status.md)与[剩余清单](../../docs/remaining-work.md)。下列 dev 批次及早期矩阵保留当时状态，不扩张首版范围。
 
 
 Dev120 在原 History 权威内接通公共 deployment3 的既定 Temporal Coding Agent／sequence、有限图、Team／Dynamic 与递归范围，与 ordinary2 共用同地址 Registry。native grant、准确效果／费用、物理结束和独立 ACK 是不同事实，unknown 继续占位并保留恢复资料。原子事实通知、紧凑验证和 publication 优化保留原 SDK 门禁、最终完整验证及原期限；所选稳态 read-set 边界不提供即时 read-auth 撤销。范围与限制见[本批验收](../reviews/2026-10-15-temporal-deployment-coding.md)。

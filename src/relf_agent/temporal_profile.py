@@ -60,6 +60,8 @@ class TemporalProfile:
         binding_components=None,
         execution=None,
     ):
+        if isinstance(providers, dict) and not providers:
+            raise ValidationError("A Temporal profile requires at least one provider")
         temporal_components = {}
         if type(components) is dict:
             temporal_components = {
