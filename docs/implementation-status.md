@@ -1,5 +1,7 @@
 # Implementation status — Local SDK Alpha
 
+**第三批真实任务（2026-10-29）：** 精确私有包451产品不变；单Agent24/24、语义RAG24/24、规则Plan15/15、固定Supervisor Team15/15，均三次重复。独立冷重连原78Root与204库字节不变、零新调用，测试业务仅9次应有写入。见[记录](../architecture/reviews/2026-10-29-default-task-quality.md)和[复现指南](default-chain-acceptance.md)。性能计量开销尚未分离，不增加默认性能、平台、公开发行或对等框架资格。
+
 **第二阶段工具配置（2026-10-29）：** Local Profile 支持显式空 Provider 映射，现有 graph 模板增加无需模型的可编辑异步 Tool 流程，复用原 Action／预算／审批和恢复；普通 Agent 仍需有效 Provider，Temporal 边界不变。唯一私有包及定向验收见[本批记录](../architecture/reviews/2026-10-29-model-free-local-tools.md)。原 a8／历史制品保持，未授予新平台或真实质量资格。
 
 **第二阶段开发体验（2026-10-29）：** 默认 oncall starter 增加可编辑的连续应用和模型／异步工具／记忆替换示例；原审批代码与其他模板保持。独立私有版本和验收见[本批清单](../architecture/reviews/2026-10-29-installed-support-journey.md)。不新增后端、拓扑、适配器或长期 R 项，不授予真实质量及平台资格。

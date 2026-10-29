@@ -1,5 +1,7 @@
 # 能力范围与剩余验收清单
 
+**默认任务质量本批通过（2026-10-29）：** 当前精确私有包四条参考链路78/78，严格逐案例三次重复、可见引用及实际冷重连通过，见[本批记录](../architecture/reviews/2026-10-29-default-task-quality.md)。这只关闭有限质量门槛；下一有限批次分离profiler计量开销再判断产品热点，完整M1／R项／外部采用和框架对等仍独立。
+
 **有限异步节点配置收口（2026-10-29）：** Local 通过显式 `providers={}` 和现有 Tool Action 运行纯工具图；graph 模板提供可安装的 async 订单／库存应用与原工厂恢复。没有新节点类型、执行引擎或 Temporal Tool 扩展，不关闭长期 R 项；同包验收、兼容与唯一私有包见[本批记录](../architecture/reviews/2026-10-29-model-free-local-tools.md)。下一批转向固定最终配置的真实任务评测；任意循环／流式数据流继续后置。
 
 **开发体验增量（2026-10-29）：** 默认 starter 直接导出可编辑的 Agent→Session→RAG→Facts→Workflow 应用，以及 Provider／异步工具／组合记忆替换示例。范围和私有包见[本批清单](../architecture/reviews/2026-10-29-installed-support-journey.md)。复用既有能力，不新增或关闭长期 R 项；真实任务质量与有限异步节点独立验收。

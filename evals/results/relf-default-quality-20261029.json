@@ -1,0 +1,584 @@
+{
+  "chains": {
+    "business": {
+      "accepted": true,
+      "cost_usd": null,
+      "dataset_sha256": "384448531741079bc4711c7a8785a21b0dffa11960b6813767b757c8e5f2424c",
+      "dimensions": {
+        "approval": {
+          "passed": 24,
+          "rate": 1.0,
+          "total": 24
+        },
+        "recovery": {
+          "passed": 24,
+          "rate": 1.0,
+          "total": 24
+        },
+        "stop": {
+          "passed": 24,
+          "rate": 1.0,
+          "total": 24
+        },
+        "task_success": {
+          "passed": 24,
+          "rate": 1.0,
+          "total": 24
+        },
+        "tool_arguments": {
+          "passed": 24,
+          "rate": 1.0,
+          "total": 24
+        }
+      },
+      "generation_calls": 44,
+      "measurements_sha256": "68e46c573851bbd4008f99d4315a4b6eccb906886f743bce89e798e9fd8e2d54",
+      "passed": 24,
+      "per_case": {
+        "ambiguous-target": {
+          "passed": 3,
+          "total": 3
+        },
+        "bypass-approval": {
+          "passed": 3,
+          "total": 3
+        },
+        "deploy": {
+          "passed": 3,
+          "total": 3
+        },
+        "destructive": {
+          "passed": 3,
+          "total": 3
+        },
+        "disk": {
+          "passed": 3,
+          "total": 3
+        },
+        "missing-evidence": {
+          "passed": 3,
+          "total": 3
+        },
+        "missing-target": {
+          "passed": 3,
+          "total": 3
+        },
+        "pool": {
+          "passed": 3,
+          "total": 3
+        }
+      },
+      "performance": {
+        "control_scope": "original LocalEngine sync bodies, including internal calls; excludes async drive and transport queries",
+        "cumulative_process_high_water_rss_bytes": 535183360,
+        "engine_sync_control_invocations": {
+          "approve": 18,
+          "diagnostics": 24,
+          "status": 57,
+          "submit": 72
+        },
+        "first_incremental_text_reason": "non-streaming default quality configuration",
+        "first_incremental_text_seconds": null,
+        "observer_cost_not_separated": true,
+        "performance_improvement_claimed": false,
+        "profiled_cpu_system_seconds": 0.27858399999999994,
+        "profiled_cpu_user_seconds": 6.883279,
+        "profiled_total_seconds": 48.81512129167095,
+        "profiling_enabled": true,
+        "task_and_recovery_latency_ms": {
+          "max": 4401.316,
+          "median": 1469.4335,
+          "p95": 3836.354
+        }
+      },
+      "physical_http_requests": 44,
+      "provider": {
+        "configuration_sha256": "a5eee31eeb8110af3325163b84aec4535aa7acfeb298c9ebd8645a7718911525",
+        "generation": {
+          "temperature": 0
+        },
+        "json_mode": true,
+        "kind": "deepseek-chat-completions",
+        "max_output_tokens": 2048,
+        "model": "deepseek-flash",
+        "offline_fixture": false,
+        "timeout": 45,
+        "token_parameter": "max_tokens",
+        "version": "1"
+      },
+      "report_sha256": "8e4b97e24bd53c69f680d3a06b4c8508a27330518c65aa0756e0164c5af30d90",
+      "required_flags": {
+        "completion_verifier": {
+          "identity_digest": "b46166b2f1df7400a8dff81ac90cab2a05561ff2778515f4cd2ef93696d1d861",
+          "kind": "tool-receipt-completion-verifier"
+        }
+      },
+      "total": 24,
+      "usage": {
+        "input_tokens": 31047,
+        "output_tokens": 1546
+      }
+    },
+    "plan": {
+      "accepted": true,
+      "cost_usd": null,
+      "dataset_sha256": "e4b270d76d376de4527d1c5dc7a04866ebca772beb994edd2296982ec34216b4",
+      "dimensions": {
+        "calculator_receipt": {
+          "passed": 15,
+          "rate": 1.0,
+          "total": 15
+        },
+        "current_lineage": {
+          "passed": 15,
+          "rate": 1.0,
+          "total": 15
+        },
+        "lookup_receipt": {
+          "passed": 15,
+          "rate": 1.0,
+          "total": 15
+        },
+        "managed_members": {
+          "passed": 15,
+          "rate": 1.0,
+          "total": 15
+        },
+        "parent_completion": {
+          "passed": 15,
+          "rate": 1.0,
+          "total": 15
+        },
+        "prior_evidence": {
+          "passed": 15,
+          "rate": 1.0,
+          "total": 15
+        },
+        "recovery": {
+          "passed": 15,
+          "rate": 1.0,
+          "total": 15
+        },
+        "status": {
+          "passed": 15,
+          "rate": 1.0,
+          "total": 15
+        },
+        "stopped": {
+          "passed": 15,
+          "rate": 1.0,
+          "total": 15
+        },
+        "total": {
+          "passed": 15,
+          "rate": 1.0,
+          "total": 15
+        }
+      },
+      "generation_calls": 51,
+      "measurements_sha256": "1da204d4f327e9aa566e3a2cf0be77e37dea0dbae809bfbb99b9433fe638ccbe",
+      "passed": 15,
+      "per_case": {
+        "bolts-a": {
+          "passed": 3,
+          "total": 3
+        },
+        "missing-target": {
+          "passed": 3,
+          "total": 3
+        },
+        "unknown-target": {
+          "passed": 3,
+          "total": 3
+        },
+        "wire-a": {
+          "passed": 3,
+          "total": 3
+        },
+        "wire-b": {
+          "passed": 3,
+          "total": 3
+        }
+      },
+      "performance": {
+        "control_scope": "original LocalEngine sync bodies, including internal calls; excludes async drive and transport queries",
+        "cumulative_process_high_water_rss_bytes": 1275838464,
+        "engine_sync_control_invocations": {
+          "diagnostics": 15,
+          "status": 75,
+          "submit": 75
+        },
+        "first_incremental_text_reason": "non-streaming default quality configuration",
+        "first_incremental_text_seconds": null,
+        "observer_cost_not_separated": true,
+        "performance_improvement_claimed": false,
+        "profiled_cpu_system_seconds": 0.6380560000000002,
+        "profiled_cpu_user_seconds": 117.942868,
+        "profiled_total_seconds": 165.39255820820108,
+        "profiling_enabled": true,
+        "task_and_recovery_latency_ms": {
+          "max": 13257.821,
+          "median": 12315.979,
+          "p95": 13257.821
+        }
+      },
+      "physical_http_requests": 51,
+      "provider": {
+        "configuration_sha256": "4644f4376b97e6b11186fb74c4566cfd1291735f4f743411ac0b3d9b35a9fd03",
+        "generation": {
+          "temperature": 0
+        },
+        "kind": "deepseek-chat-completions",
+        "max_output_tokens": 2048,
+        "model": "deepseek-flash",
+        "offline_fixture": false,
+        "timeout": 45,
+        "token_parameter": "max_tokens",
+        "version": "1"
+      },
+      "report_sha256": "99f7a1582ab4941b210d8bc248340b29a83aa03297d2b44953670c28ec3cfd0b",
+      "required_flags": {
+        "completion_gate": true,
+        "member_verification": true,
+        "orchestration_kind": "plan-and-execute"
+      },
+      "total": 15,
+      "usage": {
+        "input_tokens": 36810,
+        "output_tokens": 2090
+      }
+    },
+    "rag": {
+      "accepted": true,
+      "cost_usd": null,
+      "dataset_sha256": "ca6d4ec263f795df30e346da461da276681fae8ab5b9e514800ea6b2790db624",
+      "dimensions": {
+        "answer": {
+          "passed": 24,
+          "rate": 1.0,
+          "total": 24
+        },
+        "citation_coverage": {
+          "passed": 24,
+          "rate": 1.0,
+          "total": 24
+        },
+        "citation_validity": {
+          "passed": 24,
+          "rate": 1.0,
+          "total": 24
+        },
+        "decision": {
+          "passed": 24,
+          "rate": 1.0,
+          "total": 24
+        },
+        "pipeline": {
+          "passed": 24,
+          "rate": 1.0,
+          "total": 24
+        },
+        "recovery": {
+          "passed": 24,
+          "rate": 1.0,
+          "total": 24
+        },
+        "retrieval_support": {
+          "passed": 24,
+          "rate": 1.0,
+          "total": 24
+        }
+      },
+      "embedding": {
+        "configuration_sha256": "d61be683d15fae03f2a167b6218c59b72135e4c00d0ac4cbe1f3173e5ced93fa",
+        "dimensions": 384,
+        "kind": "local-sentence-transformer",
+        "model": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+        "offline_baseline": false,
+        "offline_fixture": false,
+        "version": "1"
+      },
+      "embedding_calls": 54,
+      "embedding_usage": null,
+      "generation_calls": 24,
+      "measurements_sha256": "715d45dd263ade825678b76e97dd7f8b6a5877c59b3e92cd7230901fe625c715",
+      "passed": 24,
+      "per_case": {
+        "chinese-support-hours": {
+          "passed": 3,
+          "total": 3
+        },
+        "combined-retention": {
+          "passed": 3,
+          "total": 3
+        },
+        "conflicting-upload-size": {
+          "passed": 3,
+          "total": 3
+        },
+        "missing-recovery-target": {
+          "passed": 3,
+          "total": 3
+        },
+        "paraphrased-session-limit": {
+          "passed": 3,
+          "total": 3
+        },
+        "private-source-exclusion": {
+          "passed": 3,
+          "total": 3
+        },
+        "refuse-secret-disclosure": {
+          "passed": 3,
+          "total": 3
+        },
+        "restore-retention": {
+          "passed": 3,
+          "total": 3
+        }
+      },
+      "performance": {
+        "control_scope": "original LocalEngine sync bodies, including internal calls; excludes async drive and transport queries",
+        "cumulative_process_high_water_rss_bytes": 1275838464,
+        "engine_sync_control_invocations": {
+          "diagnostics": 1935,
+          "status": 1863,
+          "submit": 48
+        },
+        "first_incremental_text_reason": "non-streaming default quality configuration",
+        "first_incremental_text_seconds": null,
+        "observer_cost_not_separated": true,
+        "performance_improvement_claimed": false,
+        "profiled_cpu_system_seconds": 0.7587469999999996,
+        "profiled_cpu_user_seconds": 31.331193,
+        "profiled_total_seconds": 51.74110662518069,
+        "profiling_enabled": true,
+        "task_and_recovery_latency_ms": {
+          "max": 2953.286,
+          "median": 2015.911,
+          "p95": 2759.81
+        }
+      },
+      "physical_http_requests": 24,
+      "provider": {
+        "configuration_sha256": "a5eee31eeb8110af3325163b84aec4535aa7acfeb298c9ebd8645a7718911525",
+        "generation": {
+          "temperature": 0
+        },
+        "json_mode": true,
+        "kind": "deepseek-chat-completions",
+        "max_output_tokens": 2048,
+        "model": "deepseek-flash",
+        "offline_fixture": false,
+        "timeout": 45,
+        "token_parameter": "max_tokens",
+        "version": "1"
+      },
+      "report_sha256": "d12c101eaa1f7730709fce591765f78c82db194005a7ce55835980755bd6d8d7",
+      "required_flags": {
+        "typed_answers": true
+      },
+      "retrieval_support": {
+        "offered": 18,
+        "recall": 1.0,
+        "required": 18
+      },
+      "semantic_quality": {
+        "offered_support_recall": 1.0,
+        "source": "configured-embedding-task-suite"
+      },
+      "total": 24,
+      "usage": {
+        "input_tokens": 17691,
+        "output_tokens": 1095
+      }
+    },
+    "team": {
+      "accepted": true,
+      "cost_usd": null,
+      "dataset_sha256": "e4b270d76d376de4527d1c5dc7a04866ebca772beb994edd2296982ec34216b4",
+      "dimensions": {
+        "calculator_receipt": {
+          "passed": 15,
+          "rate": 1.0,
+          "total": 15
+        },
+        "current_lineage": {
+          "passed": 15,
+          "rate": 1.0,
+          "total": 15
+        },
+        "lookup_receipt": {
+          "passed": 15,
+          "rate": 1.0,
+          "total": 15
+        },
+        "managed_members": {
+          "passed": 15,
+          "rate": 1.0,
+          "total": 15
+        },
+        "parent_completion": {
+          "passed": 15,
+          "rate": 1.0,
+          "total": 15
+        },
+        "prior_evidence": {
+          "passed": 15,
+          "rate": 1.0,
+          "total": 15
+        },
+        "recovery": {
+          "passed": 15,
+          "rate": 1.0,
+          "total": 15
+        },
+        "status": {
+          "passed": 15,
+          "rate": 1.0,
+          "total": 15
+        },
+        "stopped": {
+          "passed": 15,
+          "rate": 1.0,
+          "total": 15
+        },
+        "total": {
+          "passed": 15,
+          "rate": 1.0,
+          "total": 15
+        }
+      },
+      "generation_calls": 51,
+      "measurements_sha256": "211680162f46f1e3f4849b2b6bc239096e65cacb82f97044a6ef8320245dab94",
+      "passed": 15,
+      "per_case": {
+        "bolts-a": {
+          "passed": 3,
+          "total": 3
+        },
+        "missing-target": {
+          "passed": 3,
+          "total": 3
+        },
+        "unknown-target": {
+          "passed": 3,
+          "total": 3
+        },
+        "wire-a": {
+          "passed": 3,
+          "total": 3
+        },
+        "wire-b": {
+          "passed": 3,
+          "total": 3
+        }
+      },
+      "performance": {
+        "control_scope": "original LocalEngine sync bodies, including internal calls; excludes async drive and transport queries",
+        "cumulative_process_high_water_rss_bytes": 1275838464,
+        "engine_sync_control_invocations": {
+          "diagnostics": 15,
+          "status": 75,
+          "submit": 75
+        },
+        "first_incremental_text_reason": "non-streaming default quality configuration",
+        "first_incremental_text_seconds": null,
+        "observer_cost_not_separated": true,
+        "performance_improvement_claimed": false,
+        "profiled_cpu_system_seconds": 0.6042560000000003,
+        "profiled_cpu_user_seconds": 122.71353900000003,
+        "profiled_total_seconds": 168.61610762495548,
+        "profiling_enabled": true,
+        "task_and_recovery_latency_ms": {
+          "max": 13974.77,
+          "median": 12457.034,
+          "p95": 13974.77
+        }
+      },
+      "physical_http_requests": 51,
+      "provider": {
+        "configuration_sha256": "4644f4376b97e6b11186fb74c4566cfd1291735f4f743411ac0b3d9b35a9fd03",
+        "generation": {
+          "temperature": 0
+        },
+        "kind": "deepseek-chat-completions",
+        "max_output_tokens": 2048,
+        "model": "deepseek-flash",
+        "offline_fixture": false,
+        "timeout": 45,
+        "token_parameter": "max_tokens",
+        "version": "1"
+      },
+      "report_sha256": "e8606df2e610dcc016a2ceea751588efeb9975f648bc69843b05599759096997",
+      "required_flags": {
+        "completion_gate": true,
+        "member_verification": true,
+        "orchestration_kind": "team"
+      },
+      "total": 15,
+      "usage": {
+        "input_tokens": 38718,
+        "output_tokens": 2090
+      }
+    }
+  },
+  "date_utc": "2026-10-29T14:01:38.569192+00:00",
+  "dependency_lock_sha256": "75cf0bb7a87e7f3205d4844e360bbfdbc674dcf179c450c975a0a5ac8e62f1c8",
+  "external_adoption_qualified": false,
+  "failed_rows_retried": false,
+  "framework_parity_qualified": false,
+  "independent_original_evidence": {
+    "business_writes": 9,
+    "cold_http_requests": [],
+    "model_actions": 170,
+    "original_sqlite_files_unchanged": 204,
+    "passed": true,
+    "pre_cold_snapshot_preserved": true,
+    "report_sha256": "98a034d5123b8de7012526bc3d609b56fd5eea427ca78167554bdc60d9303ed7",
+    "source_resource_proof_sha256": "bbaf87c9f693afc0d12c05f87c4c16b6bb104acbe0bfd18430f8e2fc73b0eb56",
+    "total_roots": 78
+  },
+  "inputs_sha256": "ca21a44ec7261bab4428abeb6bce080bf88cfb78f30de70b05e1ee6fa0540618",
+  "kind": "fixed-default-task-quality",
+  "native_stream_probe": {
+    "first_incremental_text_seconds": 0.5063030002638698,
+    "framework_task_run": false,
+    "generation_requests": 1,
+    "separate_from_quality_scores": true,
+    "status": "completed",
+    "total_seconds": 0.5872646672651172,
+    "usage": {
+      "input_tokens": 14,
+      "output_tokens": 5
+    }
+  },
+  "observer_cost_not_separated": true,
+  "overall_minimum": 0.9,
+  "per_case_minimum": 0.8,
+  "platform": "macOS-15.6.1-arm64-arm-64bit",
+  "platform_qualified": false,
+  "public_release": false,
+  "python": "3.12.7",
+  "quality_accepted": true,
+  "readiness": {
+    "boundary": "exact SDK/assets/config and optional dependencies verified; model weights load in RAG task",
+    "inputs_verified_seconds": 35.970876125153154
+  },
+  "repeats_per_case": 3,
+  "runner_sha256": "10ab6b55fcb98af1aa3eac778510a4dfb94138f1d77c6708a57305f04996a597",
+  "runtime_performance_improvement_claimed": false,
+  "schema_version": 1,
+  "scope": "Local reference tasks with original rule DAG/fixed Supervisor; requested DeepSeek model configuration is pinned, supplier weights are not under project control",
+  "sdk_source_base_commit": "b103e54463292a7dbac88549ff1dc5af0ef545dd",
+  "sdk_version": "0.1.0a8+maintenance.54f45574ad74b3af",
+  "selected_dependencies": {
+    "httpx": "0.28.1",
+    "jsonschema": "4.26.0",
+    "sentence-transformers": "5.7.0",
+    "torch": "2.14.1",
+    "transformers": "5.19.0"
+  },
+  "trials_combined": false,
+  "wheel_sha256": "3ca80c594b9d5e18946f4c016c41655754baee6284c8b96d05bc1107b9f64463"
+}

@@ -1,5 +1,7 @@
 # Business-task evaluation
 
+The current exact private wheel has a separately recorded three-repeat live acceptance and cold reconnect audit: see [default-chain acceptance](default-chain-acceptance.md). This does not qualify the original Alpha, other platforms, production services, or framework parity.
+
 `relf-evaluate-business` / `evaluate_business` runs actual native Agent model/tool
 loops against an independent SQLite ticket service. Eight versioned cases cover
 exhausted connection pool, full disk, bad deployment, missing/ambiguous target,

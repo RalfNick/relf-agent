@@ -1,5 +1,7 @@
 # RALF 通用框架能力与扩展验收
 
+**真实任务追加（2026-10-29）：** 当前同包有限Single Agent／语义RAG／Plan／Team三次重复共78/78，引用、原业务写入和独立冷重连均按[本批证据](../reviews/2026-10-29-default-task-quality.md)核对。规则DAG与固定Supervisor不是自主规划质量；性能含计量开销，完整R项、外部采用与对等比较继续分开。
+
 **当前维护范围（2026-10-29）：** 生命周期／增量流和连续应用分别按其私有制品验收；本批通过现有 Local Tool Action 补齐空 Provider 配置、可安装 async 图示例及恢复验证，见[本批记录](../reviews/2026-10-29-model-free-local-tools.md)。不增加或关闭长期 R 项，不扩 Temporal 直接 Tool、任意循环、流式数据流或企业平台。当前推荐私有包、原 Alpha 和平台资格分别见[交付状态](../../docs/implementation-status.md)。下一批仅按固定最终配置评价实际任务，历史矩阵保留原范围。
 
 **历史校准（2026-10-23）：** 所选第三阶段含 S2 按 `8e09ec7` 原制品和环境验收；a2 已公开，原 a3 保留且发布暂停。当前独立准备包含维护契约修复和 Coding 夹具修正的 `0.1.0a4`，产品相对 `672d0cf` 仅版本赋值变化，不新增能力或执行权威。a4 的本地／平台／发布资格分别登记，不继承原包成绩；见[a4 清单](../../docs/alpha4-validation-status.md)、[实现状态](../../docs/implementation-status.md)与[剩余清单](../../docs/remaining-work.md)。下列 dev 批次及早期矩阵保留当时状态，不扩张首版范围。

@@ -1,5 +1,7 @@
 # RAG 与 Plan／Team 完整任务评测
 
+本批同包的完整三次重复、严格验收与独立数据库／冷重连核对已记录在[默认任务验收](default-chain-acceptance.md)。原dev批次、离线fixtures与当前真实结果分别保留；本批不增加新模型／编排能力。
+
 显式 `evaluate_orchestration(..., completion_gate=True)`／CLI `--completion-gate`启用库存父级回执门禁，并用独立oracle复核当前修订、原工具和采纳结果。安装后例子见[业务完成验证](parent-completion.md)。默认False保留旧报告和两成员评分；fixtures继续`model_quality=null`。
 
 dev86 提供可安装的 SDK 和 CLI，复用版本 2 推荐 Runtime、原摄取、检索和受管理 Agent。
