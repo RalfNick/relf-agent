@@ -6,7 +6,7 @@ import importlib
 import inspect
 import json
 import sys
-from contextlib import closing
+from contextlib import contextmanager
 from dataclasses import asdict
 from pathlib import Path
 
@@ -63,6 +63,19 @@ def load_engine(db, factory_path=None, config_path=None):
 
             raise RuntimeBuildError(engine) from exc
         raise
+
+
+@contextmanager
+def _closing_engine(engine):
+    try:
+        yield engine
+    finally:
+        try:
+            close_engine(engine)
+        except BaseException as exc:
+            from .runtime_builder import RuntimeBuildError
+
+            raise RuntimeBuildError(engine) from exc
 
 
 def main(argv=None):
@@ -154,7 +167,7 @@ def main(argv=None):
                 )
             if args.command == "run" and args.factory is None and args.config is None:
                 raise ValidationError("run requires an explicit --config or --factory")
-            with closing(load_engine(args.db, args.factory, args.config)) as engine:
+            with _closing_engine(load_engine(args.db, args.factory, args.config)) as engine:
                 if args.command == "demo":
                     handle = engine.submit(
                         demo_spec(),

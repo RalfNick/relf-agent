@@ -49,3 +49,9 @@
 a8的Linux ARM64、原生AMD64／远端固定门禁、账号及Trusted Publisher核对、获准上传与公开安装均未在本轮执行。必须使用以上同两包，Linux保持2CPU／2GiB／swap0／断网、Python3.11–3.13串行；不得用网站CI、原a7或私有维护包报告放行a8。
 
 远端流程为`alpha8-stage-candidate.yml`→`alpha8-release-gate.yml`→`alpha8-pypi-publish.yml`，需要同一不可变提交和准确run／attempt。下一步需先授权推送及手动远端CI；Publisher项目`relf-agent`、仓库`RalfNick/relf-agent`、工作流`alpha8-pypi-publish.yml`与环境`testpypi`／`pypi`仍须维护者核对配置。当前`publication_ready=false`，无a8公开Tag／Release／上传。
+
+## 后续源码状态（2026-10-29）
+
+上述准备快照中的“未推送”仅描述2026-10-26的准备范围。其后`199334d`已按用户授权使用RalfNick推送到`main`，保留`[skip ci]`；这没有授予手动远端门禁、账号配置或公开发布资格。
+
+后续[CLI命令退出清理维护](../architecture/reviews/2026-10-29-cli-execution-cleanup.md)属于未纳入原包的源码补丁，仅以私有本地版本验证；上表两份a8原包、manifest及既有成绩不变。Linux ARM64／原生AMD64、远端固定门禁、Publisher及公开安装仍需对准确原包独立验收；本轮不触发这些外部操作。

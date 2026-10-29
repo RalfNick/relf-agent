@@ -1,6 +1,6 @@
 # Relf-Agent 扩展指南
 
-更新：2026-10-26。面向SDK／适配器开发者；a2是历史公开入口，a8独立纳入下述a7后扩展清理维护，原a7和私有维护包不重建或借用验收。原a6及更早包与证据保持。本指南描述执行、装配、召回和知识端口；当前扩展组件、限制和候选资格见[实现清单](implementation-status.md)、[a8清单](alpha8-validation-status.md)及[首版范围](releases/0.1.0a2.md)，企业适配与完整 M1 仍未验收。
+更新：2026-10-29。面向SDK／适配器开发者；a2是历史公开入口，a8独立纳入下述a7后扩展清理维护，原a7和私有维护包不重建或借用验收。原a6及更早包与证据保持。本指南描述执行、装配、召回和知识端口；当前扩展组件、限制和候选资格见[实现清单](implementation-status.md)、[a8清单](alpha8-validation-status.md)及[首版范围](releases/0.1.0a2.md)，企业适配与完整 M1 仍未验收。
 
 完整目标要求每层交付公共契约、默认实现、替换示例和共同验收，见[通用框架能力矩阵](../architecture/viewpoints/framework-capabilities.md)。静态图／并行、动态规划／团队和远程数据已有实现，分别见[静态 Workflow](static-workflows.md)、[编排](orchestration.md)与[远程数据](remote-data.md)。默认实现不一定默认启用；每 Agent 能力绑定、推荐组合与 Local/Temporal 契约差异见[整体审查](../architecture/reviews/2026-10-08-agent-framework-alignment.md)。下表以本地装配契约为主，Temporal 支持范围单独声明。
 
@@ -17,6 +17,8 @@
 例如，自定义普通 `ContextBuilder` 可直接注入 `context_assembler`；只有需要原受管理阶段或显式 Artifact 绑定时，才需要满足 managed Context 契约。自定义长期记忆后端与替换自动提炼策略也是两件事：前者按存储端口接入，后者仍遵守 `ManagedMemoryPolicy` 的准入约束。
 
 CLI 的 `--factory`／底层 ExecutionEngine 可按公共端口替换；高层 Local Runtime 当前仍要求 LocalEngine，Temporal Facade 要求 TemporalEngine。不要把底层端口可替换理解为所有 Facade 已支持任意执行器。优先针对实际业务扩展需求验证，保留明确拒绝，避免通过继承内部状态机改变执行权威。
+
+`ExecutionEngine.close()` 必须同步完成并返回 `None`，工厂校验通过不代表关闭一定完成。a8 后维护源码在 CLI 正常执行及异常退出时也复用该返回契约；coroutine／generator／上下文管理器或其他非 `None` 结果会被拒绝，不进入惰性清理逻辑。关闭异常脱敏为配置错误，内部 `RuntimeBuildError.cleanup` 保留原 Engine 以便重试。CLI 非零退出不证明原命令未受理；恢复步骤见[关闭失败排障](recovery-guide.md#cli-关闭失败后的恢复)。原 a8 两包不含本补丁。
 
 ## 1. 装配组件
 

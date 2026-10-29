@@ -124,6 +124,12 @@ relf --db .ralf/runs.sqlite --factory agent_app.runtime:create_engine cancel RUN
 
 Store 关闭失败会保留租约、停止旧 Engine 的其他操作；修正组件问题后重试 `close()`。存储已关闭但释放租约失败时，重试只释放租约。不要让新的 Engine 绕过旧持有者锁继续写。
 
+### CLI 关闭失败后的恢复
+
+a8 后维护源码会在命令执行结束后检查 `ExecutionEngine.close()` 的完成证据。自定义工厂的 `close()` 抛异常，或返回惰性对象／其他非 `None` 值时，CLI 返回 `validation_error`、退出码 2，不输出成功结果。原 a8 制品不含此修复，具体范围见[维护记录](../architecture/reviews/2026-10-29-cli-execution-cleanup.md)。
+
+关闭失败发生在命令之后，原 Run 可能已进入 queued、等待审批或终态。保留原 `command_id`、定义、输入、budget 和 Session；先修正工厂的关闭实现并确认原执行者／实际调用结束，再重提相同请求以找回原回执。需要新业务任务时才换 `command_id`。同一进程内的清理失败应对原 Engine 重试关闭，不能丢弃对象或强行释放 Coordinator。若原业务命令自身抛错且清理成功，仍传播原业务错误。
+
 ## 默认本地项目的手工备份演练
 
 以下仅适用于首用教程生成的默认离线 `oncall` 项目，POSIX 宿主与原版本工厂。先停止接收新请求，关闭并等待所有原进程／实际 handler 结束；备份及恢复期间不再运行任务。先在可丢弃的测试项目演练，保留原项目代码、安装包和配置。此流程不是在线多库事务备份、跨主机迁移或第三阶段 P3-5 的完整验收。
