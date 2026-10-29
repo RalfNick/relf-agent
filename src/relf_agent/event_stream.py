@@ -3,14 +3,14 @@
 import asyncio
 import math
 from collections import deque
-from dataclasses import asdict
 
+from ._dto_json import canonical_dto
 from .errors import AuthorizationDenied, DefinitionMismatch, ValidationError
 from .event_records import EventCursor, EventEnvelope
 from .handoff import _completed
 from .ports import is_async_callable, is_sync_callable
 from .task_controls import _binding
-from .types import RunEvent, RunSnapshot, Scope, canonical
+from .types import RunEvent, RunSnapshot, Scope
 
 _STATES = {
     "queued",
@@ -159,7 +159,7 @@ class RunEventSubscription:
             or any(not isinstance(event, RunEvent) for event in page)
         ):
             raise ValidationError("Event source returned an invalid page")
-        if len(canonical([asdict(e) for e in page]).encode("utf-8")) > 4_000_000:
+        if len(canonical_dto(page).encode("utf-8")) > 4_000_000:
             raise ValidationError("Event page exceeds its bound")
         records = []
         for offset, event in enumerate(page, 1):
@@ -198,12 +198,13 @@ class RunEventSubscription:
                 if (
                     not isinstance(status, RunSnapshot)
                     or status.run_id != self.run_id
+                    or not isinstance(status.state, str)
                     or status.state not in _STATES
                     or type(status.state_revision) is not int
                     or status.state_revision < 0
                 ):
                     raise ValidationError("Event source returned an invalid status")
-                canonical(asdict(status))
+                canonical_dto(status)
                 if status.state in _TERMINAL:
                     if await self._page():
                         continue

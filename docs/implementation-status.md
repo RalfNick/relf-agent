@@ -6,8 +6,9 @@
 
 | 范围 | 当前事实与边界 |
 | --- | --- |
+| 本轮能力对齐 | 对照 R01–R26、指定本地 AgentScope 2.0.10dev 快照与官方 AgentScope／LangChain／LangGraph 资料复核。当前源码补齐 AgentRun 的统一持久事件订阅及事件数据校验，见[本轮 review](../architecture/reviews/2026-10-29-framework-alignment.md)和[使用方法](agent-api.md#subscribe-without-assembling-another-engine-adapter)。仅工作区增量，不推送／公开发布，不授予原 a8 新资格；通用模型 delta、异步节点、企业服务及完整对等质量仍未完成 |
 | 当前a8候选 | `relf-agent==0.1.0a8`独立纳入`7e9fac1`／`ac92006`的CLI、Builder和路由失败清理修复；不新增功能。新原包／370项固定门禁及本地安装独立验收，原a7不含补丁。见[a8清单](alpha8-validation-status.md)和[准备记录](../architecture/reviews/2026-10-26-alpha8-candidate.md) |
-| a8后维护源码 | `3132c6c`／`af42496`／`098c5f7`／`ac86036`已按授权推送，见[CLI记录](../architecture/reviews/2026-10-29-cli-execution-cleanup.md)、[关闭边界记录](../architecture/reviews/2026-10-29-runtime-cleanup-boundaries.md)、[登记／定义记录](../architecture/reviews/2026-10-29-resource-and-definition-admission.md)和[回执／关闭观察记录](../architecture/reviews/2026-10-29-receipt-and-close-observation.md)。本轮完善TaskControlBridge返回值校验与原命令恢复回归，仅本地提交，见[本批记录](../architecture/reviews/2026-10-29-task-control-values.md)。原a8两包不含这些补丁，不以维护源码或私有安装授予原包新资格 |
+| a8后维护源码 | `3132c6c`／`af42496`／`098c5f7`／`ac86036`／`2f1b5b5`已按授权推送，见[CLI记录](../architecture/reviews/2026-10-29-cli-execution-cleanup.md)、[关闭边界记录](../architecture/reviews/2026-10-29-runtime-cleanup-boundaries.md)、[登记／定义记录](../architecture/reviews/2026-10-29-resource-and-definition-admission.md)、[回执／关闭观察记录](../architecture/reviews/2026-10-29-receipt-and-close-observation.md)与[控制返回值记录](../architecture/reviews/2026-10-29-task-control-values.md)。原a8两包不含这些补丁，不以维护源码或私有安装授予原包新资格 |
 | 历史冻结a7 | `relf-agent==0.1.0a7` 纳入已推送的 `2d17808` 中断清理修复；导入 `relf_agent`、CLI `relf`／`relf-*` 保持，不新增能力、依赖或执行权威。新包与门禁独立冻结，实际成绩见[a7 清单](alpha7-validation-status.md)和[准备记录](../architecture/reviews/2026-10-24-alpha7-candidate.md) |
 | 历史冻结 a6 | 原 wheel／sdist 和 manifest 不变，不含 `2d17808` 修复。[原包清单](alpha6-validation-status.md)中的全量、本地安装及 ARM64 成绩仍只对应原制品 |
 | 官网与源码入口 | `ba1c81f` 已推送；官网教程固定该 a6 源码并完成独立部署、网站 CI 与 HTTP 核对，见[网站验收](../website/reviews/2026-10-23-relf-a6-docs-acceptance.md)。固定教程不自动采用后续维护代码 |

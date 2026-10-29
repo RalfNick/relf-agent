@@ -112,6 +112,18 @@ after observations produce a diagnostic and preserve the original result.
 
 ## Subscribe to persisted events
 
+High-level Agent users can use [`handle.subscribe_events()`](agent-api.md#subscribe-without-assembling-another-engine-adapter)
+in maintenance source after `2f1b5b5`, without exposing their underlying Engine.
+Local and Temporal handles preserve their original authority checks. This is an
+additive convenience over the subscription below, not a new event protocol or
+model-delta stream. Original a8 archives retain their earlier API.
+
+Event pages and status data are validated before copying/serializing native
+objects. Malformed state values, cyclic data and nested coroutines/locks produce
+`ValidationError`; rejected pages do not move the delivered cursor. Invalid nested
+objects remain their producer's responsibility. Control and event adoption share
+the same finite dataclass JSON traversal, preserving valid nested DTO wire values.
+
 With `follow=True`, `waiting_input` is a valid nonterminal status. A subscription
 can remain open while the original Run waits for an answer. Closing the observer
 leaves the question and Run unchanged; reconnect with its last consumed cursor to

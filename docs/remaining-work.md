@@ -1,5 +1,7 @@
 # 能力范围与剩余验收清单
 
+**能力对齐增量（2026-10-29）：** 按用户本轮授权复核现有分层与 AgentScope／LangChain／LangGraph 的差距，补齐既有 H2 的 AgentRun 持久事件订阅入口和 R22 事件数据校验。复用原 RunRef／游标／Local 与 Temporal 权威；只交付观察入口子集，不关闭 R22，更不将它计为 R09 流式 Workflow 或模型 delta。整体判断、其余差距及本批验收见[完整 review](../architecture/reviews/2026-10-29-framework-alignment.md)。原 a8 与历史证据保持；当前增量未推送或公开发布。
+
 **控制返回值维护（2026-10-29）：** TaskControlBridge 在深拷贝前校验嵌套 DTO 数据，非法原生对象、循环数据与状态字段统一为 ValidationError；保留原命令恢复、合法拒绝和数据分离。不增加或关闭 R 项，不重建 a8，见[本批验收](../architecture/reviews/2026-10-29-task-control-values.md)。本轮仅本地提交，不推送或公开发布。
 
 **回执与关闭观察维护（2026-10-29）：** 配置路由拒绝未完成、错命令／目标或非有限JSON的回执，合法回执返回独立副本；原控制拒绝和缺失回执路径保持。LocalA2AService观察取消等待后的后台关闭异常，原阶段重试和直接等待失败传播保持。不增加或关闭R项，不重建a8，见[本批验收](../architecture/reviews/2026-10-29-receipt-and-close-observation.md)。仅本地提交，不推送或公开发布。

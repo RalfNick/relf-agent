@@ -95,6 +95,7 @@
 
 ## 评测、支持状态与贡献
 
+- **当前框架对齐：** [AgentScope／LangChain／LangGraph 能力 review](../architecture/reviews/2026-10-29-framework-alignment.md)，区分实现、验收和仍缺失的能力。
 - **评测方法：** [业务任务](business-evaluation.md)、[规划质量](planning-evaluation.md)、[RAG 与编排完整任务](task-evaluation.md)。离线运行协议、真实模型质量和实际外部服务验证分别报告。
 - **当前支持：** [实现清单](implementation-status.md)、[剩余能力](remaining-work.md)、[阶段二矩阵](phase2-support-matrix.md)、[阶段三矩阵](phase3-support-matrix.md)。
 - **开发路线与门槛：** [能力对齐路线](agentscope-alignment.md)、[持续开发队列](continuous-development.md)、[交付门槛](delivery-gates.md)、[M1 验收协议](m1-acceptance.md)。

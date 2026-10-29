@@ -2,10 +2,9 @@
 
 import copy
 import inspect
-import json
-from dataclasses import fields, is_dataclass
 from typing import Protocol, runtime_checkable
 
+from ._dto_json import canonical_dto as _validate_json
 from .errors import AuthorizationDenied, DefinitionMismatch, ValidationError
 from .handoff import _completed
 from .ports import is_async_callable, is_sync_callable
@@ -63,28 +62,6 @@ def _binding(method):
         getattr(implementation, "__code__", None),
         call,
     )
-
-
-def _json_fields(value):
-    if is_dataclass(value) and not isinstance(value, type):
-        return {field.name: getattr(value, field.name) for field in fields(value)}
-    raise TypeError("Task control data requires finite JSON values")
-
-
-def _validate_json(value):
-    # asdict deep-copies arbitrary leaves before validating them. Project fields
-    # during JSON traversal so native/lazy values and cycles are refused first.
-    try:
-        json.dumps(
-            value,
-            default=_json_fields,
-            sort_keys=True,
-            separators=(",", ":"),
-            ensure_ascii=False,
-            allow_nan=False,
-        )
-    except (TypeError, ValueError, RecursionError, OverflowError) as exc:
-        raise ValidationError("Task control data requires finite JSON values") from exc
 
 
 class TaskControlBridge:

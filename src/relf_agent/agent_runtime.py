@@ -475,6 +475,32 @@ class Runtime:
             raise CloseIncomplete(report) from exc
 
 
+class _RunEventSource:
+    """Borrow one fixed reference; every observation keeps Runtime validation."""
+
+    def __init__(self, runtime, ref):
+        self._runtime, self._ref = runtime, ref
+
+    @property
+    def scope(self):
+        # The subscription rechecks this even before buffered delivery, so
+        # closing the Runtime also closes access to already-buffered records.
+        self._runtime._check()
+        if self._runtime._drained:
+            raise RuntimeClosed("Execution resources are closing; retry cleanup or reconnect")
+        return self._runtime.scope
+
+    async def status(self, run_id):
+        if run_id != self._ref.run_id:
+            raise AuthorizationDenied("Event observation belongs to another Run")
+        return await self._runtime._aobserve(self._ref, "status")
+
+    async def events(self, run_id, *, after=0, limit=1000):
+        if run_id != self._ref.run_id:
+            raise AuthorizationDenied("Event observation belongs to another Run")
+        return await self._runtime._aobserve(self._ref, "events", after=after, limit=limit)
+
+
 class AgentRun:
     def __init__(self, runtime, ref, *, receipt=None, turn=None):
         self._runtime, self.ref, self.receipt, self.turn = runtime, ref, receipt, turn
@@ -485,6 +511,30 @@ class AgentRun:
 
     async def events(self, *, after=0, limit=1000):
         return await self._runtime._aobserve(self.ref, "events", after=after, limit=limit)
+
+    def subscribe_events(
+        self,
+        *,
+        after=0,
+        page_size=100,
+        follow=True,
+        poll_interval=0.1,
+        read_timeout=30,
+        max_events=None,
+    ):
+        """Observe committed events; closing/cancelling never cancels the Run."""
+        from .event_stream import RunEventSubscription
+
+        return RunEventSubscription(
+            _RunEventSource(self._runtime, self.ref),
+            self.ref.run_id,
+            after=after,
+            page_size=page_size,
+            follow=follow,
+            poll_interval=poll_interval,
+            read_timeout=read_timeout,
+            max_events=max_events,
+        )
 
     async def diagnostics(self):
         return await self._runtime._aobserve(self.ref, "diagnostics")

@@ -1,5 +1,18 @@
 # Ordered framework alignment roadmap
 
+## 当前复核：2026-10-29
+
+当前基线为已推送的 `2f1b5b5`，包括多个 a8 后维护修复；与原 a8 两包分开。
+对照全部 R01–R26 的分层状态及实际入口后，基础文本 Agent、常用编排、数据与恢复已有成体系实现，
+但完整流式展示／多模态、通用图节点、现成集成、长期运行治理和对等真实质量尚未达到完整对齐。
+本轮沿既有 H2 契约交付 `AgentRun.subscribe_events()` 的持久观察便利入口和事件数据校验；
+不是 token stream 或 R09 数据流。本轮具体源码／安装证据与后续优先级见
+[整体能力 review](../architecture/reviews/2026-10-29-framework-alignment.md)。
+
+以下早期 roadmap 与按 dev 记录保留历史语义；其中 pending 不覆盖后来已交付的输入续接、
+上下文压缩、记忆提炼等子集。当前逐项状态以 [R01–R26 清单](remaining-work.md) 为准，
+不以新增 Protocol、适配器数目或局部测试通过宣称框架整体对齐／超越。
+
 dev89完整原生Session历史子集已验收，沿既有纯Harness策略和原Local/Temporal权威补齐单Agent及RAG/Plan/Team的跨轮使用链路；每Agent配置和存储替换有实际恢复证据。旧默认保持，长会话History治理、真实模型质量、外部首次采用及对等框架比较仍开放。见[本批验收](../architecture/reviews/2026-10-13-session-model-history.md)与[完整能力清单](remaining-work.md)。下方早期基线按历史范围保留，不能用其旧缺口否定后续已验收增量。
 
 Dev86 端到端任务评测子集已验收：源码5681 passed／447配置跳过（830.34s）、独立核心安装161；源码三次重复RAG24/24、Plan15/15、Team15/15及安装CLI／SDK例子、旧85默认／原Plan回执兼容与298模块一致通过。复用原执行权威，新增最终模型请求可见引用、实际成员／工具回执、独立Embedding计量和观察式恢复；2项Important／1项Minor经有效RED统一修复。离线／MockTransport不构成真实模型质量；完整H3／M1／R01–R26及外部采用保持开放。见[任务评测指南](task-evaluation.md)与[本批验收](../architecture/reviews/2026-10-13-task-evaluation-chains.md)。

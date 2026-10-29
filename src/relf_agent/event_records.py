@@ -6,6 +6,7 @@ import re
 from dataclasses import asdict, dataclass, field
 from typing import Protocol
 
+from ._dto_json import canonical_dto
 from .errors import ValidationError
 from .model_protocol import json_object
 from .types import RunEvent, RunSnapshot, Scope, _require_text, canonical
@@ -89,7 +90,7 @@ class EventEnvelope:
         ):
             raise ValidationError("Invalid durable event")
         object.__setattr__(self, "cursor", EventCursor(scope, event.run_id, event.seq))
-        object.__setattr__(self, "_event_json", canonical(asdict(event)))
+        object.__setattr__(self, "_event_json", canonical_dto(event))
 
     @property
     def event(self):

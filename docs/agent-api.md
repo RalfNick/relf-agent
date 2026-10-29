@@ -100,6 +100,49 @@ version gates. Capability discovery does not replace admission-time validation.
   the original root is then woken, without independently dispatching its child.
 - approve/cancel/reconcile require stable command_id and return original receipts.
 
+### Subscribe without assembling another Engine adapter
+
+The maintenance source after `2f1b5b5` adds `handle.subscribe_events()`, also
+available on Temporal handles. Original a8 archives do not contain this method.
+It returns the existing closable `RunEventSubscription` over this fixed RunRef:
+
+```python
+from contextlib import aclosing
+from relf_agent import EventCursor
+
+# handle is the result of await agent.submit(...), or an attached original RunRef.
+async with aclosing(handle.subscribe_events(page_size=100)) as events:
+    async for record in events:
+        print(record.event.kind, record.event.data)
+        last_delivered_cursor = record.cursor.token
+
+# Reconnect in the original Runtime, or attach the RunRef after reopening it.
+async with aclosing(handle.subscribe_events(
+    after=EventCursor.from_token(last_delivered_cursor), follow=False
+)) as remaining:
+    records = [record async for record in remaining]
+```
+
+`follow=True` waits for future committed events, including through approval/input
+pauses, until terminal state and its final page. Use `follow=False` to read only
+available history, or `max_events` for a bounded number of delivered records.
+Options `after`, `page_size`, `poll_interval`, `read_timeout` and `max_events` have
+the same limits as [the original subscription](middleware-and-events.md#subscribe-to-persisted-events).
+For an overall observation deadline, wrap consumption in `asyncio.timeout(...)`
+and keep `aclosing`: `read_timeout` limits an individual source read.
+
+Only delivered records advance the cursor; prefetched records can be replayed
+after reconnection. Closing or cancelling the subscription stops observation,
+leaves the Runtime/Engine/Worker borrowed and does not cancel business work.
+`attach` and subscriptions do not resume a parked Run: use the original explicit
+resume/approval/input controls when needed. Runtime closure also refuses buffered
+delivery. Cursors from another Scope or Run are rejected. Event-source malformed
+states or non-finite/native/cyclic data raise `ValidationError` without advancing
+the delivered cursor; repair the source and create a new subscription from it.
+
+These are persisted Run events. Model token/reasoning deltas, live tool-output
+chunks and streaming Workflow channels remain separate capabilities.
+
 ```python
 from relf_agent import RunRef
 from relf_agent.types import digest

@@ -2,6 +2,8 @@
 
 ## Unreleased — a8 后维护
 
+- AgentRun 新增 `subscribe_events()`，Local／Temporal 统一复用原持久事件和游标；关闭／取消订阅只停止观察，保留原 Runtime／Worker 所有权，不隐式恢复或取消 Run。
+- 事件观察与控制回执复用有限 DTO JSON 校验；非法原生／循环数据和非字符串状态返回 ValidationError，拒绝整页时游标不推进。
 - TaskControlBridge 在复制前校验回执、状态与输入诊断数据；内嵌原生对象、循环数据和非字符串状态统一拒绝为 ValidationError。合法返回仍为独立副本，已受理命令可用原身份重试找回回执。
 - 配置路由校验替换读端口返回的原命令回执：完成值、命令／目标、状态和有限JSON一致后再采纳，返回独立副本；无效回执不触发执行实例装配。
 - LocalA2AService观察关闭等待取消后的后台异常，保留原关闭阶段重试与等待者异常传播，避免事件循环的未处理任务报告。
