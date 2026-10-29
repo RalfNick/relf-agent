@@ -539,6 +539,12 @@ class AgentRun:
     async def diagnostics(self):
         return await self._runtime._aobserve(self.ref, "diagnostics")
 
+    def stream_updates(self, **options):
+        """Typed run facts and marked deltas over the original resumable cursor."""
+        from .stream_updates import AgentStreamSubscription
+
+        return AgentStreamSubscription(self.subscribe_events(**options))
+
     async def context_stages(self):
         """Read original-authority context evidence without starting execution."""
         return await self._runtime._aobserve(self.ref, "context_stages")

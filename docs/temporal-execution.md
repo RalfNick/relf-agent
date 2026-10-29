@@ -101,7 +101,10 @@ alone cannot clear the guard. Cancellation stops new dispatch; late observations
 remain evidence and cannot replace a cancelled terminal result.
 
 History persists model/tool evidence before decision/result adoption. History can
-be downloaded from the Client and checked with `replay_temporal_history(history)`.
+be downloaded from the Client and checked with
+`replay_temporal_history(history, namespace=client.namespace)`. Preserve the original
+namespace: execution-end and other scoped proofs intentionally refuse a different
+namespace, including the SDK Replayer's default test namespace.
 Real worker kills after external commit, lost-receipt reconciliation and repeat
 controls are acceptance probes. They establish these tested boundaries, not
 arbitrary external exactly-once execution.

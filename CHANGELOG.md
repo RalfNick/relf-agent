@@ -2,6 +2,12 @@
 
 ## Unreleased — a8 后维护
 
+- 按新目标冻结生命周期／事件／模型工具增量流第一批，明确唯一私有制品与支持边界；补齐慢消费者逐页重连、原生 Temporal 未知回执查询及原 namespace 重放，源码／安装风险回归各156项、真实服务各4项通过。第二批直接 Tool 节点探索完整暂存，不混入本批。
+
+- 补齐原生文本Agent增量流的真实Temporal Service／精确私有安装验证：观察取消、限额gap、审批期间Worker进程重启后重复审批及History重放。仅增加测试／装配说明，产品与原a8制品未改。
+- 增量订阅拒绝并发读取时保留原观察者；超大整数展示超时统一返回 ValidationError。补齐取消发生在流迭代器关闭期间的清理重试回归，原业务取消与所有权不变。
+- 显式 StreamUpdatePolicy＋StreamedModelProvider 支持有界模型文本与异步工具 JSON 进度；AgentRun.stream_updates 复用原 Local／Temporal 持久事件、原 Action／Attempt 和游标，不改变审批、取消、效果恢复或默认未启用路径。
+- 流适配器严格消费实际 AsyncIterator；EOF 完整响应不因普通关闭失败丢失，保留显式关闭重试；展示停用后停止切块，避免大文本二次方处理。原 a8 制品不包含此增量。
 - AgentRun 新增 `subscribe_events()`，Local／Temporal 统一复用原持久事件和游标；关闭／取消订阅只停止观察，保留原 Runtime／Worker 所有权，不隐式恢复或取消 Run。
 - 事件观察与控制回执复用有限 DTO JSON 校验；非法原生／循环数据和非字符串状态返回 ValidationError，拒绝整页时游标不推进。
 - TaskControlBridge 在复制前校验回执、状态与输入诊断数据；内嵌原生对象、循环数据和非字符串状态统一拒绝为 ValidationError。合法返回仍为独立副本，已受理命令可用原身份重试找回回执。

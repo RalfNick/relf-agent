@@ -39,6 +39,7 @@ with workflow.unsafe.imports_passed_through():
         temporal_scoped_reservation,  # noqa: F401 -- scoped reservation observations
         temporal_session_identity,  # noqa: F401 -- preload pure Session addressing
         temporal_startup_options,  # noqa: F401 -- preload pure public acceptance validation
+        temporal_stream_updates,  # noqa: F401 -- pure original presentation Signal
         temporal_tool_execution,  # noqa: F401 -- preload fixed Tool protocol
         temporal_tool_execution_state,  # noqa: F401 -- preload original Tool gates
         temporal_user_input,  # noqa: F401 -- preload original pure input gates
@@ -1318,6 +1319,14 @@ class TemporalRunWorkflow:
                 type=getattr(exc, "code", "definition_mismatch"),
                 non_retryable=True,
             ) from None
+
+    @workflow.signal(name="agent_update")
+    def agent_update(self, payload):
+        try:
+            temporal_stream_updates.accept_update(self.state, payload)
+        except Exception:
+            # Presentation cannot poison Workflow progression or grant execution.
+            return
 
     @workflow.query(name="view")
     def view(self, request: dict) -> dict:

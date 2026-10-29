@@ -32,6 +32,7 @@
 
 | 示例 | 命令 | 预期行为 |
 | --- | --- | --- |
+| 统一增量展示（维护源码） | `python examples/stream_updates.py` | 离线文本／工具进度与事实同游标；重复命令不重复调用，见[指南](../docs/agent-stream-updates.md) |
 | 交互式工单 | `python examples/oncall.py` | 显示待批操作；输入 `APPROVE` 后执行本地测试变更 |
 | 自定义恢复工厂 | `python -m examples.custom_runtime --db .ralf/custom.sqlite` | 提交只读查询并输出原 Run；通过同一工厂 `resume` 推进 |
 | 自定义 Harness／执行器 | `python -m examples.execution_components --db .ralf/components.sqlite` | 停在审批；加 `--workflow` 运行顺序工作流 |

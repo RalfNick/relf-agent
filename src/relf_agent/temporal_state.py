@@ -110,6 +110,10 @@ def validate_manifest(manifest):
         "temporal-3",
     }:
         raise DefinitionMismatch("Unsupported Temporal runtime release")
+    if "stream_updates" in manifest:
+        from .stream_updates import StreamUpdatePolicy
+
+        StreamUpdatePolicy.from_identity(manifest["stream_updates"])
     if manifest["kernel"] == "temporal-3":
         if (
             type(manifest.get("binding_protocol")) is not int
@@ -545,6 +549,10 @@ class TemporalRunState:
         }
 
     def _emit(self, kind, data=None, *, bump=True):
+        if "stream_updates" in self.manifest:
+            from .temporal_stream_updates import decorate_fact
+
+            data = decorate_fact(self, kind, data or {})
         if bump:
             self.revision += 1
         self.event_log.append(
@@ -847,7 +855,7 @@ class TemporalRunState:
             "operation_digest": action["digest"],
             **(
                 {"release_digest": self.release_digest}
-                if "tool_execution_protocol" in self.manifest
+                if "tool_execution_protocol" in self.manifest or "stream_updates" in self.manifest
                 else {}
             ),
         }
@@ -1017,6 +1025,15 @@ class TemporalRunState:
         if "session_history" in self.request:
             request["session_history"] = detached(self.request["session_history"])
         request.update(self.session_context_fields())
+        if "stream_updates" in self.manifest:
+            request.update(
+                scope=self.scope,
+                run_id=self.run_id,
+                action_id=action["id"],
+                attempt_id=action["attempts"][0]["id"],
+                release_digest=self.release_digest,
+                execution_epoch=self.epoch,
+            )
         if self.manifest.get("session_protocol") == 1 or "runtime_profile" in self.manifest:
             request["scope"] = self.scope
         if self.manifest["kernel"] == "temporal-3":
@@ -1253,6 +1270,9 @@ class TemporalRunState:
         return accept_stop(self, action_id, response)
 
     def accept_failure(self, action_id, response):
+        from .temporal_stream_updates import remember_observation
+
+        remember_observation(self, action_id, response)
         if response.get("dispatched", True):
             self.operation_unknown(action_id, response.get("code", "activity_failed"))
             return
@@ -1273,6 +1293,9 @@ class TemporalRunState:
         self._emit("run_failed", {"code": response.get("code", "activity_failed")})
 
     def accept_model(self, action_id, response):
+        from .temporal_stream_updates import remember_observation
+
+        remember_observation(self, action_id, response)
         if self.manifest.get("model_continuation_protocol") == 1:
             from .temporal_decision_state import accept_receipt
 
@@ -1574,6 +1597,9 @@ class TemporalRunState:
         self._emit("run_failed", self.error)
 
     def accept_tool(self, action_id, response, *, reconciled=False):
+        from .temporal_stream_updates import remember_observation
+
+        remember_observation(self, action_id, response)
         if not response["ok"]:
             self.accept_failure(action_id, response)
             return

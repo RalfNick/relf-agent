@@ -15,6 +15,8 @@
 | `Agent(runtime=..., definition=...)`／`Agent(model=..., tools=..., db_path=...)` | 共享宿主或独立创建本地宿主；submit/run 必须提供 command_id |
 | `AgentRun` | 在线观察／显式控制；pending 定位嵌套动作原所属 Run；关闭后须显式重连 |
 | `AgentRun.subscribe_events(...)` | `2f1b5b5` 后维护源码新增；Local／Temporal 原 Run 持久事件及游标，支持分页／跟随／读取期限；关闭／取消仅停止观察。不是 token 或节点数据流，见[使用方法](agent-api.md#subscribe-without-assembling-another-engine-adapter) |
+| `AgentRun.stream_updates(...)`／`AgentStreamEvent` | `19dcc60` 后维护源码；统一投影有界文本／异步工具进度与原事实，仍使用原游标／取消语义，见[增量指南](agent-stream-updates.md) |
+| `StreamedModelProvider`／`StreamUpdatePolicy`／`emit_tool_delta` | 显式 SDK 组合；Provider 只在完整 EOF 后返回响应，工具进度不是效果确认；自定义迭代器失败关闭可通过 wrapper.retry_stream_closes 重试 |
 | `RunRef`／`WaitResult`／`CloseReport` | 原权威／Scope／发布定位、观察结果、关闭责任；等待取消不取消业务 |
 | `RunHandle` | 保留旧 submit 返回的定义 DTO；不改名、不替换成在线 AgentRun |
 

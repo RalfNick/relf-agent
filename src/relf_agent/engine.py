@@ -112,6 +112,7 @@ class LocalEngine:
         user_input_policies=None,
         execution_policy=None,
         admission_policy=None,
+        stream_updates=None,
     ):
         # Python 3.12's Protocol isinstance check ignores proxy __getattr__.
         # Validate the declared public operations so delegating adapters work too.
@@ -122,6 +123,10 @@ class LocalEngine:
         ):
             raise ValidationError("Store must implement the version 1 ExecutionStore port")
         self._validate_policy(policy)
+        from .stream_updates import policy_identity
+
+        policy_identity(stream_updates)
+        self.stream_updates = stream_updates
         from .governance import LocalExecutionPolicy
         from .local_deadlines import registration as deadline_registration
 
@@ -694,6 +699,10 @@ class LocalEngine:
                 self.tool_executor, ("execute", "reconcile"), False, "Executor"
             ),
         }
+        if self.stream_updates is not None:
+            from .stream_updates import policy_identity
+
+            manifest["stream_updates"] = policy_identity(self.stream_updates)
         if self.model_continuation:
             manifest["model_continuation_protocol"] = 1
             manifest["provider_continuations"] = continuations
@@ -1881,6 +1890,8 @@ class LocalEngine:
         return request, manifest
 
     def _record_model_response(self, run_id, action_id, attempt_id, encoded):
+        from .stream_reporting import current_end
+
         with self.store.transaction():
             run = self._authorized(run_id)
             action = next(item for item in run["actions"] if item["id"] == action_id)
@@ -1904,6 +1915,7 @@ class LocalEngine:
                     "action_id": action_id,
                     "attempt_id": attempt_id,
                     "response_digest": digest(encoded),
+                    **current_end("model", action_id, attempt_id),
                 },
             )
 
@@ -2411,11 +2423,14 @@ class LocalEngine:
                 return True
             complete = provider.complete
             dispatch_started = True
-            response = await complete(copy.deepcopy(messages), copy.deepcopy(descriptions))
-            if not isinstance(response, ModelResponse):
-                raise ValidationError("Model provider must return ModelResponse")
-            encoded = snapshot_model_response(response)
-            self._record_model_response(run_id, action["id"], attempt_id, encoded)
+            from .local_stream_updates import reporting
+
+            with reporting(self, run_id, action["id"], attempt_id, "model"):
+                response = await complete(copy.deepcopy(messages), copy.deepcopy(descriptions))
+                if not isinstance(response, ModelResponse):
+                    raise ValidationError("Model provider must return ModelResponse")
+                encoded = snapshot_model_response(response)
+                self._record_model_response(run_id, action["id"], attempt_id, encoded)
         except Exception as exc:
             if not dispatch_started:
                 code = exc.code if isinstance(exc, RalfError) else "validation_error"
@@ -2547,6 +2562,8 @@ class LocalEngine:
             )
 
     def _record_tool_observation(self, run_id, action_id, observation, receipt):
+        from .stream_reporting import current_end
+
         self._component_result(observation, EffectObservation, "ToolExecutor")
         result = observation.result
         canonical(result)
@@ -2584,6 +2601,7 @@ class LocalEngine:
                     "action_id": action_id,
                     "source": receipt["source"],
                     "result_digest": digest(result),
+                    **current_end("tool", action_id, receipt.get("attempt_id")),
                 },
             )
         return True
@@ -2818,14 +2836,17 @@ class LocalEngine:
                 return True
             execute = executor.execute
             dispatch_started = True
-            observation = await execute(envelope)
-            self._component_result(observation, EffectObservation, "ToolExecutor.execute")
-            self._record_tool_observation(
-                run_id,
-                action_id,
-                observation,
-                {"source": observation.source, "attempt_id": attempt_id},
-            )
+            from .local_stream_updates import reporting
+
+            with reporting(self, run_id, action_id, attempt_id, "tool"):
+                observation = await execute(envelope)
+                self._component_result(observation, EffectObservation, "ToolExecutor.execute")
+                self._record_tool_observation(
+                    run_id,
+                    action_id,
+                    observation,
+                    {"source": observation.source, "attempt_id": attempt_id},
+                )
             self._check_executor_release(self._authorized(run_id), executor)
             self._adopt_tool_observation(run_id, action_id)
             return True

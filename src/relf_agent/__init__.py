@@ -334,6 +334,9 @@ from .session_model_history import (
 from .session_ports import SessionAdmissionStore
 from .session_types import SessionKey, SessionRef, SessionSnapshot, TurnAdmission
 from .storage import SQLiteStore
+from .stream_reporting import emit_tool_delta
+from .stream_updates import AgentStreamEvent, StreamUpdatePolicy
+from .streamed_provider import StreamedModelProvider
 from .task_controls import AsyncTaskControls, SyncTaskControls, TaskControlBridge
 from .teams import RouterTeam, SequentialTeam, SupervisorTeam
 from .temporal import TemporalEngine, build_temporal_worker, replay_temporal_history
@@ -941,3 +944,4 @@ __all__ += [
 ]
 
 __all__ += ["InventoryMemberCompletionVerifier"]
+__all__ += ["AgentStreamEvent", "StreamUpdatePolicy", "StreamedModelProvider", "emit_tool_delta"]

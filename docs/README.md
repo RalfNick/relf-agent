@@ -1,5 +1,7 @@
 # Relf-Agent 文档
 
+维护源码的生命周期／持久事件／模型工具增量流已整理为独立[第一批本地交付](../architecture/reviews/2026-10-29-stream-batch-freeze.md)，使用其中指定的完整私有版本；原 Alpha 不包含这些 API。
+
 [官网](https://relfagent.com/) 已上线，继续使用固定 a6 源码教程，源码默认分支为 `main`。当前准备包含`7e9fac1`／`ac92006`扩展失败清理与重试修复的独立 [relf-agent 0.1.0a8](releases/0.1.0a8.md) 候选；导入 `relf_agent`、CLI `relf` 保持，实际结果见[当前摘要](implementation-status.md#当前交付摘要)及[a8清单](alpha8-validation-status.md)。原a7及更早制品保留，原 a2 仍是 GitHub 公开安装入口，使用其原导入、命令和固定教程。
 
 [项目首页](../README.md) · [示例目录](../examples/README.md) · [贡献指南](../CONTRIBUTING.md)
@@ -41,6 +43,7 @@
 - **模型协议：** [模型适配与流式](model-adapters.md)、[原生函数与续接](model-continuation.md)、[完整模型历史](model-history.md)、[DeepSeek 思考模式](deepseek-thinking.md)、[Responses 推理](responses-reasoning.md)。
 - **工具接入：** [受管理工具与 MCP stdio](managed-tools.md)、[MCP HTTP](mcp-http.md)、[HTTP JSON 工具](http-tools.md)、[固定命令 CLI 工具](cli-tools.md)。
 - **运行组件：** [Harness 与工具执行器](execution-components.md)、[调用中间件与持久事件](middleware-and-events.md)。
+- **统一增量展示：** [模型文本／异步工具进度](agent-stream-updates.md)，显式启用、原游标恢复及关闭重试。
 - **Workspace 与 Skills：** [只读 Workspace](workspace.md)、[Workspace 写入](workspace-writes.md)、[Skills 目录](skills.md)、[Skill 文档格式](skill-documents.md)、[自动发现](skill-discovery.md)、[每 Agent Skills 绑定](skills-bindings.md)、[原生 Sandbox](sandbox.md)。
 
 ## 工作流与多 Agent

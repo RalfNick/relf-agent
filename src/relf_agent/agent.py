@@ -20,10 +20,14 @@ class Agent:
         name="assistant",
         instructions="Answer the request",
         db_path=".ralf/runs.sqlite",
+        stream_updates=None,
     ):
         self._closed = False
         self._owned = runtime is None
         if runtime is None:
+            from .stream_updates import policy_identity
+
+            policy_identity(stream_updates)
             if model is None:
                 raise ValidationError("Standalone Agent requires an explicit model Provider")
             if isinstance(tools, ToolRegistry):
@@ -40,13 +44,19 @@ class Agent:
             store = SQLiteStore(db_path)
             try:
                 runtime = Runtime(
-                    LocalEngine(store, providers={"default": model}, tools=registry), owned=True
+                    LocalEngine(
+                        store,
+                        providers={"default": model},
+                        tools=registry,
+                        stream_updates=stream_updates,
+                    ),
+                    owned=True,
                 )
             except BaseException:
                 store.close()
                 raise
         else:
-            if model is not None or tools:
+            if model is not None or tools or stream_updates is not None:
                 raise ValidationError(
                     "Shared Agent selects components through its fixed definition"
                 )

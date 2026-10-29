@@ -167,8 +167,13 @@ class TemporalRuntime:
         coding_composition=False,
         _deployment_admission_policy=None,
         admission_policy=None,
+        stream_updates=None,
     ):
         from .governance import DeploymentAdmissionPolicy
+        from .stream_updates import policy_identity as stream_policy_identity
+
+        stream_policy_identity(stream_updates)
+        self.stream_updates = stream_updates
 
         if (
             type(deployment_sessions) is not bool
@@ -636,6 +641,10 @@ class TemporalRuntime:
                 self.journal, ("begin", "received", "observation", "acknowledge")
             ),
         }
+        if self.stream_updates is not None:
+            from .stream_updates import policy_identity
+
+            result["stream_updates"] = policy_identity(self.stream_updates)
         if self.runtime_profile is not None:
             from .types import runtime_profile_identity
 
@@ -2013,6 +2022,15 @@ def registered_activities(runtime, client=None):
     @activity.defn(name=MODEL_ACTIVITY)
     async def model(request: dict) -> dict:
         await tree_guard(request)
+        if "stream_updates" in request["runtime_manifest"]:
+            from .temporal_stream_updates import callbacks, observe_activity
+
+            return await observe_activity(
+                request,
+                "model",
+                lambda: runtime.complete_model(request, dispatch_guard=dispatch_guard),
+                callbacks(client, request, activity.info()),
+            )
         return await runtime.complete_model(request, dispatch_guard=dispatch_guard)
 
     @activity.defn(name=MODEL_ADOPTION_ACTIVITY)
@@ -2022,6 +2040,18 @@ def registered_activities(runtime, client=None):
 
     @activity.defn(name=TOOL_ACTIVITY)
     async def tool(request: dict) -> dict:
+        if "stream_updates" in request["runtime_manifest"]:
+            from .temporal_stream_updates import callbacks, observe_activity
+
+            return await observe_activity(
+                request,
+                "tool",
+                lambda: execute_tool(request),
+                callbacks(client, request, activity.info()),
+            )
+        return await execute_tool(request)
+
+    async def execute_tool(request):
         if "tool_execution_protocol" in request["runtime_manifest"]:
             from .temporal_tool_execution_activities import callbacks
 

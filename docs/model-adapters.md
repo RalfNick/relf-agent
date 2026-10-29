@@ -81,7 +81,7 @@ async with aclosing(provider.stream([{"role": "user", "content": "hello"}], []))
 
 text 是临时展示，response 是唯一完整结果。工具参数片段只在 Provider 内拼接；完整结束、JSON 对象和用量校验后才返回 ToolCall，不能拿片段直接调用业务工具。SDK 使用者提前停止迭代须通过 aclosing 或显式 aclose 退出；借用的 HTTP client 不被关闭，自建的 client 随调用关闭。取消驱动的等待者不会取消 Engine 内部 shield 的执行；服务关闭仍按 [生命周期规则](extending.md) 停止实际任务、drain、close。
 
-构造时 stream=True 表示 complete 使用 SSE 并收集完整结果。Engine 仍只对完整 ModelResponse 作独立持久接收，流片段不是耐久 RunEvent。断流/解析失败不产生新工具提案，已有派发沿用未知模型成本；没有 token 断点恢复或 UI 流式事件 API。SSE 帧上限 1 MB，累计响应上限 4 MB，按字节计算；非流式也限制最终接收正文，httpx.post 在本地检查前已经完整接收正文，不能声称网络层硬限流。
+构造时 stream=True 表示 complete 使用 SSE 并收集完整结果；原路径不把片段写入 RunEvent。维护源码可显式选择 [StreamedModelProvider＋StreamUpdatePolicy](agent-stream-updates.md)，由原 Local／Temporal 权威记录有界展示事件，完整 ModelResponse 仍独立接收后再采纳。断流／解析失败不产生新工具提案，已有派发沿用未知模型成本；没有 token 断点恢复或完整 UI 服务。SSE 帧上限 1 MB，累计响应上限 4 MB，按字节计算；非流式也限制最终接收正文，httpx.post 在本地检查前已经完整接收正文，不能声称网络层硬限流。
 
 可选纯同步 validate_request 在实际 Harness 请求产生后、预算预留和派发前检查协议能力/形状；缺少此方法的旧自定义 Provider 保持兼容。方法只返回 None 或抛拒绝，不做 I/O、状态提交或授权；异步/惰性返回值拒绝。实际调用前再次检查，避免等待其他来源时发生变化。
 

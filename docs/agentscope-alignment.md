@@ -1,13 +1,16 @@
 # Ordered framework alignment roadmap
 
+**最新执行顺序（2026-10-29）：** 依据用户更新目标，先冻结[生命周期／事件／增量流第一批](../architecture/reviews/2026-10-29-stream-batch-freeze.md)，再降低已有入口的开发成本，随后验收固定默认任务；每批只交付一条主线。直接 Tool 节点草稿不混入本批，不按协议或适配器数量认定框架对齐。
+
 ## 当前复核：2026-10-29
 
-当前基线为已推送的 `2f1b5b5`，包括多个 a8 后维护修复；与原 a8 两包分开。
+当前基线为本地提交 `19dcc60`，远端仍为 `2f1b5b5`；包括多个 a8 后维护修复，与原 a8 两包分开。
 对照全部 R01–R26 的分层状态及实际入口后，基础文本 Agent、常用编排、数据与恢复已有成体系实现，
 但完整流式展示／多模态、通用图节点、现成集成、长期运行治理和对等真实质量尚未达到完整对齐。
-本轮沿既有 H2 契约交付 `AgentRun.subscribe_events()` 的持久观察便利入口和事件数据校验；
-不是 token stream 或 R09 数据流。本轮具体源码／安装证据与后续优先级见
-[整体能力 review](../architecture/reviews/2026-10-29-framework-alignment.md)。
+`19dcc60` 沿既有 H2 契约交付 `AgentRun.subscribe_events()` 和事件数据校验。
+后续工作区实现显式启用的模型文本／异步工具 JSON 增量与类型化结束事实，见[增量流指南](agent-stream-updates.md)与[本批验收](../architecture/reviews/2026-10-29-agent-stream-updates.md)；默认关闭，Local／Temporal 各自原权威不变。
+当前范围不包含 reasoning／工具参数增量、多模态或 R09 节点数据流。原生文本Agent已追加正常／限额流、观察取消、审批期间Worker重启后重复审批及History重放的[真实Service／安装验证](../architecture/reviews/2026-10-29-temporal-stream-service.md)；高级组合、在途Activity故障与真实写／Journal仍待验收。
+整体能力差距与后续优先级仍见[整体能力 review](../architecture/reviews/2026-10-29-framework-alignment.md)，不据此关闭整个 R22 或认定对等质量。
 
 以下早期 roadmap 与按 dev 记录保留历史语义；其中 pending 不覆盖后来已交付的输入续接、
 上下文压缩、记忆提炼等子集。当前逐项状态以 [R01–R26 清单](remaining-work.md) 为准，

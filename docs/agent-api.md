@@ -143,6 +143,10 @@ the delivered cursor; repair the source and create a new subscription from it.
 These are persisted Run events. Model token/reasoning deltas, live tool-output
 chunks and streaming Workflow channels remain separate capabilities.
 
+维护源码新增 [`handle.stream_updates()`](agent-stream-updates.md)：在显式选择
+StreamUpdatePolicy／StreamedModelProvider 后统一投影模型文本、异步工具 JSON 进度和原事实。
+它复用上述订阅、游标和取消边界；原 a8 包没有此入口，reasoning／stdout／节点数据流仍未交付。
+
 ```python
 from relf_agent import RunRef
 from relf_agent.types import digest
