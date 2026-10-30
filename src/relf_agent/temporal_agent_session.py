@@ -1,6 +1,7 @@
 """Borrowed asynchronous Session entry over the existing client Runtime."""
 
 from .agent_harness import AgentHarness
+from .agent_runtime import _validate_wait_options
 from .errors import RuntimeClosed
 from .session_types import SessionRef, TurnAdmission
 from .temporal_session_state import detached
@@ -48,6 +49,7 @@ class TemporalAgentSession:
         return await self.runtime._supervisor.call(operation())
 
     async def run(self, input, *, command_id, wait_timeout=None, terminal_only=False, budget=32):
+        _validate_wait_options(wait_timeout, terminal_only)
         run = await self.submit(input, command_id=command_id, budget=budget)
         return await run.wait(wait_timeout=wait_timeout, terminal_only=terminal_only)
 

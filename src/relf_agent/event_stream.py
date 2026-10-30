@@ -55,7 +55,7 @@ class _Reader:
 
 
 def _seconds(value, name, lower, upper):
-    if type(value) not in (int, float) or not math.isfinite(value) or not lower <= value <= upper:
+    if type(value) not in (int, float) or not lower <= value <= upper or not math.isfinite(value):
         raise ValidationError(name + " is outside its finite supported range")
     return value
 

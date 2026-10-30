@@ -31,6 +31,12 @@ def seconds(value, label):
     return value
 
 
+def _validate_wait_options(wait_timeout, terminal_only):
+    if type(terminal_only) is not bool:
+        raise ValidationError("terminal_only must be bool")
+    return None if wait_timeout is None else seconds(wait_timeout, "Wait timeout")
+
+
 @dataclass(frozen=True)
 class CloseReport:
     state: str
@@ -451,11 +457,22 @@ class Runtime:
             self.state = "close_failed"
             raise
 
+    def _preflight_close(self, *, close_timeout=None):
+        if self.state == "closed":
+            return None
+        timeout = seconds(
+            self.close_timeout if close_timeout is None else close_timeout, "Close timeout"
+        )
+        self._check()
+        if isinstance(self.engine, RuntimeInstance):
+            self.engine._context._check_cleanup_origin()
+        return timeout
+
     async def aclose(self, *, close_timeout=None):
         if self.state == "closed":
             return self.close_report
-        self._check()
-        return await self._close_resources(close_timeout=close_timeout)
+        timeout = self._preflight_close(close_timeout=close_timeout)
+        return await self._close_resources(close_timeout=timeout)
 
     async def _close_resources(self, *, close_timeout=None):
         """Drain retained work after the owning lifecycle validates its origin."""
@@ -573,9 +590,7 @@ class AgentRun:
         return any(item["kind"] == "input" for item in await self.pending())
 
     async def wait(self, *, wait_timeout=None, terminal_only=False):
-        if type(terminal_only) is not bool:
-            raise ValidationError("terminal_only must be bool")
-        timeout = None if wait_timeout is None else seconds(wait_timeout, "Wait timeout")
+        timeout = _validate_wait_options(wait_timeout, terminal_only)
         loop = asyncio.get_running_loop()
         deadline = None if timeout is None else loop.time() + timeout
         root = await self._runtime._await_root(self.ref)

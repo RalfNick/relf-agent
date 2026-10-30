@@ -9,7 +9,7 @@ from dataclasses import asdict
 
 from .agent_harness import AgentHarness
 from .agent_run import RunRef, WaitResult
-from .agent_runtime import AgentRun, CloseReport, Runtime, seconds
+from .agent_runtime import AgentRun, CloseReport, Runtime, _validate_wait_options, seconds
 from .errors import AuthorizationDenied, DefinitionMismatch, RuntimeClosed, ValidationError
 from .ports import is_async_callable
 from .rpc_supervisor import RpcTaskSupervisor
@@ -461,9 +461,7 @@ class TemporalAgentRun(AgentRun):
         return WaitResult(self.ref, self._snapshot, reason, self._observed_at)
 
     async def wait(self, *, wait_timeout=None, terminal_only=False):
-        if type(terminal_only) is not bool:
-            raise ValidationError("terminal_only must be bool")
-        timeout = None if wait_timeout is None else seconds(wait_timeout, "Wait timeout")
+        timeout = _validate_wait_options(wait_timeout, terminal_only)
         loop = asyncio.get_running_loop()
         deadline = None if timeout is None else loop.time() + timeout
 

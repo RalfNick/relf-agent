@@ -29,6 +29,9 @@ class AgentSession:
         return AgentRun(self.runtime, turn.run, receipt=receipt, turn=turn)
 
     async def run(self, input, *, command_id, wait_timeout=None, terminal_only=False, budget=32):
+        from .agent_runtime import _validate_wait_options
+
+        _validate_wait_options(wait_timeout, terminal_only)
         run = await self.submit(input, command_id=command_id, budget=budget)
         return await run.wait(wait_timeout=wait_timeout, terminal_only=terminal_only)
 

@@ -91,6 +91,11 @@ version gates. Capability discovery does not replace admission-time validation.
   including the Temporal client facade. Invalid waits do not cancel the Run;
   invalid close overrides do not start cleanup. This correction belongs to the
   [current local candidate](current-delivery.md), not the original a8 archives.
+- `Agent.run` and both Local/Temporal Session `run` entries validate
+  `wait_timeout` and `terminal_only` before submission. An invalid observation
+  option creates no Run/Turn, command receipt or budget reservation and dispatches
+  no model or tool. A valid retry may reuse that unaccepted command ID. This does
+  not change observation cancellation for already accepted work.
 - wait/status/attach only read committed facts. Timeout returns
   observation_timeout; cancelling their await propagates CancelledError and does
   not cancel business execution. terminal_only=True waits through human pauses.
@@ -105,6 +110,15 @@ version gates. Capability discovery does not replace admission-time validation.
   including nested children. Attach that returned RunRef to apply the control;
   the original root is then woken, without independently dispatching its child.
 - approve/cancel/reconcile require stable command_id and return original receipts.
+
+Owned Agent close arguments and cleanup origin are checked before detaching its
+entry. A preflight rejection leaves it open; after actual shutdown begins, the
+entry stops accepting work even if the close wait fails or is cancelled. Retry
+the original close to finish retained work/resources. A borrowed Agent still only
+detaches its own entry, and an already-closed Runtime keeps its idempotent close
+behavior. Context exit preserves an original application error when close
+preflight also fails. These boundaries belong to the current maintenance
+candidate; historical wheels retain their original behavior.
 
 ### Subscribe without assembling another Engine adapter
 

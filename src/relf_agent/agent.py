@@ -1,7 +1,7 @@
 """Simple async Agent entry; shared runtimes retain execution/resource ownership."""
 
 from .agent_harness import AgentHarness
-from .agent_runtime import Runtime
+from .agent_runtime import Runtime, _validate_wait_options
 from .engine import LocalEngine
 from .errors import RuntimeClosed, ValidationError
 from .storage import SQLiteStore
@@ -79,10 +79,13 @@ class Agent:
         return await self.runtime.submit(self.harness, input, command_id=command_id, **options)
 
     async def run(self, input, *, command_id, wait_timeout=None, terminal_only=False, **options):
+        _validate_wait_options(wait_timeout, terminal_only)
         run = await self.submit(input, command_id=command_id, **options)
         return await run.wait(wait_timeout=wait_timeout, terminal_only=terminal_only)
 
     async def aclose(self, **options):
+        if self._owned:
+            self.runtime._preflight_close(**options)
         self._closed = True
         return await self.runtime.aclose(**options) if self._owned else None
 
@@ -93,6 +96,14 @@ class Agent:
         return self
 
     async def __aexit__(self, kind, error, trace):
+        if self._owned:
+            try:
+                self.runtime._preflight_close()
+            except BaseException as closing:
+                if error is None:
+                    raise
+                error.add_note("Runtime close is incomplete; retain the Runtime and retry aclose")
+                raise error.with_traceback(trace) from closing
         self._closed = True
         if self._owned:
             return await self.runtime.__aexit__(kind, error, trace)
