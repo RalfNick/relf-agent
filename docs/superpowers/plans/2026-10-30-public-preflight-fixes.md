@@ -42,14 +42,18 @@ Files: new `tests/test_facade_preflight_review.py`, `tests/test_event_timeout_va
 
 Build/evidence: new `dist/public-preflight-fixes-20261030/`; record first code/test source commit before isolated offline build. Reuse established private wheel preparation with new output paths and exact product digest; never overwrite previous directories.
 
-- [ ] Update current source-push/candidate preparation state and API contracts, commit the tested build inputs locally, freeze product/source manifests and unique private version.
-- [ ] Build/install exact wheel outside checkout, check metadata/module/CLI/license/dependencies and all product bytes. Freeze old937 plus risk-added node IDs and same original deselection, run serial source/install suites.
-- [ ] Run installed default application/replacement/approval/restart/dedup and original candidate↔new candidate Local receipt compatibility using fresh isolated directories; keep internal-only quality labels.
+- [x] Update current source-push/candidate preparation state and API contracts, commit the tested build inputs locally, freeze product/source manifests and unique private version.
+- [x] Build/install exact wheel outside checkout, check metadata/module/CLI/license/dependencies and all product bytes. Freeze old937 plus risk-added node IDs and same original deselection, run serial source/install suites.
+- [x] Run installed default application/replacement/approval/restart/dedup and original candidate↔new candidate Local receipt compatibility using fresh isolated directories; keep internal-only quality labels.
 
 ## Task 3 — Document and freeze
 
 Files: `docs/current-delivery.md` (sole authority/support matrix), `docs/agent-api.md`, current entry pointers if needed, `architecture/reviews/2026-10-30-public-preflight-fixes.md`, safe machine-readable evidence under evals/results.
 
-- [ ] Record all five fixes with exact test scope, previous source push, new source/package/hash, unchanged support boundary, historical evidence reuse and independent-adoption/platform limitations.
-- [ ] Fresh read-only final review. Important defects get one regression-first correction pass; defer optional new work.
-- [ ] Audit source/install IDs/bytes and old artifacts/quality DBs, static checks and relative links; local final commit with [skip ci]/one-command hook bypass, verify clean tree and unchanged hook. No push/public release.
+- [x] Record all five fixes with exact test scope, previous source push, new source/package/hash, unchanged support boundary, historical evidence reuse and independent-adoption/platform limitations.
+- [x] Fresh read-only final review: zero Critical/Important/Minor findings; 41 new cases independently passed. No correction pass or product rebuild needed. Arbitrary indirect user-task cleanup cycles, fresh real-quality/adoption/platform qualification remain outside this bounded repair.
+- [x] Audit source/install IDs/bytes and old artifacts/quality DBs, static checks and relative links; local final commit with [skip ci]/one-command hook bypass, verify clean tree and unchanged hook. No push/public release. Final local commit receipt is retained in the ignored evidence directory, avoiding self-referential source hashes.
+
+### Acceptance
+
+Exact source `4af364b403ed9ee01487cc8eb571d242a5bece7b`; private candidate `0.1.0a8+maintenance.0608576182db502f`. Source and installed risk suites each passed1002 with the same original one service deselection, preserving old937/Alpha370 nodes. Core-only install without Temporal, 30-command internal application/receipt recovery, Ruff/format/links, 10 protected artifacts and204 historical DBs passed. Evidence: `dist/public-preflight-fixes-20261030/validation-summary.json`; sole delivery entry: [current delivery](../../current-delivery.md). Public quality/adoption/platform boundaries are unchanged.
