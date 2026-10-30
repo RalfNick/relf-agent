@@ -1,5 +1,7 @@
 # 当前安装包的默认任务验收
 
+本页固定复现2026-10-29的原质量制品和工具配置，不是新候选安装指南。当前推荐制品及其证据复用边界见[当前交付入口](current-delivery.md)。
+
 本页复现 Local 四条有限参考链路：八类工单、八类知识问答、五类 Plan 和相同五类 Team 库存任务。使用现有 SDK 评测器与独立 oracle；工具脚本仅组合、计量和核对结果，不增加执行权威、后端或模型适配器。
 
 本轮固定的私有 SDK 为 `0.1.0a8+maintenance.54f45574ad74b3af`，wheel SHA256 为 `3ca80c594b9d5e18946f4c016c41655754baee6284c8b96d05bc1107b9f64463`。沿用[上一批唯一制品](../architecture/reviews/2026-10-29-model-free-local-tools.md)，451产品文件不改、不重建。原 a8 不包含此前维护增量；不能用普通 `pip install relf-agent` 代替本次精确安装。

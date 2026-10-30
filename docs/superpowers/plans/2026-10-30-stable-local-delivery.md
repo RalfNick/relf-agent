@@ -41,13 +41,17 @@ Files: `src/relf_agent/agent_runtime.py`, new `tests/test_runtime_timeout_values
 Files: README, `docs/current-delivery.md`, `docs/continuous-development.md`, `docs/implementation-status.md`, installation/getting-started/support journey/index and historical-entry disclaimers as needed. Candidate build and evidence under `dist/stable-delivery-20261030/`.
 
 - [x] Replace stale current assertions with one authoritative entry, preserving historical snapshot text under explicit history headings.
-- [ ] Commit the product correction and build-input docs; freeze exact source commit/product digest and build a unique private wheel offline. Archive input hashes, metadata and licenses; install it into a new directory outside checkout.
-- [ ] Freeze risk suite selectors/test IDs; run source and exact installed suites, install checks, default CLI/starter/application commands and old/new receipt compatibility. Reuse unchanged service/model evidence with an explicit coverage map. Preserve all failed attempts.
+- [x] Commit the product correction and build-input docs; freeze exact source commit/product digest and build a unique private wheel offline. Archive input hashes, metadata and licenses; install it into a new directory outside checkout.
+- [x] Freeze risk suite selectors/test IDs; run source and exact installed suites, install checks, default CLI/starter/application commands and old/new receipt compatibility. Reuse unchanged service/model evidence with an explicit coverage map. Preserve all failed attempts.
 
 ## Task 3: Onboarding, audit and local freeze
 
 Files: `docs/independent-onboarding.md`, evidence template, `architecture/reviews/2026-10-30-stable-local-delivery.md`, final current-entry artifact/hash/gates.
 
-- [ ] Document an empty-directory install + own model/tool + approval + original-factory process restart path, ownership and troubleshooting. Rehearse offline with the installed candidate; record times/failures separately from independent adoption.
-- [ ] Final read-only review; fix important scope defects with RED/GREEN, defer nonblocking expansion.
-- [ ] Audit all eight requirements against actual files/artifacts/tests/unchanged evidence, run static/link/secret-pattern checks; commit locally and verify original hook configuration, [skip ci], no push. Close engineering objective while external adoption remains pending.
+- [x] Document an empty-directory install + own model/tool + approval + original-factory process restart path, ownership and troubleshooting. Rehearse offline with the installed candidate; record times/failures separately from independent adoption.
+- [x] Final read-only review; fix important scope defects with RED/GREEN, defer nonblocking expansion.
+- [x] Audit all eight requirements against actual files/artifacts/tests/unchanged evidence, run static/link/secret-pattern checks; commit locally and verify original hook configuration, [skip ci], no push. Close engineering objective while external adoption remains pending.
+
+## Final evidence
+
+Source16d21fd, content-derived private candidate .18718c3c5a9e9882, SHA23cf675c2fb686e35ff0bfde5283000c08aafb4537e1b917899cd26dcfe10044. Source/install937 each, original370 IDs intact, original1 service deselection, no skips. Actual application replacement/restart/receipt compatibility30 commands passed. Read-only review: no Critical/Important/Minor, independent21 tests passed. Old9artifacts/live78rows/204DB retained. [Current delivery](../../current-delivery.md) and [eight-item audit](../../../architecture/reviews/2026-10-30-stable-local-delivery.md) define the result; external adoption pending, no new platform/public qualification. Final local commit and post-commit receipt close engineering only.

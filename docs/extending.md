@@ -1,5 +1,7 @@
 # Relf-Agent 扩展指南
 
+当前推荐制品、支持矩阵与唯一执行状态以[当前交付入口](current-delivery.md)为准。下方批次／Alpha／“下一步”均按原日期与制品解释，不是新的执行队列。
+
 更新：2026-10-29。面向SDK／适配器开发者；a2是历史公开入口，a8独立纳入下述a7后扩展清理维护，原a7和私有维护包不重建或借用验收。原a6及更早包与证据保持。本指南描述执行、装配、召回和知识端口；当前扩展组件、限制和候选资格见[实现清单](implementation-status.md)、[a8清单](alpha8-validation-status.md)及[首版范围](releases/0.1.0a2.md)，企业适配与完整 M1 仍未验收。
 
 完整目标要求每层交付公共契约、默认实现、替换示例和共同验收，见[通用框架能力矩阵](../architecture/viewpoints/framework-capabilities.md)。静态图／并行、动态规划／团队和远程数据已有实现，分别见[静态 Workflow](static-workflows.md)、[编排](orchestration.md)与[远程数据](remote-data.md)。默认实现不一定默认启用；每 Agent 能力绑定、推荐组合与 Local/Temporal 契约差异见[整体审查](../architecture/reviews/2026-10-08-agent-framework-alignment.md)。下表以本地装配契约为主，Temporal 支持范围单独声明。

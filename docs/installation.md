@@ -40,7 +40,7 @@ relf --version
 
 ## 可选能力
 
-从当前源码安装可使用`python -m pip install -e '.[pdf,tokenizer]'`；从已核对的本地wheel安装extra可使用`python -m pip install '/ABS/relf_agent-0.1.0a8-py3-none-any.whl[pdf,tokenizer]'`。发布后才使用相应索引的`relf-agent[extra]`并独立验证。
+从当前源码安装可使用`python -m pip install -e '.[pdf,tokenizer]'`。候选使用者先把`RELF_WHEEL`设为[当前交付入口](current-delivery.md)中已核对的精确绝对路径，再执行`python -m pip install "${RELF_WHEEL}[pdf,tokenizer]"`；不要用历史a8文件替代。发布后才使用相应索引的`relf-agent[extra]`并独立验证。
 
 | extra | 用途 |
 | --- | --- |
