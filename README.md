@@ -1,6 +1,6 @@
 # Relf-Agent
 
-本地维护体验候选已提供安装后连续教程与模型／异步工具／记忆替换示例，使用[独立私有制品及验收清单](architecture/reviews/2026-10-29-installed-support-journey.md)。未推送或公开发布；原 Alpha、官网固定教程及其资格保持各自版本。
+当前源码已包含事件／展示流、安装后连续教程、组件替换和 Local 无模型 Tool 图。推荐安装包、精确来源、哈希、支持矩阵及验收状态集中在[当前交付入口](docs/current-delivery.md)；原 Alpha 与历史私有包保持原资格。
 
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://github.com/RalfNick/relf-agent/blob/main/LICENSE)
 
@@ -14,12 +14,9 @@ Relf-Agent 把模型决策、工具调用、人工审批和业务结果保存为
 
 [官网](https://relfagent.com/) · [快速开始](#快速开始) · [文档目录](https://github.com/RalfNick/relf-agent/blob/main/docs/README.md) · [示例](https://github.com/RalfNick/relf-agent/blob/main/examples/README.md) · [贡献指南](https://github.com/RalfNick/relf-agent/blob/main/CONTRIBUTING.md) · [更新记录](https://github.com/RalfNick/relf-agent/blob/main/CHANGELOG.md)
 
-> 当前源码版本为 **0.1.0a8 Alpha**，纳入 `7e9fac1`／`ac92006` 的CLI、RuntimeBuilder及ProfiledEngine扩展失败清理与关闭重试修复，不新增功能。发行名 `relf-agent`、导入 `relf_agent`、CLI `relf` 保持。原公开历史制品为 **[a2原包](https://github.com/RalfNick/relf-agent/releases/tag/v0.1.0a2)**；a8原包、实际验收与后续步骤见[a8说明](https://github.com/RalfNick/relf-agent/blob/main/docs/releases/0.1.0a8.md)和[实现清单](https://github.com/RalfNick/relf-agent/blob/main/docs/implementation-status.md)。默认本地入门无需模型密钥、Redis、Temporal或Docker。
+> 源码基版本仍为 `0.1.0a8`，已包含此后的维护能力与 Runtime 秒数校验修复；它不是原 a8 归档的能力说明。安装请使用[当前交付入口](docs/current-delivery.md)指定的唯一私有候选。发行名 `relf-agent`、导入 `relf_agent`、CLI `relf` 保持，本地基础应用无需模型密钥、Redis、Temporal 或 Docker。
 
-> a8使用独立制品和固定门禁；原a7两包不含上述维护修复，原制品和历史记录保持。官网继续固定已部署的a6教程。本轮仅本地准备与提交，不触发远端CI、配置账号、部署官网或公开发布；各平台成绩分别验收，见[a8清单](https://github.com/RalfNick/relf-agent/blob/main/docs/alpha8-validation-status.md)。
-
-
-> 源码默认分支为 `main`，基于已审核的 `b545aba`；原 `feat/m1-local-runtime` 分支保留，以维持既有包内链接。官网已经上线。a6 制品、平台与公开发行分别验收；原公开 a2 使用旧入口，不与当前源码示例混用。
+> 默认分支为 `main`。历史公开 a2、原 a8 与官网固定教程按各自记录保留；本轮不推送、远端 CI、部署或公开发布，不重新核验在线发布状态。历史版本及安装方式见[安装指南](docs/installation.md)。
 
 ## 为什么使用 Relf-Agent
 
@@ -31,15 +28,14 @@ Relf-Agent 把模型决策、工具调用、人工审批和业务结果保存为
 
 ## 快速开始
 
-需要 Python 3.11+。以下命令在包含 a8 的当前源码目录运行，或先安装经过核对的 a8 本地 wheel；具体原包、平台和公开状态见[安装指南](https://github.com/RalfNick/relf-agent/blob/main/docs/installation.md)。
+需要 Python 3.11+；本轮候选的实际验收环境见[当前交付入口](docs/current-delivery.md)。先按该页的精确文件安装命令创建独立环境，再运行：
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -e .
 relf --version
 relf --db .ralf/demo.sqlite --format text demo --ticket INC-001
 ```
+
+框架源码开发者可在当前工作区使用 `python -m pip install -e .`，但其基版本号不能替代私有 wheel 的精确版本与验收资格。
 
 Demo 使用离线脚本 Provider 和本地测试业务，停在 `waiting_approval`。检查输出中的工具与参数，执行输出给出的批准命令，再执行恢复命令；完成后状态为 `succeeded`。可随时查看原任务：
 

@@ -1,10 +1,8 @@
 # Relf-Agent 文档
 
-当前本地体验候选进一步提供[安装后连续应用与替换示例](../architecture/reviews/2026-10-29-installed-support-journey.md)：默认 `relf init` 即可使用，不增加模板或后端，原版本与第一批制品各自保留。
+本轮唯一推荐包、精确提交／哈希、安装命令、支持矩阵和剩余状态见[当前交付入口](current-delivery.md)。本地候选已组合事件／展示流、连续应用及组件替换、Local无模型Tool配置与必要维护修复；不与原Alpha或历史私有包混用资格。
 
-维护源码的生命周期／持久事件／模型工具增量流已整理为独立[第一批本地交付](../architecture/reviews/2026-10-29-stream-batch-freeze.md)，使用其中指定的完整私有版本；原 Alpha 不包含这些 API。
-
-[官网](https://relfagent.com/) 已上线，继续使用固定 a6 源码教程，源码默认分支为 `main`。当前准备包含`7e9fac1`／`ac92006`扩展失败清理与重试修复的独立 [relf-agent 0.1.0a8](releases/0.1.0a8.md) 候选；导入 `relf_agent`、CLI `relf` 保持，实际结果见[当前摘要](implementation-status.md#当前交付摘要)及[a8清单](alpha8-validation-status.md)。原a7及更早制品保留，原 a2 仍是 GitHub 公开安装入口，使用其原导入、命令和固定教程。
+独立业务接入使用[空目录接入与验收流程](independent-onboarding.md)；内部演练与独立采用分别记录。原Alpha、平台和发布记录保留原范围，本轮不推送、远端CI、部署或公开发布。
 
 [项目首页](../README.md) · [示例目录](../examples/README.md) · [贡献指南](../CONTRIBUTING.md)
 
@@ -16,7 +14,9 @@
 
 | 文档 | 解决的问题 |
 | --- | --- |
-| [0.1.0a8 修复候选](releases/0.1.0a8.md) | 中断清理修复、独立制品与冻结门禁 |
+| [当前本地交付](current-delivery.md) | 唯一推荐制品、安装、支持与待办 |
+| [首次独立业务接入](independent-onboarding.md) | 自有模型／工具、审批和原进程恢复验收 |
+| [0.1.0a8 历史修复候选](releases/0.1.0a8.md) | 中断清理修复、独立制品与冻结门禁 |
 | [Alpha 8 验收清单](alpha8-validation-status.md) | 本地安装和外部待办 |
 | [0.1.0a6入口统一](releases/0.1.0a6.md) | 新导入、CLI与独立制品 |
 | [Alpha 6验收清单](alpha6-validation-status.md) | 本地结果和外部待办 |

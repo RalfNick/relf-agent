@@ -2,7 +2,7 @@
 
 [文档目录](README.md) · [安装](installation.md) · [扩展方式](extending.md#先选择扩展方式)
 
-本页的便捷生成入口面向[本批本地候选](../architecture/reviews/2026-10-29-installed-support-journey.md)，使用 `relf_agent` 导入和 `relf` 命令。先按[安装指南](installation.md)准备对应环境，再按[首用教程](getting-started.md)完成审批与恢复；随后在同一个生成项目中用工单 `INC-001` 学习组件组合。不新增 SDK 执行入口、模板种类或适配器。
+本页的便捷生成入口面向[当前交付入口](current-delivery.md)，使用 `relf_agent` 导入和 `relf` 命令。先按[安装指南](installation.md)准备对应环境，再按[首用教程](getting-started.md)完成审批与恢复；随后在同一个生成项目中用工单 `INC-001` 学习组件组合。不新增 SDK 执行入口、模板种类或适配器。
 
 使用历史公开 a2 包时，保留独立环境，改读[固定 a2 提交的原教程](https://github.com/RalfNick/relf-agent/blob/3a92720b63c5ac5aa27edc33a18b8d03396a81ff/docs/support-journey.md)，并下载[同一提交的原示例](https://github.com/RalfNick/relf-agent/blob/3a92720b63c5ac5aa27edc33a18b8d03396a81ff/examples/support_journey.py)。a1–a5 使用旧导入 `ralf_agent`，不能运行本页链接的 a6 示例；其他历史包使用各自归档内的教程和代码。不要通过给旧环境添加新模块来续跑旧 Run。
 

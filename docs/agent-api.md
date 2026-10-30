@@ -85,6 +85,12 @@ version gates. Capability discovery does not replace admission-time validation.
 
 ## Wait, controls and reconnect
 
+- Runtime `close_timeout`, close overrides and handle `wait_timeout` use the
+  same finite, non-negative seconds contract. Booleans, non-numbers, NaN/inf,
+  negative values and integers too large for finite seconds raise ValidationError,
+  including the Temporal client facade. Invalid waits do not cancel the Run;
+  invalid close overrides do not start cleanup. This correction belongs to the
+  [current local candidate](current-delivery.md), not the original a8 archives.
 - wait/status/attach only read committed facts. Timeout returns
   observation_timeout; cancelling their await propagates CancelledError and does
   not cancel business execution. terminal_only=True waits through human pauses.

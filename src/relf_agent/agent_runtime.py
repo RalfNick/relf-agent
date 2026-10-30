@@ -22,7 +22,11 @@ from .types import digest
 
 
 def seconds(value, label):
-    if type(value) not in {int, float} or not math.isfinite(value) or value < 0:
+    try:
+        valid = type(value) in {int, float} and math.isfinite(value) and value >= 0
+    except OverflowError:
+        valid = False
+    if not valid:
         raise ValidationError(f"{label} must be finite non-negative seconds")
     return value
 

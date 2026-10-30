@@ -2,13 +2,13 @@
 
 需要Python3.11+。默认本地SDK使用SQLite，不要求Redis、PostgreSQL、Temporal、Docker或模型凭据。完整能力、可选依赖及平台资格分别验收，见[当前支持](implementation-status.md)。
 
-## 当前本地维护体验包
+## 当前本地候选
 
-本批默认 starter 已包含可编辑的连续教程与组件替换示例，使用精确私有版本 `0.1.0a8+maintenance.709bc187e50d4956`，路径、SHA 和安装命令见[本地清单](../architecture/reviews/2026-10-29-installed-support-journey.md)。这是本地交付，不能用尚未公开验证的索引安装或原 `0.1.0a8` 包代替。安装后运行 `relf init my-support`，接着按[连续教程](support-journey.md)操作；无需另找仓库示例文件。
+请使用[当前交付入口](current-delivery.md)记录的精确 wheel、SHA256、安装命令和依赖说明。它包含已交付的流、连续应用、Local Tool 配置与本轮必要修复，不能用原 a8 或更早私有包替代；尚无新的索引安装资格。安装后按[首用教程](getting-started.md)和[连续教程](support-journey.md)操作。
 
-下方为原 Alpha 安装路径与历史边界，不覆盖当前私有包的独立版本和资格。
+以下是原 Alpha 的历史安装命令，仅适用于原包与原版本环境，不作为当前候选推荐。
 
-## 当前 a8 源码或本地原包
+## 原 a8 源码或本地原包（历史）
 
 `relf-agent==0.1.0a8`沿用 `relf_agent` 导入与 `relf`／`relf-*` 命令，包含 `ac92006` 及 `7e9fac1` 的扩展失败清理与关闭重试修复。原包、精确SHA、本地及外部待办见[a8 说明](releases/0.1.0a8.md)和[a8 清单](alpha8-validation-status.md)。未验证的PyPI／远端安装不作为已交付入口。
 

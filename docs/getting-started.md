@@ -2,38 +2,13 @@
 
 [文档目录](README.md) · [安装与可选依赖](installation.md) · [核心概念](concepts.md)
 
-**当前维护源码的连续路径：** 本批推荐私有包的默认 `relf init` 还导出 `agent_app/journey.py` 与 `customize.py`，用于同一应用逐步增加能力及替换模型／异步工具／记忆，见[连续工单教程](support-journey.md)。下方原 a8 审批教程仍有效，旧包不包含这两个新增文件，安装证据以[本批清单](../architecture/reviews/2026-10-29-installed-support-journey.md)为准。
+本文适用于[当前交付入口](current-delivery.md)推荐的精确本地候选，使用 `relf_agent` 导入与 `relf` CLI。先跑离线项目的提交、审批、原工厂重启恢复，再接自己的模型／工具。默认使用 SQLite，不需要远程数据库、Temporal、Docker或密钥。
 
-本文面向 **0.1.0a8 Alpha 候选**，需要 Python 3.11+。本教程使用本地 SQLite；先用离线项目完成提交、审批和恢复，再接入自己的模型与工具，不需要 Redis、PostgreSQL、Temporal 或 Docker。[基础能力入口](basic-capabilities.md)列出默认组合与定制路径；知识问答可从 [RAG 模板教程](recall-and-rag.md) 开始；无需改 Python 的版本配置从 [运行装配模板](runtime-assembly.md) 开始。其他平台与部署组合的验证范围见[实现清单](implementation-status.md)。
+默认 starter 也导出 `agent_app/journey.py` 和 `customize.py`，用于[连续工单教程](support-journey.md)。历史公开 a2 使用旧入口，原 a8 不包含后续维护能力；请在独立环境按[历史安装说明](installation.md#从公开-alpha-安装)使用。
 
-真实模型可用 `relf init my-model-agent --template model` 生成独立项目，先替换 model/协议/凭据环境变量；配置限制与验证等级见 [模型接入](model-adapters.md)。生成模板不执行收费请求，也不表示账户与型号已验证。
+## 1. 安装：使用已核对的候选
 
-本教程要求 a8 源码快照或本地原 wheel；原a7已有相同入口，但不含本次CLI／Builder／路由维护修复。旧公开 a2 使用旧导入／命令，不与以下步骤混用，历史入口见[安装指南](installation.md#从公开-alpha-安装)。PyPI 尚未发布，不要把 `pip install relf-agent` 当作已验证的安装方式。
-
-## 1. 安装：wheel 使用者与源码开发者
-
-两种方式任选其一，均在独立虚拟环境中安装。
-
-**已有 wheel：** 将下面的占位路径替换为实际获得的文件；安装会解析 httpx／jsonschema 等运行依赖。
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install "/path/to/relf_agent-0.1.0a8-py3-none-any.whl"
-relf --version
-```
-
-**从源码开始：** 使用本地准备的 a8 工作区或解压后的 a8 sdist，替换下方绝对路径。a8 尚未推送时，远端默认分支仍是先前版本；直接 clone 不能获得本次候选。安装后应确认 `relf --version` 为 `0.1.0a8`。
-
-```bash
-cd /ABS/path/to/relf-agent-a8
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -e .
-relf --version
-```
-
-如果要修改框架并运行测试，安装 `python -m pip install -e '.[dev]'`，然后按 [贡献指南](../CONTRIBUTING.md) 验证。本文步骤不需要仓库的 `examples` 目录，wheel 使用者也能执行。
+从[当前交付入口](current-delivery.md#安装与依赖)复制精确 wheel 安装命令，建立新虚拟环境，核对 SHA、`python -m pip check`、Python导入版本与 `relf --version`。本教程不需要仓库 examples。框架源码开发方式另见[安装指南](installation.md)，源码基版本不代替私有包的完整版本。
 
 ## 2. 生成自己的离线项目
 
