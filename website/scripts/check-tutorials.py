@@ -115,14 +115,7 @@ def verify_command_recipes(locale, directory, sdk, env):
     journey = blocks(locale, "app-tutorial", "bash")
     checkout = directory / "application" / "sdk"
     checkout.mkdir(parents=True)
-    git_dir = subprocess.check_output(
-        ["git", "rev-parse", "--absolute-git-dir"], cwd=ROOT, text=True
-    ).strip()
-    run(
-        ["bash", "-eu", "-c", journey[0]],
-        checkout,
-        {**env, "GIT_DIR": git_dir, "GIT_WORK_TREE": str(sdk)},
-    )
+    bash(journey[0], checkout)
     app = checkout.parent / "support-app"
     agent = json_records(bash(journey[1], app))
     assert len(agent) == 2 and all(r["state"] == "succeeded" for r in agent)
@@ -139,6 +132,13 @@ def verify_command_recipes(locale, directory, sdk, env):
     assert workflow["state"] == "succeeded" and workflow["model_calls"] == 4
     observed = bash(substitute(journey[7], {"RUN_ID": session[1]["run_id"]}), app)
     assert session[1]["run_id"] in observed and "succeeded" in observed
+    custom = json_records(bash(journey[8], app))
+    assert len(custom) == 2 and all(row["state"] == "succeeded" for row in custom)
+    assert custom[0]["run_id"] == custom[1]["run_id"]
+    assert custom[0]["result"] == custom[1]["result"]
+    assert custom[0]["result"]["source"] == "custom-model"
+    assert custom[0]["result"]["ticket"]["source"] == "custom-lookup"
+    assert all(row["model_calls"] is None for row in custom)
     # journey[2] is the explicit live-model example and is never executed here.
     evaluations = blocks(locale, "testing", "bash")
     offline = next(code for code in evaluations if "relf-evaluate-business --offline" in code)
@@ -153,6 +153,119 @@ def verify_command_recipes(locale, directory, sdk, env):
         assert report["calls"] == calls and report["model_quality"] is None, (name, report)
     print(
         f"{locale}: CLI approval/restart, durable input, five-stage application and four offline evaluations passed"
+    )
+
+
+def verify_maintenance_recipes(locale, directory, sdk, env):
+    facade = next(code for code in blocks(locale, "models-tools") if "class OfflineTicket:" in code)
+    facade_runs = [
+        json_records(execute(facade, directory / "facade_agent.py", env))[-1] for _ in range(2)
+    ]
+    assert all(row["state"] == "succeeded" for row in facade_runs)
+    assert facade_runs[0]["run_id"] == facade_runs[1]["run_id"]
+    assert facade_runs[0]["result"] == {"ticket": "INC-001", "status": "open"}
+
+    observation = next(
+        code for code in blocks(locale, "operations") if "class OfflineObservation:" in code
+    )
+    observed = [
+        json_records(execute(observation, directory / "observe_agent.py", env)) for _ in range(2)
+    ]
+    assert all(len(rows) == 2 for rows in observed)
+    assert len({row["run_id"] for rows in observed for row in rows}) == 1
+    assert all(row["state"] == "succeeded" for rows in observed for row in rows)
+    assert all(rows[0]["cursor_resumed"] and rows[0]["events"] > 1 for rows in observed)
+    assert all(rows[1]["reconnected"] for rows in observed)
+
+    stream = next(
+        code
+        for code in blocks(locale, "operations", "bash")
+        if ":examples/stream_updates.py" in code
+    )
+    checkout = directory / "stream" / "sdk"
+    checkout.mkdir(parents=True)
+    git_dir = subprocess.check_output(
+        ["git", "rev-parse", "--absolute-git-dir"], cwd=ROOT, text=True
+    ).strip()
+    output = run(
+        ["bash", "-eu", "-c", stream],
+        checkout,
+        {**env, "GIT_DIR": git_dir, "GIT_WORK_TREE": str(sdk)},
+    )
+    records = [json.loads(line) for line in output.splitlines()]
+    completed = [row for row in records if "state" in row]
+    assert len(completed) == 2 and all(row["state"] == "succeeded" for row in completed)
+    assert completed[0]["run_id"] == completed[1]["run_id"]
+    assert (completed[0]["model_calls"], completed[0]["tool_calls"]) == (2, 1)
+    assert (completed[1]["model_calls"], completed[1]["tool_calls"]) == (0, 0)
+    events = [row for row in records if "kind" in row]
+    assert {"model_delta", "model_end", "tool_delta", "tool_end"} <= {row["kind"] for row in events}
+    assert all(
+        row["authoritative"] is (row["kind"] not in ("model_delta", "tool_delta", "gap"))
+        for row in events
+    )
+    count = len(events) // 2
+    assert count > 0 and events[:count] == events[count:], "Replay changed original stream evidence"
+
+    def bash(code, cwd):
+        assert "--provider" not in code, "Live-provider examples are outside offline verification"
+        return run(["bash", "-eu", "-c", code], cwd, env)
+
+    recipes = blocks(locale, "workflows", "bash")
+    start = next(code for code in recipes if "init ../my-tool-flow" in code)
+    checkout = directory / "tool-flow" / "sdk"
+    checkout.mkdir(parents=True)
+    initial = json_records(bash(start, checkout))
+    assert len(initial) == 2 and initial[0]["run_id"] == initial[1]["run_id"]
+
+    def assert_tool_result(row):
+        assert row["state"] == "succeeded", row
+        assert (row["model_actions"], row["tool_actions"], row["credits_spent"]) == (0, 2, 2), row
+        assert row["result"]["available"] is True, row
+
+    for row in initial:
+        assert_tool_result(row)
+    app = checkout.parent / "my-tool-flow"
+    queued_code = next(code for code in recipes if "--order-id ORD-2" in code)
+    queued = json_records(bash(queued_code, app))[-1]
+    assert queued["state"] == "queued" and queued["tool_actions"] == 0, queued
+    resume = next(
+        code
+        for code in recipes
+        if "agent_app.tool_runtime:create_engine resume" in code and "DECISION_ID" not in code
+    )
+    resumed = json_records(bash(substitute(resume, {"RUN_ID": queued["run_id"]}), app))[-1]
+    assert resumed["state"] == "succeeded", resumed
+
+    approval_start = next(code for code in recipes if "init ../approved-tool-flow" in code)
+    pending = json_records(bash(approval_start, app))[-1]
+    assert pending["state"] == "waiting_approval", pending
+    assert (pending["model_actions"], pending["tool_actions"], pending["credits_spent"]) == (
+        0,
+        1,
+        0,
+    ), pending
+    approved_app = app.parent / "approved-tool-flow"
+    control = next(code for code in recipes if "DECISION_ID" in code)
+    for number in range(2):
+        action = pending["pending"][0]
+        refs = {
+            "RUN_ID": pending["run_id"],
+            "ACTION_ID": action["action_id"],
+            "OPERATION_DIGEST": action["digest"],
+            "DECISION_ID": f"approve-tool-{number + 1}",
+        }
+        commands = substitute(control, refs)
+        pending = json_records(bash(commands, approved_app))[-1]
+        repeated_approval = next(line for line in commands.splitlines() if " approve " in line)
+        bash(repeated_approval, approved_app)
+        assert pending["state"] == ("waiting_approval" if number == 0 else "succeeded"), pending
+    repeat = "python -m agent_app.tool_graph --order-id ORD-3 --command-id order-3"
+    final = json_records(bash(repeat, approved_app))[-1]
+    assert final["run_id"] == pending["run_id"]
+    assert_tool_result(final)
+    print(
+        f"{locale}: Agent replay, cursor/reconnect, stream replay and model-free Tool approvals passed"
     )
 
 
@@ -234,6 +347,7 @@ with TemporaryDirectory(prefix="relf-website-examples-") as tmp:
             f"{locale}: model→schema identity/replay, Session continuation/replay, app test, input and hybrid recipes passed"
         )
         verify_command_recipes(locale, directory, sdk, env)
+        verify_maintenance_recipes(locale, directory, sdk, env)
 
 print(
     f"Tutorial examples passed against pinned SDK source {BASELINE[:12]}; online model/embedding probes excluded."

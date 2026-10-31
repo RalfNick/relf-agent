@@ -15,7 +15,7 @@ sources: [docs/installation.md, docs/getting-started.md, docs/recovery-guide.md]
 ```bash
 git clone https://github.com/RalfNick/relf-agent.git
 cd relf-agent
-git checkout ba1c81fca67e15e70c1d51d0f4ecbbbcbbb37239
+git checkout 300c62ce8dd417df6b471ce1c10a1b7a562d2c46
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -e .
@@ -24,7 +24,7 @@ relf --version
 
 > 本指南使用源码安装。核对实际检出的版本；Relf-Agent 处于 Alpha，API 与部署组合仍在演进。公开 PyPI 发行包尚未作为本指南核验的安装方式。
 
-checkout 固定文档基线 **0.1.0a6**，验证日期为 2026-10-23；继续前确认该版本。版本不同先查[安装与环境](/zh/docs/installation/)。
+checkout 固定文档基线 **0.1.0a8**，验证日期为 2026-10-31；继续前确认该版本。版本不同先查[安装与环境](/zh/docs/installation/)。
 
 ## 2. 创建离线工单项目
 

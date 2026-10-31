@@ -3,10 +3,10 @@ title: Testing & evaluation
 description: Run an offline application regression, check model protocols, and separate fixture results from live task quality.
 locale: en
 slug: testing
-sources: [docs/sdk-model-tools.md, docs/business-evaluation.md, docs/task-evaluation.md, docs/planning-evaluation.md, docs/agent-api.md, docs/completion-verification.md]
+sources: [docs/sdk-model-tools.md, docs/business-evaluation.md, docs/task-evaluation.md, docs/planning-evaluation.md, docs/agent-api.md, docs/completion-verification.md, docs/agent-stream-updates.md, docs/managed-tools.md]
 ---
 
-Install SDK `0.1.0a6` using [quickstart](/en/docs/quickstart/) and activate that Python environment first. The offline examples below need no model key, network service or pytest. They were checked against the pinned a6 source baseline.
+Install SDK `0.1.0a8` using [quickstart](/en/docs/quickstart/) and activate that Python environment first. The offline examples below need no model key, network service or pytest. They were checked against the pinned maintenance source with base version a8.
 
 ## Choose the evidence you need
 
@@ -224,3 +224,16 @@ Set those environment variables locally; do not put credentials in source or rep
 For repeated business measurements, `--offline --repeats 3 --max-calls 48` runs the same eight fixtures three times; live repeats require their own explicit call allowance. Failed and unattempted repeats stay in the denominator. Repeats are descriptive measurements of the same tasks, not independent task samples. Extend versioned cases and independent business oracles to your application before making a quality claim.
 
 See [business evaluation (English)](repo:docs/business-evaluation.md), [complete task evaluation (Chinese; optional deeper details)](repo:docs/task-evaluation.md) and [completion verification (Chinese; optional)](repo:docs/completion-verification.md). Continue with the [application tutorial](/en/docs/app-tutorial/) or use the [API/CLI reference](/en/docs/api-reference/) to inspect failures.
+
+
+## Verify the new application and observation paths
+
+After the existing offline regressions on this page, check these maintenance capabilities:
+
+- [Agent entry](/en/docs/models-tools/): the same request retrieves the same Run; decide outcomes from its Snapshot.
+- [Application tutorial](/en/docs/app-tutorial/): generate journey/customize and retain original identity through cross-process Sessions, RAG citations, Facts and component replacement.
+- [Events and display updates](/en/docs/operations/): cursors advance only across delivered records and reconnect observes without dispatch; display replay uses original events with zero actual model/tool calls. A disconnected UI must not repeat business work.
+- [Model-free Tool graph](/en/docs/workflows/): default execution and two node approvals both finish with two Tool Actions, zero Model Actions and two credits; repeated controls do not dispatch again.
+- Adapter failures: inspect business results, actual handler completion and resource cleanup separately. Keep original cleanup/leases after a failed close; do not create substitute requests after a return-value validation failure.
+
+These checks validate documented examples and selected execution contracts, not the full SDK/platform, independent adoption or model task quality. Website tutorials install the fixed source; private-candidate acceptance remains tied to its exact version.

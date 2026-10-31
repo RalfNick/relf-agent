@@ -3,7 +3,7 @@ title: 运行与部署
 description: 选择 Local 或 Temporal，管理版本化配置、执行额度、观察与资源生命周期。
 locale: zh
 slug: operations
-sources: [docs/runtime-assembly.md, docs/agent-api.md, docs/agent-limits.md, docs/temporal-execution.md, docs/recovery-guide.md, docs/releases/0.1.0a6.md]
+sources: [docs/runtime-assembly.md, docs/agent-api.md, docs/agent-limits.md, docs/temporal-execution.md, docs/recovery-guide.md, docs/agent-stream-updates.md]
 ---
 
 ## 先选择执行后端
@@ -79,6 +79,85 @@ Profile 的 `name/version` 对应不可覆盖的配置身份。切换 default �
 
 备份要覆盖执行记录、所选 Session／Facts／Knowledge／Artifact 数据，以及业务效果证据；只复制一个空闲数据库文件不等于完整应用恢复。具体步骤见[恢复指南](repo:docs/recovery-guide.md)。
 
+## 用 Agent 观察事件并重连
+
+在安装了固定维护源码的独立目录中，保存为 `observe_agent.py`，执行 `python observe_agent.py`。这是无密钥、无外部服务的完整例子：提交后等待、先读一条持久事件，再从已交付游标继续，关闭后在原数据库重连。
+
+```python
+import asyncio
+import json
+from contextlib import aclosing
+from relf_agent import Agent, EventCursor, ModelResponse, RunRef
+
+class OfflineObservation:
+    identity = {"kind": "website-observation", "version": "1"}
+
+    async def complete(self, messages, tools):
+        return ModelResponse(output={"ok": True})
+
+async def main():
+    async with Agent(model=OfflineObservation(), name="observer",
+                     db_path=".ralf/observe.sqlite") as agent:
+        run = await agent.submit("Check locally", command_id="observe-1")
+        observed = await run.wait(wait_timeout=10)
+        assert observed.snapshot.state == "succeeded"
+        saved_ref = run.ref.to_dict()
+        async with aclosing(run.subscribe_events(
+            follow=False, max_events=1
+        )) as events:
+            first = [record async for record in events]
+        last = first[-1].cursor.token
+        async with aclosing(run.subscribe_events(
+            after=EventCursor.from_token(last), follow=False, page_size=2
+        )) as events:
+            remaining = [record async for record in events]
+        assert remaining and remaining[0].event.seq > first[-1].event.seq
+        print(json.dumps({"run_id": run.ref.run_id, "state": observed.snapshot.state,
+                          "cursor_resumed": True, "events": len(first + remaining)}))
+
+    async with Agent(model=OfflineObservation(), name="observer",
+                     db_path=".ralf/observe.sqlite") as reopened:
+        attached = reopened.runtime.attach(RunRef.from_dict(saved_ref))
+        snapshot = await attached.status()
+        print(json.dumps({"run_id": attached.ref.run_id, "state": snapshot.state,
+                          "reconnected": True}))
+
+asyncio.run(main())
+```
+
+两条输出都应为 `succeeded` 且 `run_id` 相同，第一条还有 `cursor_resumed=true`，第二条有 `reconnected=true`。重复脚本找回原请求；保存 `RunRef` 不等于保存数据库或认证凭据。这里只重连已完成 Run；排队或暂停任务需要原配置下显式 resume／审批／回复输入，attach 不会自动执行。
+
+`subscribe_events()` 直接返回订阅，使用 `aclosing`；`follow=True` 会穿过人工暂停继续等待，有限历史读取用 `follow=False`。只保存已成功交付记录的 `.cursor.token`，不要用原始 seq 替代带 Scope／Run 身份的重连 token。`read_timeout` 限制一次读取；整体期限用 `asyncio.timeout` 包住消费。关闭、取消或观察超时不取消业务，也不关闭借用的 Runtime。
+
+## 显式展示模型文本与异步工具进度
+
+回到安装所用的**固定框架源码根目录**，虚拟环境保持激活，选择不存在的 `../stream-app`：
+
+```bash
+mkdir ../stream-app
+git show 300c62ce8dd417df6b471ce1c10a1b7a562d2c46:examples/stream_updates.py > ../stream-app/stream_updates.py
+cd ../stream-app
+python stream_updates.py --db .ralf/stream-example.sqlite --command-id stream-1
+python stream_updates.py --db .ralf/stream-example.sqlite --command-id stream-1
+```
+
+首次末条 JSON 应为 `succeeded`、`model_calls=2`、`tool_calls=1`；第二次读取同一 Run 和原事件，实际两种调用均为 0。示例完全离线，真实模型另行选择适配器与凭据。这是从固定源码复制的应用示例，不要求把仓库 `examples` 包加入 Python 导入路径。
+
+示例在新 Run 上显式选择 `StreamUpdatePolicy()`，模型包装为 `StreamedModelProvider(base, chunk_chars=8)`，async 工具显式调用 `emit_tool_delta(...)`；普通 Agent 可在构造时传 `stream_updates`。共享 Agent 沿用 Runtime 策略。默认关闭，改变策略要使用新的配置和请求身份。
+
+| 事件 | 该怎样理解 |
+| --- | --- |
+| `model_delta`／`tool_delta` | 非权威文本／JSON 进度，只用于展示 |
+| `gap` | 非权威的截断或传输间隙提示；不保证展示完整 |
+| `model_end`／`tool_end` | 对应原响应、工具回执或未知结果事实已记录，不等于 Run 成功或远端处理器全部结束 |
+| `run` | 原 Run 的其他持久事实；最终检查 `handle.status()`、Action 和效果证据 |
+
+默认每 Attempt 最多 64 条 delta、合计 64 KiB、每条 4 KiB；达到限额只记一个 gap 并停止后续展示，原完整响应仍继续校验与采纳。不是无限历史存储、模型 reasoning、任意 stdout 捕获或 Workflow 节点数据流。订阅取消仍只停止观察；需要业务取消时显式调用原 handle 的 `cancel(command_id=...)`。
+
+完整响应只在流 EOF 且验证结束后返回，半成品文本不能派发工具。包装器借用底层 Provider；先按原 Runtime 规则排空活动调用，若自定义迭代器关闭失败，检查 `pending_stream_closes` 并显式 `await model.retry_stream_closes()`，不能遗失原清理责任。每个订阅只允许一个消费者；多个观察者分别创建订阅并保留各自游标。
+
+Temporal 沿原 History／Worker 接收 Signal，已验收仅覆盖所选原生文本 Agent Service 子集；本页离线例子不新增 Temporal 高级流组合、真实写、线上模型或平台资格。具体边界见[增量流说明](repo:docs/agent-stream-updates.md)。
+
 ## 从本地试点继续
 
 先验证一个离线任务、真实工具和审批恢复，再为实际模型、外部数据、MCP 或 Temporal 添加所需依赖与服务。Temporal 可选依赖从源码仓库根目录安装 `python -m pip install -e '.[temporal]'`，随后自行配置 Service、Worker 与匹配发布；本指南不会隐式启动服务。
@@ -87,7 +166,7 @@ API 和部分组合仍在 Alpha 阶段。部署判断使用你的实际组件与
 
 ## 验证基线与支持边界
 
-本站基于页首所示固定源码提交的 SDK **0.1.0a6 候选版本**，验证日期 **2026-10-23**。日期记录这些教程的验证，不表示每种部署或线上型号均获保证。
+本站基于页首所示固定源码提交的 SDK **0.1.0a8 基版本维护源码**，验证日期 **2026-10-31**。日期记录这些教程的验证，不表示每种部署或线上型号均获保证。
 
 | 组合 | 文档状态 | 使用前继续验证 |
 | --- | --- | --- |

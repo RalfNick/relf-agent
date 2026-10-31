@@ -3,7 +3,7 @@ title: Capabilities overview
 description: Choose agents, tools, memory, knowledge and execution patterns for your task, then compose them gradually.
 locale: en
 slug: overview
-sources: [docs/basic-capabilities.md, docs/concepts.md, docs/support-journey.md, docs/releases/0.1.0a6.md]
+sources: [docs/basic-capabilities.md, docs/concepts.md, docs/support-journey.md, docs/agent-stream-updates.md, docs/agent-api.md, docs/managed-tools.md]
 ---
 
 ## What Relf-Agent helps you build
@@ -12,7 +12,7 @@ Relf-Agent is an open-source Python agent framework. You define models, business
 
 The name expands to **Reliable and Extensible Lifecycle Framework for Intelligent Agents**. **Build intelligent agents. Run them reliably.** Model reasoning, planning and member collaboration provide intelligence; replaceable components support customization; durable execution handles approval and recovery.
 
-Relf-Agent lives at `RalfNick/relf-agent`. These tutorials pin the **0.1.0a6** source candidate and use `relf-agent`, `relf_agent`, and `relf` / `relf-*` throughout. Prepare its matching environment in [installation](/en/docs/installation/); public release, platform and old-run recovery qualifications are separate checks.
+Relf-Agent lives at `RalfNick/relf-agent`. These tutorials pin the **0.1.0a8** maintenance source with that base version and use `relf-agent`, `relf_agent`, and `relf` / `relf-*` throughout. Prepare its matching environment in [installation](/en/docs/installation/); public release, platform and old-run recovery qualifications are separate checks.
 
 A ticket flow might read a ticket, retrieve a runbook, propose a change, wait for approval, execute a tool and inspect the result. Start with one agent. Compose fixed steps into a workflow, then add plans or teams when the task needs delegation.
 
@@ -31,6 +31,15 @@ Complete the [offline quickstart](/en/docs/quickstart/) first. It uses Python 3.
 | Plan, delegate and verify among a finite set of members | Plans, teams, planners, verifiers and child runs | [Workflows & teams](/en/docs/workflows/) |
 | Reuse MCP, HTTP endpoints, fixed CLIs or file references | Tool sources, workspaces, skills and explicit policies | [Integrations & extensions](/en/docs/integrations/) |
 | Configure components and optionally use independent workers | Runtime profiles, versioned assembly, Local and Temporal | [Runtime & deployment](/en/docs/operations/) |
+
+## Where the framework improvements help
+
+- **A smaller application entry:** start with `Agent(model=..., tools=...)`, then wait, inspect and control through `AgentRun`. Shared Runtime entries retain resource ownership. See [models and tools](/en/docs/models-tools/) and [API](/en/docs/api-reference/).
+- **Installed application development:** the default template supplies `agent_app.journey` and `customize` for Sessions, RAG, Facts and Workflows, with model, async-tool and memory replacement points. See the [application tutorial](/en/docs/app-tutorial/).
+- **Bounded observation and reconnect:** `subscribe_events` reads durable facts; opt-in `stream_updates` displays model text and async-tool progress using the original cursor. See [runtime and observation](/en/docs/operations/).
+- **Business flows without a placeholder model:** the graph template's `agent_app.tool_graph` runs async Tool nodes with explicit `providers={}`, retaining budgets, approvals and receipts. See [workflows](/en/docs/workflows/).
+
+These maintenance capabilities belong to the pinned commit. The original archives sharing base version `0.1.0a8` do not necessarily contain them. A wait timeout, failed close or display-stream end does not establish completed business work.
 
 ## How the pieces fit
 

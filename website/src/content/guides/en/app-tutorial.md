@@ -1,32 +1,30 @@
 ---
 title: Build one support application
-description: Advance one source file from an offline Agent through Sessions, RAG, explicit Facts and a sequential Workflow.
+description: Advance one generated application from an offline Agent through Sessions, RAG, explicit Facts and a sequential Workflow.
 locale: en
 slug: app-tutorial
 sources: [docs/support-journey.md, docs/installation.md, docs/agent-api.md, docs/session-api.md, docs/recall-and-rag.md, docs/managed-memory.md, docs/orchestration.md, docs/recovery-guide.md]
 ---
 
-Follow ticket `INC-001` through five stages in one application file: an Agent with a read-only tool, a persistent Session, local RAG, lasting Facts and a sequential Workflow. Each stage composes existing SDK components. The default provider is an offline fixture; it demonstrates execution and evidence plumbing without model credentials or network services.
+Follow ticket `INC-001` through five stages in one generated application: an Agent with a read-only tool, a persistent Session, local RAG, lasting Facts and a sequential Workflow. Each stage composes existing SDK components. The default provider is an offline fixture; it demonstrates execution and evidence plumbing without model credentials or network services.
 
-This tutorial targets the **0.1.0a6 Local SDK** at pinned source commit `ba1c81fca67e15e70c1d51d0f4ecbbbcbbb37239`. Complete [installation](/en/docs/installation/) and the [approval quickstart](/en/docs/quickstart/) first. The stages below run without Temporal, Docker, embeddings or an external database. Online model compatibility and task quality need separate [testing and evaluation](/en/docs/testing/).
+This tutorial targets the **0.1.0a8 Local SDK** at pinned source commit `300c62ce8dd417df6b471ce1c10a1b7a562d2c46`. Complete [installation](/en/docs/installation/) and the [approval quickstart](/en/docs/quickstart/) first. The stages below run without Temporal, Docker, embeddings or an external database. Online model compatibility and task quality need separate [testing and evaluation](/en/docs/testing/).
 
-## 1. Prepare the application file
+## 1. Generate an editable application
 
-Use [support_journey.py](repo:examples/support_journey.py) from the published source. It imports only the installed SDK and Python's standard library; it does not import the repository's `examples` package. A wheel installs the SDK but does not include this example file; the source distribution includes it.
-
-If you followed source installation, run this **from the framework checkout root**, with its virtual environment active. Choose a new target directory:
+Complete installation of the fixed maintenance source first. Return to the framework checkout root with its virtual environment active and choose a new target directory:
 
 ```bash
-mkdir ../support-app
-git show ba1c81fca67e15e70c1d51d0f4ecbbbcbbb37239:examples/support_journey.py \
-  > ../support-app/support_journey.py
+relf --format text init ../support-app
 cd ../support-app
-python support_journey.py --help
+python -m agent_app.journey --help
 ```
 
-If you installed a wheel without a checkout, open the linked source, choose its raw file and save it as `support_journey.py` in a new working directory. Save Python source rather than the GitHub HTML page, activate the environment containing the SDK and run the same `--help` command there. It should list `agent`, `session`, `rag`, `memory` and `workflow`.
+The default oncall template generates `agent_app/journey.py`, `agent_app/customize.py` and the original approval application's `runtime.py`. The journey uses the installed SDK directly, without downloading repository examples or copying a file manually. Help should list `agent`, `session`, `rag`, `memory` and `workflow`.
 
-All remaining commands run beside this file. By default, `.ralf/support-journey/` contains five independent stage databases, including their execution history, Sessions, Knowledge and Facts. Each stage assembles its own data from the same source file; it does not migrate or share the preceding stage's Run or Session.
+This generation capability belongs to the fixed maintenance source; original a8 and older archives lack these files. Existing projects are not rewritten automatically: generate into a new directory, compare application code and preserve the original version for old Runs. `python -m agent_app` remains the approval/write tutorial; `python -m agent_app.journey` uses read-only tools and separate data.
+
+Run all remaining commands from the generated `support-app` project directory. By default, `.ralf/support-journey/` contains five independent stage databases, including their execution history, Sessions, Knowledge and Facts. Each stage assembles its own data from the same source file; it does not migrate or share the preceding stage's Run or Session.
 
 | Stage | Added component | Main customization point | Database |
 | --- | --- | --- | --- |
@@ -39,8 +37,8 @@ All remaining commands run beside this file. By default, `.ralf/support-journey/
 ## 2. Run an Agent and retrieve its original result
 
 ```bash
-python support_journey.py agent --command-id agent-1
-python support_journey.py agent --command-id agent-1
+python -m agent_app.journey agent --command-id agent-1
+python -m agent_app.journey agent --command-id agent-1
 ```
 
 The first JSON output should contain these fields; your `run_id` will differ:
@@ -69,7 +67,7 @@ For a new request using the same definition, choose a new `--command-id`. Reusin
 Skip this step to keep the entire tutorial offline. To opt in, make `DEEPSEEK_API_KEY` available through your own credential management and replace `YOUR_MODEL` with a model supported by your account:
 
 ```bash
-python support_journey.py agent \
+python -m agent_app.journey agent \
   --provider deepseek-chat --model YOUR_MODEL \
   --data-dir .ralf/support-live --command-id live-1
 ```
@@ -83,10 +81,10 @@ Keep live data separate from offline data. If you change the model, instructions
 ## 4. Continue the same Session across processes
 
 ```bash
-python support_journey.py session --command-id turn-1
-python support_journey.py session --command-id turn-2 \
+python -m agent_app.journey session --command-id turn-1
+python -m agent_app.journey session --command-id turn-2 \
   --input 'What should we check next?'
-python support_journey.py session --command-id turn-2 \
+python -m agent_app.journey session --command-id turn-2 \
   --input 'What should we check next?'
 ```
 
@@ -99,7 +97,7 @@ Finish or handle the previous Turn before submitting the next. An open approval,
 ## 5. Add local RAG
 
 ```bash
-python support_journey.py rag --command-id rag-1
+python -m agent_app.journey rag --command-id rag-1
 ```
 
 Expect `state: succeeded` and this entry in `result.knowledge`:
@@ -117,8 +115,8 @@ This stage uses lexical retrieval and downloads no embedding model. A hit demons
 ## 6. Add explicit lasting Facts
 
 ```bash
-python support_journey.py memory --command-id memory-1
-python support_journey.py memory --command-id memory-2
+python -m agent_app.journey memory --command-id memory-1
+python -m agent_app.journey memory --command-id memory-2
 ```
 
 Both should succeed and include `result.facts: {"response-style": "concise"}`. The trusted host first writes this Fact to the `support` namespace with `expected_version=0`. The second process preserves its value and recalls it again; it also has a prior Session record. This stage seeds its own runbook in `memory.sqlite`, so its result includes Knowledge as well.
@@ -130,7 +128,7 @@ This example performs explicit writes and persistent recall. It does not perform
 ## 7. Compose a sequential Workflow
 
 ```bash
-python support_journey.py workflow --command-id workflow-1
+python -m agent_app.journey workflow --command-id workflow-1
 ```
 
 Expect `state: succeeded`, `model_calls: 4`, the runbook reference and `response-style: concise`. `WorkflowSpec` runs `triage` first, then `support`; the preceding step's output becomes the next input. The Workflow stage assembles its own Knowledge and Facts, reusing the earlier component choices. All business tools remain read-only.
@@ -153,7 +151,7 @@ After a stopped process, rerun the original application command with the same fi
 | Symptom | Next step |
 | --- | --- |
 | `ModuleNotFoundError: relf_agent` | Activate the environment containing the installed SDK; verify [installation](/en/docs/installation/) |
-| Python cannot open the file, or reports HTML syntax | Prepare the raw `support_journey.py` source and run beside it |
+| `agent_app.journey` cannot be imported | Check the fixed source and installation; generate the current oncall template in a new directory and run from its project root |
 | JSON `{"error":"validation_error"}` | Check arguments and configuration; live mode requires an explicit model and credentials, and the fixture supports only `INC-001` |
 | `idempotency_conflict` | Recover the original request unchanged; use a new ID for a new intent |
 | `definition_mismatch` | Restore the original model, file and component configuration; a changed application belongs in new data |
@@ -165,10 +163,30 @@ The example shares one SQLite connection: Knowledge and Memory borrow it, while 
 
 ## 9. Customize and validate your application
 
+Run the generated component-replacement example first:
+
+```bash
+python -m agent_app.customize agent --data-dir .ralf/custom-support --command-id custom-1
+python -m agent_app.customize agent --data-dir .ralf/custom-support --command-id custom-1
+```
+
+Both commands should return the same Run and result, including `source=custom-model` and `ticket.source=custom-lookup`. This provider exposes no counter: `model_calls=null` means a count was not supplied, not zero calls.
+
+| Customization point | Connect your business |
+| --- | --- |
+| `SupportModel.complete` / `provider_for` | Async Provider returning `ModelResponse`; explicitly select an existing adapter, model and credentials for real calls |
+| `custom_tools()` | Register async Python functions with argument schemas, effect classes and write verification |
+| `memory_for_example()` | Persistent SQLite by default; `InMemoryMemory` is an explicit temporary experiment and cannot recover across processes |
+
+The generated application's `main(argv=None, *, provider=None, tools=None, memory=None)` accepts these three injections; they are not new SDK public ports. An injected Provider cannot be combined with `--provider/--model`. Only `None` chooses defaults; an empty tool registry does not restore default tools.
+
+Callers own injected resources and create, await and close them on the same event loop. Synchronous `main()` is not an async-client host: use `run()` or the existing Runtime in an async application. This application's combined memory needs Session/ Facts methods and `inspect_fact` to seed preferences; an arbitrary backend implementing only minimal `facts/put_fact` is insufficient. Use fresh data and commands for temporary memory; it cannot continue another process's Session or backend identity.
+
+
 - Replace the model in `provider_for`; adapt `OfflineSupportProvider` when maintaining an offline regression fixture.
 - Replace the read-only business query in `tools_for`. A different ticket also requires updating the fixture's hard-coded tool call, instructions and Session ID in `run`. Changing only `--input` does not turn this fixture into a general ticket service.
 - Replace the Knowledge and Memory ports in `run`, retaining Scope, namespaces, source checks and version-checked writes. Use new data for changed definitions; retain the original file/configuration for historical recovery.
 - Introduce writes only with the appropriate effect classification, approval and reconciliation contract from [models and tools](/en/docs/models-tools/) and the [quickstart](/en/docs/quickstart/). A read-only declaration must describe the actual tool behavior.
 - Establish offline regressions, model protocol checks and task quality cases through [testing and evaluation](/en/docs/testing/). Query signatures and control semantics in the [API and CLI reference](/en/docs/api-reference/).
 
-The optional repository [original support journey (Chinese)](repo:docs/support-journey.md) covers this same source file. Temporal/Coding composition and production service integration are outside this Local tutorial's verification.
+The repository [support journey (Chinese)](repo:docs/support-journey.md) describes the generated application and its component contracts. Temporal/Coding composition and production service integration are outside this Local tutorial's verification.

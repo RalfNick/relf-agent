@@ -3,10 +3,10 @@ title: API 与 CLI 参考
 description: 查询常用 Local Agent、Runtime、Session 和 CLI 的签名、返回值与恢复契约。
 locale: zh
 slug: api-reference
-sources: [docs/api-reference.md, docs/agent-api.md, docs/session-api.md, docs/user-input.md, docs/sdk-model-tools.md, docs/recovery-guide.md, docs/runtime-assembly.md, docs/getting-started.md]
+sources: [docs/api-reference.md, docs/agent-api.md, docs/session-api.md, docs/user-input.md, docs/sdk-model-tools.md, docs/recovery-guide.md, docs/runtime-assembly.md, docs/getting-started.md, docs/agent-stream-updates.md]
 ---
 
-本页精选常用 Local 入口，对照 SDK `0.1.0a6` 核验，不是完整的自动生成 API 列表。完整程序从[连续应用教程](/zh/docs/app-tutorial/)开始；Provider 装配见[模型与工具](/zh/docs/models-tools/)。Temporal 和可选后端的独立契约见[运行与部署](/zh/docs/operations/)。
+本页精选常用 Local 入口，对照 SDK `0.1.0a8` 核验，不是完整的自动生成 API 列表。完整程序从[连续应用教程](/zh/docs/app-tutorial/)开始；Provider 装配见[模型与工具](/zh/docs/models-tools/)。Temporal 和可选后端的独立契约见[运行与部署](/zh/docs/operations/)。
 
 ## 定义和可运行入口
 
@@ -15,7 +15,7 @@ sources: [docs/api-reference.md, docs/agent-api.md, docs/session-api.md, docs/us
 | 入口 | 常用签名或默认值 | 含义 |
 | --- | --- | --- |
 | `AgentSpec` | `AgentSpec(name, instructions, tools=(), provider="default", version="1", max_decisions=8, max_context_chars=32000, model_credits=1, output_schema=None)` | 不可变声明。工具名须在宿主注册；没有 `run` 或 `open_session` 方法。 |
-| `Agent` | `Agent(*, model, tools=(), name="assistant", instructions="Answer the request", db_path=".ralf/runs.sqlite", definition=None)` | 显式传入 Provider 的独立异步 Facade，创建并拥有 Runtime。 |
+| `Agent` | `Agent(*, model, tools=(), name="assistant", instructions="Answer the request", db_path=".ralf/runs.sqlite", definition=None, stream_updates=None)` | 显式传入 Provider 的独立异步 Facade，创建并拥有 Runtime。 |
 | 共享宿主的 `Agent` | `Agent(runtime=runtime, definition=spec)` 或 `runtime.create_agent(spec)` | 借用已有 Runtime 及其固定组件，不再同时传 `model` 或 `tools`。 |
 | `Runtime` | `Runtime(engine, *, owned=False, authority_locator=None, close_timeout=30, close_policy="drain")` | 在一个事件循环托管 Local 执行；默认借用注入的 engine。 |
 | `LocalEngine` | `LocalEngine(store, providers=..., tools=..., ...)` | 底层执行权威。`submit` 记录意图，调用者显式推进。 |
@@ -25,6 +25,8 @@ sources: [docs/api-reference.md, docs/agent-api.md, docs/session-api.md, docs/us
 建议定义命名为 `spec`，可运行入口命名为 `agent`。修改提交的声明（例如 `output_schema`）会改变请求摘要；工具和 Provider 注册身份固定在接受时的 release 中。变更组件用于新任务，恢复旧 Run 须保留原组件。
 
 `Runtime.from_profile(profile, db_path, *, builder=None, scope=None, ...)` 拥有构建的组件装配；`await Runtime.afrom_profile(...)` 支持异步工厂。组件注册见[运行装配](repo:docs/runtime-assembly.md)，托管与关闭见 [Local Agent 契约（英文）](repo:docs/agent-api.md)。
+
+独立 Agent 的非空工具必须是 `ToolRegistry`，且每个工具明确声明效果类别；`tools=[function]` 不携带注册元数据，会在建库前拒绝。只有 `definition=None` 才选便捷默认定义；显式空字符串、容器、布尔值等无效定义会拒绝，不悄悄换成默认 Agent。
 
 ## submit、run 与 wait
 
@@ -41,6 +43,8 @@ sources: [docs/api-reference.md, docs/agent-api.md, docs/session-api.md, docs/us
 
 `WaitResult` 包含 `ref`、`snapshot`、`wait_reason`、`observed_at`。原因值为 `state_reached`、`control_available`、`observation_timeout`。读取 `observed.snapshot.result` 前先检查 `observed.snapshot.state`；暂停或观察超时不等于业务成功。`terminal_only=True` 会等待穿过暂停，通常需要明确的观察超时。
 
+`wait_timeout` 和 Runtime 关闭期限接受有限、非负秒数；布尔值、NaN／inf、负数及无法表示为有限秒数的整数会被拒绝。`terminal_only` 必须为布尔值。`Agent.run` 与 Local／Temporal Session.run 在提交前验证这些观察选项；拒绝时不创建 Run／Turn、命令回执或额度预留，有效重试可复用未受理 ID。
+
 取消 wait 的 await 不会取消业务执行。明确取消须 `await run.cancel(command_id=...)`；取消也不回滚远端效果。
 
 原始 engine 的返回类型与推进方式不同：
@@ -53,6 +57,25 @@ print(snapshot.state, snapshot.result)
 ```
 
 `engine.submit(...)` 同步返回 `RunHandle(run_id, receipt)`，不会开始执行；`await engine.drive(...)` 在完成或暂停时返回 `RunSnapshot`。不要混用 `RunHandle`、`AgentRun` 和 `WaitResult`。无状态 Facade 提交拒绝共享 `session_id` 和 `queue=True`，共享会话请使用显式 Session。
+
+## 可恢复事件与展示流
+
+这两个方法**直接返回可异步迭代、可关闭的订阅，不在调用处 await**；用 `contextlib.aclosing` 确保提前结束时关闭观察。
+
+| 方法／类型 | 使用方式与契约 |
+| --- | --- |
+| `run.subscribe_events(*, after=0, page_size=100, follow=True, poll_interval=0.1, read_timeout=30, max_events=None)` | 原 Run 的持久事件。记录有 `.event` 和 `.cursor`；读取成功交付的 `.cursor.token` 用于重连。 |
+| `run.stream_updates(**options)` | 接受相同订阅选项，返回 `AgentStreamEvent`：`.kind`、`.authoritative`、`.data`、`.cursor`。 |
+| `EventCursor.from_token(token)` | 恢复原 Scope／Run 的游标；不使用另一任务或作用域的 token。 |
+| `StreamedModelProvider(base_provider, chunk_chars=128)` | 包装实际支持 `stream` 的 Provider；不先 complete 再重复发出流式调用。 |
+| `StreamUpdatePolicy()` | 显式选择模型文本和工具进度展示；默认每 Attempt 最多 64 条 delta、合计 64 KiB、每条 4 KiB。 |
+| `await emit_tool_delta(json_value)` | 原 async 工具 Attempt 显式报告进度；返回 False 不证明业务未执行，不能据此重做写入。 |
+
+`follow=True` 会等待后续事件并穿过审批／输入暂停；有界历史读取使用 `follow=False` 或 `max_events`。`read_timeout` 只限制一次来源读取，整体观察期限用 `asyncio.timeout(...)`。只有成功交付的记录推进游标；提前关闭、超时或取消只停止观察，不隐式取消／恢复业务，不关闭借用 Runtime。
+
+展示默认关闭，须在**新 Run 的固定组件**中选择 `StreamUpdatePolicy`，模型另用 `StreamedModelProvider`，async 工具显式调用 `emit_tool_delta`。共享 Agent 不覆盖 Runtime 的固定策略；当前没有新增内置 JSON／TOML 流工厂。`model_delta`／`tool_delta`／`gap` 不具权威性，`model_end`／`tool_end` 只表示原响应／回执或未知事实已记录；最终结果仍检查 Snapshot 和原效果证据。不是 reasoning、任意 stdout 或逐记录 Workflow 数据流。
+
+完整离线代码、重连和流重放见[运行与部署](/zh/docs/operations/)。这些 API 属于固定维护源码，原 a8 归档不包含它们。
 
 ## 持久 Session
 
@@ -102,6 +125,8 @@ Session 保留一个未完成 Turn，审批、用户输入和未知效果都可�
 Agent／Runtime 使用 `async with`。独立 Agent 关闭自己创建的 Runtime；借用 Agent 的关闭只分离入口。Runtime 排空托管工作，仅 `owned=True` 才关闭 engine；`LocalEngine` 拥有 Store／Coordinator。直接注入的 Provider、客户端及其他借用组件仍由原所有者关闭；Profile Builder 可以显式拥有资源。
 
 关闭默认 `drain`，超时为 30 秒。`aclose()` 返回 `CloseReport(state, parked, owned)`。`CloseIncomplete` 保留报告和关闭责任，应保留资源并重试 `aclose()`。`close_policy="cancel"` 提交取消并等待实际受管理工作收尾；两种策略都不证明远端写已回滚。
+
+owned Agent 在分离入口前验证关闭参数和调用来源；预检拒绝后入口仍可用。一旦真实关闭开始，即使等待超时或取消也停止新请求，并保留原清理责任供重试。异步资源在其创建事件循环上使用和关闭；资源回调重入关闭不是外部并发关闭观察。上下文正文错误保持主要错误，不被关闭预检失败替换。
 
 | 信号 | 下一步 |
 | --- | --- |

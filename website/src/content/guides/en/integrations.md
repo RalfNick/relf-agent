@@ -3,7 +3,7 @@ title: Integrations & extensions
 description: Connect models, MCP, HTTP, CLI tools, workspaces and skills while retaining the existing execution protocol.
 locale: en
 slug: integrations
-sources: [docs/model-adapters.md, docs/managed-tools.md, docs/mcp-http.md, docs/http-tools.md, docs/cli-tools.md, docs/workspace.md, docs/workspace-writes.md, docs/skills.md, docs/sandbox.md, docs/extending.md]
+sources: [docs/model-adapters.md, docs/managed-tools.md, docs/mcp-http.md, docs/http-tools.md, docs/cli-tools.md, docs/workspace.md, docs/workspace-writes.md, docs/skills.md, docs/sandbox.md, docs/extending.md, docs/agent-stream-updates.md]
 ---
 
 ## Choose the integration boundary
@@ -31,7 +31,7 @@ Tools still run through registration, authorization, approval, actions and recei
 
 Adapters declare protocol capabilities. Verify your account, region, model, tool round trips and streaming cancellation in your environment. Applications explicitly select models; failures do not silently fall back to offline results or another protocol. Credentials come from the environment or a trusted credential service; profiles retain credential variable names.
 
-SSE text fragments are temporary display data. A complete, validated and recorded response is required before a tool proposal can be adopted. Fragments are not durable run events, and token-level resumable streaming is not provided. See the [model adapter guide (Chinese)](repo:docs/model-adapters.md).
+The original Provider SSE path supplies temporary display data; tool proposals still require a complete, validated and recorded response. The fixed maintenance source can explicitly combine `StreamedModelProvider` and `StreamUpdatePolicy` to record bounded display updates in original Run events. This does not provide token-level model resumption. See the [model adapter guide (Chinese)](repo:docs/model-adapters.md).
 
 ## Run a real offline MCP tool
 
@@ -81,3 +81,12 @@ These Alpha components are enabled within their experimental scope. Importing th
 Providers, tool sources, context, memory, retrievers, embeddings and executors have distinct extension contracts. Structural ports generally do not require framework inheritance. Implementations need stable identities, correct sync/async methods, completed return values and explicit cleanup.
 
 Pure policies propose choices without network, model or storage I/O. Components needing asynchronous construction use existing entry points such as `abuild`. Directly injected resources follow owned/borrowed lifetime rules. See [extension contracts (Chinese)](repo:docs/extending.md) and [runtime and deployment](/en/docs/operations/).
+
+
+## Extension return values and cleanup ownership
+
+Custom control/event ports return finite JSON and completed typed states/receipts. Coroutines, locks, cycles and invalid states are rejected before copying. A rejected return value does not undo an accepted command: fix the adapter and retrieve its original receipt with the same ID/request. Native nested objects remain their producer's responsibility; the framework does not execute embedded coroutines.
+
+`BuildContext.own()` refuses new resources after closing starts; the creator closes the rejected object. A custom CLI factory's synchronous close must actually finish and return None. Failure or a lazy result produces `validation_error`/exit code 2 even when the original Run was accepted or completed. Retain its request, Engine, lease and cleanup handle, then retry original cleanup and receipt recovery after fixing the component. Async clients use existing async assembly, not a synchronous close contract. See [extension contracts (Chinese)](repo:docs/extending.md) and [recovery](/en/docs/recovery/).
+
+For a complete offline model/tool display example, see [runtime and deployment](/en/docs/operations/).

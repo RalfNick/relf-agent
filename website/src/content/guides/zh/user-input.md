@@ -8,7 +8,7 @@ sources: [docs/user-input.md, docs/agent-api.md, docs/session-api.md, docs/recov
 
 应用缺少参数或需要澄清时，可以使用持久用户输入。显式注册的 `request_input` 工具让原 Run 停在 `waiting_input`，关闭和重启后仍保留同一个问题。业务审批、新的会话 Turn 与回答旧问题是不同操作。普通业务输出 `{"status":"needs_input"}` 不会自动创建持久问题。
 
-以下流程使用已安装的 **0.1.0a6** Local SDK 和离线 Provider，不需要模型密钥或网络服务。请先完成[安装](/zh/docs/installation/)或[快速开始](/zh/docs/quickstart/)。
+以下流程使用已安装的 **0.1.0a8** Local SDK 和离线 Provider，不需要模型密钥或网络服务。请先完成[安装](/zh/docs/installation/)或[快速开始](/zh/docs/quickstart/)。
 
 ## 1. 生成已安装的输入 starter
 

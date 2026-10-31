@@ -3,7 +3,7 @@ title: Core concepts
 description: Understand agent definitions, durable execution facts and external business effects as separate concerns.
 locale: en
 slug: concepts
-sources: [docs/concepts.md, docs/recovery-guide.md, docs/agent-api.md, docs/completion-verification.md]
+sources: [docs/concepts.md, docs/recovery-guide.md, docs/agent-api.md, docs/completion-verification.md, docs/agent-stream-updates.md]
 ---
 
 ## How a task executes
@@ -40,6 +40,12 @@ Model → Decision → Tool / Approval → Result
 | Runtime profile | Select registered components through JSON/TOML with versioned recovery identities |
 
 These entry points reuse the original execution authority rather than creating separate approval or budget logs. `Agent.run` submits and waits. Its `WaitResult.snapshot` contains the actual business state; a successful wait can still mean the task is awaiting approval.
+
+## Observation records and execution facts
+
+`AgentRun.subscribe_events()` follows durable events with cursor reconnect. An explicit policy also allows `stream_updates()` to display model text and async-tool progress, without adding execution authority. Display deltas, received responses/receipts, terminal business state and actual handler completion are distinct evidence.
+
+Retain delivered cursors only. Closing/cancelling observation does not cancel business work or resume a paused task. See [runtime and deployment](/en/docs/operations/) for a complete offline path and [API](/en/docs/api-reference/) for return types.
 
 ## Commands and execution identity
 

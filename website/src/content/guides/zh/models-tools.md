@@ -1,10 +1,50 @@
 ---
 title: 模型与工具
-description: 注册普通 Python 函数，连接真实模型，用 LocalEngine 驱动一次任务。
+description: 注册普通 Python 函数，连接模型，选择 Agent 便捷入口或直接装配 LocalEngine。
 locale: zh
 slug: models-tools
-sources: [docs/sdk-model-tools.md, docs/getting-started.md, docs/model-adapters.md, docs/completion-verification.md, README.md]
+sources: [docs/sdk-model-tools.md, docs/getting-started.md, docs/model-adapters.md, docs/completion-verification.md, README.md, docs/agent-api.md]
 ---
+
+## 先用 Agent 便捷入口
+
+单个模型／工具循环可从 `Agent` 开始，无需先装配 Engine。保存下面的离线例子为 `facade_agent.py`，在已安装 SDK 的独立目录执行 `python facade_agent.py`：
+
+```python
+import asyncio
+import json
+from relf_agent import Agent, ModelResponse, ToolCall, ToolRegistry
+
+tools = ToolRegistry()
+
+@tools.tool(effect="read_only")
+async def lookup(ticket: str):
+    return {"ticket": ticket, "status": "open"}
+
+class OfflineTicket:
+    identity = {"kind": "website-agent-entry", "version": "1"}
+
+    async def complete(self, messages, tools):
+        if not any(message["role"] == "tool" for message in messages):
+            return ModelResponse(tool_calls=(ToolCall("lookup", {"ticket": "INC-001"}, "one"),))
+        return ModelResponse(output={"ticket": "INC-001", "status": "open"})
+
+async def main():
+    async with Agent(model=OfflineTicket(), tools=tools,
+                     db_path=".ralf/facade.sqlite") as agent:
+        run = await agent.submit("Check INC-001", command_id="facade-1", budget=8)
+        observed = await run.wait(wait_timeout=10)
+        print(json.dumps({"run_id": run.ref.run_id, "state": observed.snapshot.state,
+                          "result": observed.snapshot.result}))
+
+asyncio.run(main())
+```
+
+输出应为 `succeeded` 和工单结果。重复脚本回读相同 `run_id`；它使用确定性 Provider，只证明工具循环和恢复身份，不代表真实模型质量。Agent 创建并拥有这个 Runtime，工具调用和审批仍由原 Engine 管理。
+
+接真实模型时把 `OfflineTicket()` 替换成显式配置的 Provider，保留 `ToolRegistry`，并使用新任务身份和数据。非空 `tools=[lookup]` 缺少注册效果元数据，会被拒绝；不要依靠函数注解推断授权。`Agent.run(...)` 可合并 submit／wait，返回 `WaitResult`，仍要检查 `snapshot.state`。共享多个 Agent 时使用已有 Runtime，原数据库、资源归属和历史组件保持固定。
+
+下面继续说明工具声明和需要直接控制 Engine 时的装配路径。
 
 ## 把函数注册为工具
 

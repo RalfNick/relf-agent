@@ -3,10 +3,10 @@ title: API & CLI reference
 description: Find common Local Agent, Runtime, Session and CLI signatures, return values and recovery contracts.
 locale: en
 slug: api-reference
-sources: [docs/api-reference.md, docs/agent-api.md, docs/session-api.md, docs/user-input.md, docs/sdk-model-tools.md, docs/recovery-guide.md, docs/runtime-assembly.md, docs/getting-started.md]
+sources: [docs/api-reference.md, docs/agent-api.md, docs/session-api.md, docs/user-input.md, docs/sdk-model-tools.md, docs/recovery-guide.md, docs/runtime-assembly.md, docs/getting-started.md, docs/agent-stream-updates.md]
 ---
 
-This is a curated reference for the common Local path, checked against SDK `0.1.0a6`. It is not an exhaustive generated API listing. Start with the [application tutorial](/en/docs/app-tutorial/) for a complete program; use [models and tools](/en/docs/models-tools/) for provider setup. Temporal and optional backends have separate contracts in [operations](/en/docs/operations/).
+This is a curated reference for the common Local path, checked against SDK `0.1.0a8`. It is not an exhaustive generated API listing. Start with the [application tutorial](/en/docs/app-tutorial/) for a complete program; use [models and tools](/en/docs/models-tools/) for provider setup. Temporal and optional backends have separate contracts in [operations](/en/docs/operations/).
 
 ## Definitions and runnable entries
 
@@ -15,7 +15,7 @@ Import these names from `relf_agent`.
 | Entry | Common signature or defaults | Meaning |
 | --- | --- | --- |
 | `AgentSpec` | `AgentSpec(name, instructions, tools=(), provider="default", version="1", max_decisions=8, max_context_chars=32000, model_credits=1, output_schema=None)` | Immutable declaration. Tool names must be registered with the host. It has no `run` or `open_session` method. |
-| `Agent` | `Agent(*, model, tools=(), name="assistant", instructions="Answer the request", db_path=".ralf/runs.sqlite", definition=None)` | Standalone async facade, with an explicitly supplied Provider. Creates and owns its Runtime. |
+| `Agent` | `Agent(*, model, tools=(), name="assistant", instructions="Answer the request", db_path=".ralf/runs.sqlite", definition=None, stream_updates=None)` | Standalone async facade, with an explicitly supplied Provider. Creates and owns its Runtime. |
 | `Agent` with shared host | `Agent(runtime=runtime, definition=spec)` or `runtime.create_agent(spec)` | Borrows an existing Runtime and its fixed components. Do not also supply `model` or `tools`. |
 | `Runtime` | `Runtime(engine, *, owned=False, authority_locator=None, close_timeout=30, close_policy="drain")` | Hosts Local execution on one event loop. Injected engine is borrowed by default. |
 | `LocalEngine` | `LocalEngine(store, providers=..., tools=..., ...)` | Lower level execution authority. Its `submit` records intent; the caller explicitly drives it. |
@@ -25,6 +25,8 @@ Import these names from `relf_agent`.
 Keep declarations named `spec` and runnable facades named `agent`. Changing the submitted declaration, such as `output_schema`, changes the request digest. Tool and Provider registration identities are fixed in the accepted release; use changed components for new tasks and retain original components to recover old Runs.
 
 `Runtime.from_profile(profile, db_path, *, builder=None, scope=None, ...)` owns the built assembly. `await Runtime.afrom_profile(...)` supports asynchronous factories. [Runtime assembly details (Chinese)](repo:docs/runtime-assembly.md) describe component registration; the [English Local Agent contract](repo:docs/agent-api.md) covers hosting and shutdown.
+
+Nonempty standalone Agent tools must be a `ToolRegistry` with explicit effect declarations. `tools=[function]` carries no registry metadata and is refused before database creation. Only `definition=None` selects the convenience definition; invalid explicit strings, containers or booleans are rejected rather than silently replaced with a default Agent.
 
 ## Submit, run and wait
 
@@ -41,6 +43,8 @@ All facade calls below are awaited. `command_id` is required for submitting busi
 
 `WaitResult` contains `ref`, `snapshot`, `wait_reason` and `observed_at`. Reasons are `state_reached`, `control_available` and `observation_timeout`. Always check `observed.snapshot.state` before using `observed.snapshot.result`. A pause or observation timeout is not business success. `terminal_only=True` waits through pauses and can need a finite observation timeout.
 
+Wait and Runtime close timeouts accept finite nonnegative seconds; booleans, NaN/inf, negatives and integers too large for finite seconds are rejected. `terminal_only` must be boolean. `Agent.run` and Local/Temporal Session.run validate these observation options before submission: rejection creates no Run/Turn, command receipt or credit reservation, so a valid retry can reuse the unaccepted ID.
+
 Cancelling an awaited wait does not cancel business execution. Use `await run.cancel(command_id=...)` for an explicit cancellation decision; cancellation does not roll back remote effects.
 
 The raw engine has different return types and driving semantics:
@@ -53,6 +57,25 @@ print(snapshot.state, snapshot.result)
 ```
 
 `engine.submit(...)` is synchronous and returns `RunHandle(run_id, receipt)` without starting execution. `await engine.drive(...)` returns `RunSnapshot` at completion or a pause. Do not interchange `RunHandle`, `AgentRun` and `WaitResult`. Stateless facade submission rejects shared `session_id` and `queue=True`; use an explicit Session.
+
+## Resumable events and display updates
+
+These methods **return closable async subscriptions directly; do not await the call itself**. Use `contextlib.aclosing` to close observation when iteration ends early.
+
+| Method/type | Usage and contract |
+| --- | --- |
+| `run.subscribe_events(*, after=0, page_size=100, follow=True, poll_interval=0.1, read_timeout=30, max_events=None)` | Durable events for the original Run. Records have `.event` and `.cursor`; retain a successfully delivered `.cursor.token` for reconnect. |
+| `run.stream_updates(**options)` | Same subscription options, yielding `AgentStreamEvent` with `.kind`, `.authoritative`, `.data` and `.cursor`. |
+| `EventCursor.from_token(token)` | Restore a cursor for the same Scope/Run, never another task or Scope. |
+| `StreamedModelProvider(base_provider, chunk_chars=128)` | Wrap a Provider that actually supports `stream`; it does not call complete before dispatching a second streaming request. |
+| `StreamUpdatePolicy()` | Explicit text/tool-progress display; defaults per Attempt: 64 deltas, 64 KiB total payload, 4 KiB per delta. |
+| `await emit_tool_delta(json_value)` | Explicit progress from the original async Tool Attempt. False does not prove no business effect and cannot authorize repeating a write. |
+
+`follow=True` waits for future events through approval/input pauses. Use `follow=False` or `max_events` for bounded history. `read_timeout` limits one source read; use `asyncio.timeout(...)` for an overall observation deadline. Only delivered records advance the cursor. Early close, timeout or cancellation stops observation without implicitly cancelling/resuming business work or closing the borrowed Runtime.
+
+Display is off by default. Select `StreamUpdatePolicy` in the **new Run's fixed components**, wrap the model with `StreamedModelProvider`, and explicitly call `emit_tool_delta` in async tools. Shared Agents cannot override the Runtime's policy; no new built-in JSON/TOML streaming factory is provided. `model_delta`/`tool_delta`/`gap` are nonauthoritative. `model_end`/`tool_end` mean the original response, receipt or unknown-result fact was recorded; inspect the Snapshot and original effect evidence for final outcomes. Reasoning, arbitrary stdout and record-by-record Workflow dataflow are outside this capability.
+
+See [runtime and deployment](/en/docs/operations/) for complete offline code, reconnect and replay. These APIs belong to the pinned maintenance source; original a8 archives lack them.
 
 ## Durable Sessions
 
@@ -102,6 +125,8 @@ After closing, reconstruct the original engine/components/database and Runtime, 
 Use `async with` for Agent/Runtime. Standalone Agent closes its created Runtime. Closing a borrowed Agent only detaches it. A Runtime drains its hosted work and closes the engine only with `owned=True`; `LocalEngine` owns its Store/Coordinator. Directly injected Providers, clients and other borrowed components remain their owner's responsibility. Profile builders can explicitly own resources.
 
 Default close policy is `drain`, with a 30-second close timeout. `aclose()` returns `CloseReport(state, parked, owned)`. `CloseIncomplete` retains the report and shutdown responsibility: keep resources and retry `aclose()`. `close_policy="cancel"` requests cancellation and waits for actual managed work to settle; neither policy establishes rollback of remote writes.
+
+An owned Agent validates close options and call origin before detaching; a rejected preflight leaves it usable. Once shutdown actually starts, new work is refused even if the close wait times out or is cancelled, while retained cleanup remains retryable. Use and close async resources on their creation loop; reentrant closure from a resource callback differs from external concurrent close observation. A context-body error stays primary when close preflight also fails.
 
 | Signal | Next step |
 | --- | --- |

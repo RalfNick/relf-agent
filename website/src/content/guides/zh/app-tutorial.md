@@ -6,27 +6,25 @@ slug: app-tutorial
 sources: [docs/support-journey.md, docs/installation.md, docs/agent-api.md, docs/session-api.md, docs/recall-and-rag.md, docs/managed-memory.md, docs/orchestration.md, docs/recovery-guide.md]
 ---
 
-围绕工单 `INC-001`，在同一份应用文件中完成五个阶段：带只读工具的 Agent、持久 Session、本地 RAG、长期 Facts 和顺序 Workflow。每个阶段组合现有 SDK 组件。默认 Provider 是离线替身，无需模型凭据与网络服务，用于验证执行流程与证据传递。
+围绕工单 `INC-001`，在同一生成应用中完成五个阶段：带只读工具的 Agent、持久 Session、本地 RAG、长期 Facts 和顺序 Workflow。每个阶段组合现有 SDK 组件。默认 Provider 是离线替身，无需模型凭据与网络服务，用于验证执行流程与证据传递。
 
-本教程面向固定源码提交 `ba1c81fca67e15e70c1d51d0f4ecbbbcbbb37239` 的 **0.1.0a6 Local SDK**。先完成[安装](/zh/docs/installation/)和[审批首用教程](/zh/docs/quickstart/)。以下阶段不需要 Temporal、Docker、Embedding 或外部数据库。线上模型兼容性与任务质量需要另外进行[测试与评估](/zh/docs/testing/)。
+本教程面向固定源码提交 `300c62ce8dd417df6b471ce1c10a1b7a562d2c46` 的 **0.1.0a8 Local SDK**。先完成[安装](/zh/docs/installation/)和[审批首用教程](/zh/docs/quickstart/)。以下阶段不需要 Temporal、Docker、Embedding 或外部数据库。线上模型兼容性与任务质量需要另外进行[测试与评估](/zh/docs/testing/)。
 
-## 1. 准备应用文件
+## 1. 生成可编辑的应用
 
-使用已发布源码中的 [support_journey.py](repo:examples/support_journey.py)。它只导入已安装 SDK 与 Python 标准库，不导入仓库 `examples` 包。wheel 安装 SDK，但不包含该示例文件；源码包中包含它。
-
-如果按源码方式安装，在虚拟环境已激活的**框架仓库根目录**执行，目标目录应尚不存在：
+先完成固定维护源码的安装。回到框架仓库根目录，保持虚拟环境激活，选择尚不存在的目标目录：
 
 ```bash
-mkdir ../support-app
-git show ba1c81fca67e15e70c1d51d0f4ecbbbcbbb37239:examples/support_journey.py \
-  > ../support-app/support_journey.py
+relf --format text init ../support-app
 cd ../support-app
-python support_journey.py --help
+python -m agent_app.journey --help
 ```
 
-如果仅安装了 wheel、没有检出仓库，打开上面的源码链接，选择 raw 文件，保存到新工作目录，命名为 `support_journey.py`。保存 Python 源码而非 GitHub HTML 页面，激活安装 SDK 的环境，在该目录执行同样的 `--help` 命令。帮助中应列出 `agent`、`session`、`rag`、`memory`、`workflow`。
+默认 oncall 模板生成 `agent_app/journey.py`、`agent_app/customize.py` 和原审批应用的 `runtime.py`。连续教程直接使用已安装 SDK，无需下载仓库 examples 或手工复制文件；帮助中应列出 `agent`、`session`、`rag`、`memory`、`workflow`。
 
-后续命令都在这个文件所在目录执行。默认 `.ralf/support-journey/` 下有五个独立阶段数据库，分别保存执行记录、Session、Knowledge 与 Facts。各阶段用同一源码装配自己的数据，不会迁移或共享前一阶段的 Run／Session。
+这是固定维护源码新增的生成能力，原 a8 及更早归档没有这些文件。已生成项目不会自动改写；新目录生成后比较和迁移应用代码，为历史 Run 保留原版本。`python -m agent_app` 仍是审批写入教程，`python -m agent_app.journey` 使用只读工具及独立数据。
+
+后续命令都在生成的 `support-app` 项目目录执行。默认 `.ralf/support-journey/` 下有五个独立阶段数据库，分别保存执行记录、Session、Knowledge 与 Facts。各阶段用同一源码装配自己的数据，不会迁移或共享前一阶段的 Run／Session。
 
 | 阶段 | 增加的组件 | 主要定制位置 | 数据库 |
 | --- | --- | --- | --- |
@@ -39,8 +37,8 @@ python support_journey.py --help
 ## 2. 执行 Agent 并回读原结果
 
 ```bash
-python support_journey.py agent --command-id agent-1
-python support_journey.py agent --command-id agent-1
+python -m agent_app.journey agent --command-id agent-1
+python -m agent_app.journey agent --command-id agent-1
 ```
 
 第一次 JSON 输出应包含下列字段；实际 `run_id` 由任务生成：
@@ -69,7 +67,7 @@ python support_journey.py agent --command-id agent-1
 要让整个教程保持离线，跳过本步。显式接入时，通过自己的凭据管理方式提供 `DEEPSEEK_API_KEY`，将 `YOUR_MODEL` 替换为账户支持的实际型号：
 
 ```bash
-python support_journey.py agent \
+python -m agent_app.journey agent \
   --provider deepseek-chat --model YOUR_MODEL \
   --data-dir .ralf/support-live --command-id live-1
 ```
@@ -83,10 +81,10 @@ python support_journey.py agent \
 ## 4. 跨进程继续同一 Session
 
 ```bash
-python support_journey.py session --command-id turn-1
-python support_journey.py session --command-id turn-2 \
+python -m agent_app.journey session --command-id turn-1
+python -m agent_app.journey session --command-id turn-2 \
   --input 'What should we check next?'
-python support_journey.py session --command-id turn-2 \
+python -m agent_app.journey session --command-id turn-2 \
   --input 'What should we check next?'
 ```
 
@@ -99,7 +97,7 @@ python support_journey.py session --command-id turn-2 \
 ## 5. 加入本地 RAG
 
 ```bash
-python support_journey.py rag --command-id rag-1
+python -m agent_app.journey rag --command-id rag-1
 ```
 
 应得到 `state: succeeded`，且 `result.knowledge` 中包含：
@@ -117,8 +115,8 @@ python support_journey.py rag --command-id rag-1
 ## 6. 加入显式长期 Facts
 
 ```bash
-python support_journey.py memory --command-id memory-1
-python support_journey.py memory --command-id memory-2
+python -m agent_app.journey memory --command-id memory-1
+python -m agent_app.journey memory --command-id memory-2
 ```
 
 两次都应成功，包含 `result.facts: {"response-style": "concise"}`。可信宿主首次以 `expected_version=0` 将 Fact 写入 `support` namespace。第二个进程保留已保存值并再次召回，也会得到上一条 Session 记录。此阶段在自己的 `memory.sqlite` 中初始化手册，所以结果同时含有 Knowledge。
@@ -130,7 +128,7 @@ Fact namespace 与 `support` Agent 对应。替换存储时保留 Scope 与 name
 ## 7. 组成顺序 Workflow
 
 ```bash
-python support_journey.py workflow --command-id workflow-1
+python -m agent_app.journey workflow --command-id workflow-1
 ```
 
 应得到 `state: succeeded`、`model_calls: 4`、手册引用和 `response-style: concise`。`WorkflowSpec` 先运行 `triage`，再运行 `support`，前一步输出成为后一步输入。Workflow 阶段复用前面的组件选择，在自己的数据库中装配 Knowledge 与 Facts。业务工具仍全部只读。
@@ -153,7 +151,7 @@ relf --db .ralf/support-journey/session.sqlite events RUN_ID --after 0 --limit 1
 | 现象 | 下一步 |
 | --- | --- |
 | `ModuleNotFoundError: relf_agent` | 激活安装 SDK 的环境，核对[安装](/zh/docs/installation/) |
-| Python 找不到文件，或报告 HTML 语法错误 | 准备 raw `support_journey.py` 源码，在该文件目录运行 |
+| 找不到 `agent_app.journey` | 核对固定源码提交与安装位置，在新目录生成当前 oncall 模板，进入其项目根目录 |
 | JSON `{"error":"validation_error"}` | 检查参数与配置；真实模式需明确型号和凭据，离线工单只支持 `INC-001` |
 | `idempotency_conflict` | 原请求保持不变进行恢复；新意图使用新 ID |
 | `definition_mismatch` | 恢复原模型、文件和组件配置；变更后的应用使用新数据 |
@@ -165,10 +163,30 @@ relf --db .ralf/support-journey/session.sqlite events RUN_ID --after 0 --limit 1
 
 ## 9. 定制与验证应用
 
+先运行生成器提供的实际替换示例：
+
+```bash
+python -m agent_app.customize agent --data-dir .ralf/custom-support --command-id custom-1
+python -m agent_app.customize agent --data-dir .ralf/custom-support --command-id custom-1
+```
+
+两次应返回相同 Run 和结果，包含 `source=custom-model` 与 `ticket.source=custom-lookup`。此 Provider 没有计数接口，`model_calls=null` 表示未提供计数，不能解释为零调用。
+
+| 修改位置 | 怎样接自己的业务 |
+| --- | --- |
+| `SupportModel.complete` / `provider_for` | 返回 `ModelResponse` 的异步 Provider；真实模型显式选择原适配器、型号与凭据 |
+| `custom_tools()` | 注册自己的 async Python 工具，保留参数 Schema、效果类别及写入核验 |
+| `memory_for_example()` | 默认持久 SQLite；显式临时实验可用 `InMemoryMemory`，但不能跨进程恢复它 |
+
+生成应用的 `main(argv=None, *, provider=None, tools=None, memory=None)` 支持这三个注入位置，不是新增 SDK 公共端口。显式 Provider 不同时使用 `--provider/--model`；`None` 才选择默认组件，空工具表不会补回默认工具。
+
+注入资源由调用方持有，在同一事件循环创建、等待和关闭；同步 `main()` 不是异步客户端宿主，异步应用使用 `run()` 或已有 Runtime。此应用的组合 memory 需要 Session／Facts 方法，种入偏好还需 `inspect_fact`；只实现最小 `facts/put_fact` 的任意后端并不自动适用。临时 memory 使用新目录与命令，不能继续另一进程的 Session 或后端身份。
+
+
 - 在 `provider_for` 替换模型；维护离线回归替身时同步调整 `OfflineSupportProvider`。
 - 在 `tools_for` 替换只读业务查询。更换工单还需修改离线替身中写死的工具调用，以及 `run` 中的指令和 Session ID；只改变 `--input` 不会让该替身变成通用工单服务。
 - 在 `run` 替换 Knowledge、Memory 端口，保留 Scope、namespace、来源校验与版本检查写入。新定义使用新数据，历史恢复保留原文件与配置。
 - 新增写操作时，按[模型与工具](/zh/docs/models-tools/)及[首用教程](/zh/docs/quickstart/)使用适当的效果类别、审批和核验契约。只读声明必须符合工具的实际行为。
 - 通过[测试与评估](/zh/docs/testing/)建立离线回归、模型协议检查与任务质量样例；在[API 与 CLI 参考](/zh/docs/api-reference/)查询签名和控制语义。
 
-可选的仓库[原始连续工单教程](repo:docs/support-journey.md)使用同一源码文件。Temporal／Coding 组合及生产服务集成不在本 Local 教程的验证范围内。
+仓库[连续工单说明](repo:docs/support-journey.md)给出生成应用的来源与组件契约。Temporal／Coding 组合及生产服务集成不在本 Local 教程的验证范围内。

@@ -3,7 +3,7 @@ title: 集成与扩展
 description: 连接模型、MCP、HTTP、CLI、Workspace 与 Skills，在既有执行协议内复用外部能力。
 locale: zh
 slug: integrations
-sources: [docs/model-adapters.md, docs/managed-tools.md, docs/mcp-http.md, docs/http-tools.md, docs/cli-tools.md, docs/workspace.md, docs/workspace-writes.md, docs/skills.md, docs/sandbox.md, docs/extending.md]
+sources: [docs/model-adapters.md, docs/managed-tools.md, docs/mcp-http.md, docs/http-tools.md, docs/cli-tools.md, docs/workspace.md, docs/workspace-writes.md, docs/skills.md, docs/sandbox.md, docs/extending.md, docs/agent-stream-updates.md]
 ---
 
 ## 先选择接入方式
@@ -31,7 +31,7 @@ sources: [docs/model-adapters.md, docs/managed-tools.md, docs/mcp-http.md, docs/
 
 适配器声明其协议能力，具体账户、地区、型号、工具往返和流式取消仍需在你的环境验证。模型由应用明确选择，失败不会偷偷降级为离线结果或其他协议。密钥通过环境或可信凭据服务提供，Profile 保存凭据变量名。
 
-SSE 文本片段可用于临时展示；完整响应通过校验并保存后，才形成可采纳的工具提案。流片段不是耐久 Run 事件，也没有逐 Token 断点恢复。详细范围见[模型适配指南](repo:docs/model-adapters.md)。
+原 Provider 的 SSE 片段用于临时展示，完整响应仍须校验并保存后才能采纳工具提案。固定维护源码可显式用 `StreamedModelProvider`＋`StreamUpdatePolicy` 将有界展示记录写入原 Run 事件；这不是逐 Token 模型断点恢复。详细范围见[模型适配指南](repo:docs/model-adapters.md)。
 
 ## 运行一个真实的离线 MCP 工具
 
@@ -81,3 +81,12 @@ relf --db .ralf/runs.sqlite \
 Provider、ToolSource、Context、记忆、检索器、Embedding 和执行器提供各自的扩展契约。结构端口通常不要求继承框架类；实现需提供稳定身份、正确的同步／异步方法、已完成返回值及资源关闭方式。
 
 纯策略负责提出选择，不能执行网络、模型或存储调用。需要异步构造的组件使用 `abuild` 等已有入口；直接注入的资源按 owned／borrowed 规则关闭。详见[扩展契约](repo:docs/extending.md)及[运行与部署](/zh/docs/operations/)。
+
+
+## 扩展返回值与关闭责任
+
+自定义控制／事件端口返回有限 JSON 与已完成的类型化状态、回执；协程、锁、循环数据和非法状态会在复制前拒绝。拒绝返回值不撤销已受理命令，修正适配器后以原 ID、原请求找回回执。嵌套原生对象仍由生产方处置，框架不执行其中的 coroutine。
+
+`BuildContext.own()` 在关闭开始后拒绝新增资源；创建方关闭被拒绝对象。CLI 自定义工厂的同步 close 须真正完成并返回 None；失败或返回惰性对象会报告 `validation_error`／退出码 2，原 Run 仍可能已受理或完成。保留原请求、Engine、租约及 cleanup 句柄，修复后重试原清理和回执恢复。异步客户端使用原 async 装配，不放入同步关闭契约。详见[扩展契约](repo:docs/extending.md)与[恢复](/zh/docs/recovery/)。
+
+模型／工具展示的完整离线例子见[运行与部署](/zh/docs/operations/)。

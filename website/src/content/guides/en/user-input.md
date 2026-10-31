@@ -8,7 +8,7 @@ sources: [docs/user-input.md, docs/agent-api.md, docs/session-api.md, docs/recov
 
 Use durable input when an application needs a missing parameter or clarification. An explicitly registered `request_input` tool pauses its original Run at `waiting_input`. The question survives shutdown and restart. Business approval, a new conversation Turn and a reply to this question are different operations. Ordinary output such as `{"status":"needs_input"}` does not create a durable question.
 
-The following path uses the installed **0.1.0a6** Local SDK and an offline provider. It needs no model key or network service. First complete [installation](/en/docs/installation/) or the [quickstart](/en/docs/quickstart/).
+The following path uses the installed **0.1.0a8** Local SDK and an offline provider. It needs no model key or network service. First complete [installation](/en/docs/installation/) or the [quickstart](/en/docs/quickstart/).
 
 ## 1. Create the installed input starter
 

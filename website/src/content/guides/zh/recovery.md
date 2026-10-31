@@ -3,7 +3,7 @@ title: 审批与恢复
 description: 检查原操作、保存人工决定，并根据真实业务证据恢复原 Run。
 locale: zh
 slug: recovery
-sources: [docs/recovery-guide.md, docs/getting-started.md, docs/concepts.md]
+sources: [docs/recovery-guide.md, docs/getting-started.md, docs/concepts.md, docs/agent-api.md]
 ---
 
 ## 先观察原任务
@@ -94,3 +94,13 @@ relf --db .ralf/runs.sqlite --factory agent_app.runtime:create_engine cancel RUN
 完整状态、备份与故障窗口处理见仓库[恢复指南](repo:docs/recovery-guide.md)。多轮会话详见[会话、记忆与 RAG](/zh/docs/sessions-memory/)，配置与后端选择见[运行与部署](/zh/docs/operations/)。
 
 回复回执只记录回答，不表示业务完成。子任务的问题应从 pending 记录定位实际所属 Run；不要通过新建 Run 或 Session Turn 回答。控制返回值见 [API 与 CLI 参考](/zh/docs/api-reference/)，回归检查见[测试与评估](/zh/docs/testing/)。
+
+
+## 观察断开与关闭未完成
+
+断开的 UI／订阅可在原 Runtime 下 attach 原 RunRef，再从最后已交付 EventCursor 新建订阅；attach／订阅不自动推进排队或暂停的 Run。`read_timeout` 是单次读取期限，`wait_timeout` 是观察期限，均不证明业务未执行。显示流的 `gap` 或结束标记也不能代替原写效果核验。
+
+`CloseIncomplete` 或取消关闭等待后，保留原 Runtime／资源并重试 `aclose()`；真实关闭一旦开始就不再接收新任务。仅参数／来源预检被拒绝时入口仍开放。线程、客户端或远端效果尚未结束前不要删除租约、强制关库或用新配置接管。操作例子见[运行与部署](/zh/docs/operations/)。
+
+
+CLI 在业务命令后检查同步关闭的完成证据；关闭失败或非 None 返回会以退出码 2 报错，不能据此断言原提交未发生。先只读检查原 Run／回执，修复工厂并确认原实际调用已结束，再以同 ID、同输入／定义／预算找回原请求。

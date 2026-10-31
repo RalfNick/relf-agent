@@ -3,7 +3,7 @@ title: 会话、记忆与 RAG
 description: 区分对话历史、长期事实与知识文档，控制进入模型的内容，并保留可追溯来源。
 locale: zh
 slug: sessions-memory
-sources: [docs/session-api.md, docs/recall-and-rag.md, docs/managed-memory.md, docs/document-ingestion.md, docs/hybrid-retrieval.md, docs/context-artifacts.md, docs/support-journey.md, docs/html-ingestion.md, docs/docx-ingestion.md, docs/pdf-ingestion.md]
+sources: [docs/session-api.md, docs/recall-and-rag.md, docs/managed-memory.md, docs/document-ingestion.md, docs/hybrid-retrieval.md, docs/context-artifacts.md, docs/support-journey.md, docs/html-ingestion.md, docs/docx-ingestion.md, docs/pdf-ingestion.md, docs/agent-api.md]
 ---
 
 ## 先区分四种数据
@@ -167,3 +167,8 @@ asyncio.run(main())
 召回可限制条目数、字符量和扫描候选数。Context 仍需选择实际进入模型的完整消息组、事实与引用；过大的工具结果可以显式保存为 Artifact，再按需读取。字符／估算 Token 额度不等于供应商精确 Token 或费用上限。
 
 检索来源会校验版本、摘要与有效期；模型输出的答案和引用仍需应用验证。可信 Scope 与资源绑定控制读取范围，但不单独提供认证或企业文档 ACL。继续阅读[运行与部署](/zh/docs/operations/)，管理这些组件的配置与生命周期。
+
+
+## 观察当前 Turn
+
+`session.submit` 返回的 `AgentRun` 同样提供 `subscribe_events()` 和 `stream_updates()`。沿原 RunRef 与游标观察，取消订阅不取消 Turn，也不释放 Session busy。等待选项在 `session.run` 提交前校验；无效选项不创建 Turn／回执。下一轮先检查原状态；完整代码见[运行与部署](/zh/docs/operations/)和 [API](/zh/docs/api-reference/)。

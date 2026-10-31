@@ -3,7 +3,7 @@ title: Workflows & teams
 description: Choose static graphs, bounded plans or teams to match the structure of your task.
 locale: en
 slug: workflows
-sources: [docs/static-workflows.md, docs/orchestration.md, docs/parallel-workflows.md, docs/dynamic-dag.md, docs/concepts.md, docs/user-input.md]
+sources: [docs/static-workflows.md, docs/orchestration.md, docs/parallel-workflows.md, docs/dynamic-dag.md, docs/concepts.md, docs/user-input.md, docs/managed-tools.md, docs/runtime-assembly.md]
 ---
 
 ## Choose the task structure
@@ -38,6 +38,59 @@ relf --config runtime.toml --format text inspect RUN_ID
 ```
 
 Static graphs support explicit dependencies, conditions, input mapping and joins. Bounded parallel execution requires an explicit `max_concurrency`. Pure transforms compute JSON data; external I/O belongs in managed tools. See the [static graph guide (Chinese)](repo:docs/static-workflows.md).
+
+## Run async Tool flows without a model
+
+The fixed maintenance source's graph template also generates a separate order/stock Tool application. Start from a writable working directory and choose a new target:
+
+```bash
+relf --format text init ../my-tool-flow --template graph
+cd ../my-tool-flow
+python -m agent_app.tool_graph --order-id ORD-1 --command-id order-1
+python -m agent_app.tool_graph --order-id ORD-1 --command-id order-1
+```
+
+Both commands should return the same `run_id` and result, with `model_actions=0`, `tool_actions=2` and `credits_spent=2`. `lookup → stock` invokes two read-only async Python tools; results contain the order, SKU and availability. New orders use new command IDs. These fixtures make no real network calls or business writes.
+
+Submit another order without driving it:
+
+```bash
+python -m agent_app.tool_graph --order-id ORD-2 --command-id order-2 --submit-only
+```
+
+Replace `RUN_ID` with that submission's actual ID, inspect, resume and confirm `succeeded`:
+
+```bash
+relf --db .ralf/tool-graph.sqlite --factory agent_app.tool_runtime:create_engine --format text inspect RUN_ID
+relf --db .ralf/tool-graph.sqlite --factory agent_app.tool_runtime:create_engine resume RUN_ID
+relf --db .ralf/tool-graph.sqlite --format text inspect RUN_ID
+```
+
+`tool-runtime.toml` explicitly declares `providers = {}`, `tool-graph.json` defines nodes/mappings, and `agent_app/tool_runtime.py` registers `order-fixture` and the original recovery factory. Replace its two async functions for your business. The synchronous registration factory only assembles tools; manage async clients through [async assembly (Chinese)](repo:docs/async-assembly.md), never by returning an unawaited coroutine.
+
+Empty providers support finite **Local Tool/Transform graphs** only; the field remains required. Ordinary Agent/mixed graphs need a resolvable Provider, and TemporalProfile still requires nonempty providers. Tool nodes retain original Actions, budgets, authorization, approvals, receipts and unknown-effect reconciliation. They are not arbitrary nodes/reducers or record-by-record dataflow. Original a8 archives do not generate these files.
+
+### Add approval to a new Tool flow
+
+Run from `my-tool-flow` above. Change configuration only before the new project's first submission; retain old Profiles for existing Runs:
+
+```bash
+relf --format text init ../approved-tool-flow --template graph
+cd ../approved-tool-flow
+python -c 'from pathlib import Path; p=Path("tool-runtime.toml"); p.write_text(p.read_text().replace("requires_approval = false", "requires_approval = true"))'
+python -m agent_app.tool_graph --order-id ORD-3 --command-id order-3
+```
+
+The first call pauses at `waiting_approval`: the first Tool Action exists (`tool_actions=1`), but dispatch has not happened and `credits_spent=0`. Action counts differ from actual handler call counts. Inspect the returned Run ID, take `ACTION_ID`/`OPERATION_DIGEST` from pending, and choose a distinct stable `DECISION_ID` for each decision:
+
+```bash
+relf --db .ralf/tool-graph.sqlite --factory agent_app.tool_runtime:create_engine --format text inspect RUN_ID
+relf --db .ralf/tool-graph.sqlite --factory agent_app.tool_runtime:create_engine approve RUN_ID ACTION_ID --digest OPERATION_DIGEST --command-id DECISION_ID
+relf --db .ralf/tool-graph.sqlite --factory agent_app.tool_runtime:create_engine resume RUN_ID
+relf --db .ralf/tool-graph.sqlite --format text inspect RUN_ID
+```
+
+After approving the first node, resume may pause for the second. Inspect its new Action/digest, use a new decision ID and repeat the controls until the Snapshot is `succeeded`. Retrying the same approval uses its original ID and receipt without extra dispatch. Final counts remain two Tool Actions, zero Model Actions and two credits. This example approves read-only fixtures; writes need their real effect class and downstream idempotency/query/reconciliation contract.
 
 ## Define a team
 

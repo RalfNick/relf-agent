@@ -2,7 +2,9 @@
 
 独立的 Astro 静态官网。当前展示品牌为 **Relf-Agent**：**Reliable and Extensible Lifecycle Framework for Intelligent Agents**，可靠、可扩展的智能体全生命周期框架。定位：灵活构建智能体，可靠运行智能应用。
 
-Relf-Agent 的仓库为 [RalfNick/relf-agent](https://github.com/RalfNick/relf-agent)。官网中英文文档、可执行教程和首页安装演示固定 SDK **0.1.0a6 源码候选**，统一使用 `relf-agent`、`relf_agent` 与 `relf`／`relf-*`。源码候选可检出不等于 SDK 包已公开发行；a6 制品、平台及发行资格独立核验。旧版任务保留原 SDK、配置和数据环境，Cloudflare 资源名和历史记录保持实际身份。
+Relf-Agent 的仓库为 [RalfNick/relf-agent](https://github.com/RalfNick/relf-agent)。官网中英文文档、可执行教程和首页安装演示固定 SDK **0.1.0a8 维护源码**，统一使用 `relf-agent`、`relf_agent` 与 `relf`／`relf-*`。固定提交可检出不等于 SDK 包已公开发行；私有候选制品、平台及发行资格独立核验。旧版任务保留原 SDK、配置和数据环境，Cloudflare 资源名和历史记录保持实际身份。
+
+2026-10-31 的[框架文档同步验收](reviews/2026-10-31-framework-docs-sync.md)记录本地维护源码教程、Agent／事件／展示流、生成应用与 Local Tool 图的双语验证。本批沿用当前冻结策略，仅本地提交；生产站未在本批更新。
 
 首次手工上线的现场证据见[上线验收记录](reviews/2026-10-23-cloudflare-launch.md)及其 HTTP 明细。自动构建入口、检查门禁和 Cloudflare 连接参数见下方“自动构建与发布”；连接状态与实际发布结果以 Cloudflare 构建记录为准。
 
@@ -37,7 +39,7 @@ npx astro preview status
 npx astro preview stop
 ```
 
-`npm run build` 会输出 32 个页面（3 个首页入口、28 篇双语文档与 404），创建双语 Pagefind 搜索索引，检查本地链接、资源与页内锚点。十四组文档按“开始使用／构建能力／运行与维护／查询与验证”组织，包含连续应用教程、持久用户输入、API 与 CLI 参考、测试与评估。源码教程固定 a6 候选；公开 a2 历史归档与 a6 发行资格分别说明。
+`npm run build` 会输出 32 个页面（3 个首页入口、28 篇双语文档与 404），创建双语 Pagefind 搜索索引，检查本地链接、资源与页内锚点。十四组文档按“开始使用／构建能力／运行与维护／查询与验证”组织，包含连续应用教程、持久用户输入、API 与 CLI 参考、测试与评估。源码教程固定 a8 基版本维护提交；公开 a2 历史归档与当前发行资格分别说明。
 
 ## 域名与搜索引擎
 

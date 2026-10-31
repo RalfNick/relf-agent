@@ -3,7 +3,7 @@ title: 能力总览
 description: 从业务目标选择 Agent、工具、记忆、知识与执行方式，逐步组合你的应用。
 locale: zh
 slug: overview
-sources: [docs/basic-capabilities.md, docs/concepts.md, docs/support-journey.md, docs/releases/0.1.0a6.md]
+sources: [docs/basic-capabilities.md, docs/concepts.md, docs/support-journey.md, docs/agent-stream-updates.md, docs/agent-api.md, docs/managed-tools.md]
 ---
 
 ## Relf-Agent 用来解决什么
@@ -12,7 +12,7 @@ Relf-Agent 是开源 Python Agent 框架。你定义模型、业务工具与任�
 
 全称是 **Reliable and Extensible Lifecycle Framework for Intelligent Agents**，即**可靠、可扩展的智能体全生命周期框架**。定位是：**灵活构建智能体，可靠运行智能应用。** 模型推理、规划与成员协作提供智能能力，可替换组件支持业务定制，持久执行负责审批与恢复。
 
-Relf-Agent 的源码仓库为 `RalfNick/relf-agent`。本站教程固定 SDK **0.1.0a6** 源码候选，统一使用 `relf-agent`、`relf_agent`、`relf`／`relf-*`。从[安装与环境](/zh/docs/installation/)准备对应环境；公开发行、平台和旧任务恢复资格另行核验。
+Relf-Agent 的源码仓库为 `RalfNick/relf-agent`。本站教程固定 SDK **0.1.0a8** 基版本维护源码，统一使用 `relf-agent`、`relf_agent`、`relf`／`relf-*`。从[安装与环境](/zh/docs/installation/)准备对应环境；公开发行、平台和旧任务恢复资格另行核验。
 
 一个典型工单流程是：读取工单 → 检索运维手册 → 提出变更 → 人工审批 → 执行工具 → 检查结果。可以先用一个 Agent 完成，再把固定步骤组合成 Workflow；需要成员协作时，再加入 Plan 或 Team。
 
@@ -31,6 +31,15 @@ Relf-Agent 的源码仓库为 `RalfNick/relf-agent`。本站教程固定 SDK **0
 | 在有限成员间规划、分工和检查结果 | Plan / Team、Planner、Verifier 与子 Run | [工作流与多 Agent](/zh/docs/workflows/) |
 | 复用 MCP、HTTP 接口、固定 CLI 或文件资料 | ToolSource、Workspace、Skills 与显式策略 | [集成与扩展](/zh/docs/integrations/) |
 | 用配置管理组件，按需接入独立 Worker | RuntimeProfile、版本化装配、Local／Temporal | [运行与部署](/zh/docs/operations/) |
+
+## 本次框架优化可以直接用在哪里
+
+- **更轻的应用入口：** 从 `Agent(model=..., tools=...)` 开始，用 `AgentRun` 等待、检查或控制任务；多个入口共享 Runtime 时，保持原资源归属。见[模型与工具](/zh/docs/models-tools/)与 [API](/zh/docs/api-reference/)。
+- **安装后连续开发：** 默认模板提供 `agent_app.journey` 与 `customize`，可逐步加入 Session、RAG、Facts、Workflow，并替换模型、异步工具和记忆。见[连续教程](/zh/docs/app-tutorial/)。
+- **有界观察与重连：** `subscribe_events` 读取持久事实，`stream_updates` 在显式选择策略后展示模型文本与异步工具进度，二者均使用原游标。见[运行与观察](/zh/docs/operations/)。
+- **无需占位模型的业务流程：** graph 模板中的 `agent_app.tool_graph` 直接运行 async Tool 节点，显式 `providers={}`，仍有预算、审批与回执。见[工作流](/zh/docs/workflows/)。
+
+这些维护能力以页首固定提交为准，不能仅凭相同 `0.1.0a8` 基版本号认定原归档已包含它们。等待超时、关闭失败或展示结束也不替代实际业务完成证据。
 
 ## 能力如何一起工作
 

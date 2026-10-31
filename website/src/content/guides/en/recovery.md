@@ -3,7 +3,7 @@ title: Approval & recovery
 description: Inspect the original operation, record a human decision and recover the original run from real evidence.
 locale: en
 slug: recovery
-sources: [docs/recovery-guide.md, docs/getting-started.md, docs/concepts.md]
+sources: [docs/recovery-guide.md, docs/getting-started.md, docs/concepts.md, docs/agent-api.md]
 ---
 
 ## Observe the original run
@@ -94,3 +94,13 @@ Retain the run/action, state, event cursor, non-secret configuration version and
 See the repository's [recovery guide (Chinese)](repo:docs/recovery-guide.md) for full state handling, backup procedures and failure windows. Read [sessions, memory and RAG](/en/docs/sessions-memory/) for conversations, and [runtime and deployment](/en/docs/operations/) for configuration and backends.
 
 A reply receipt records the answer; it does not establish business completion. For child questions, inspect the actual owner from pending records. Do not answer by opening a new run or Session turn. See [API & CLI reference](/en/docs/api-reference/) for control return values and [testing and evaluation](/en/docs/testing/) for regression checks.
+
+
+## Disconnected observation and incomplete shutdown
+
+Reattach the original RunRef in the original Runtime and create a subscription from the last delivered EventCursor. Attach/subscription does not advance queued or paused Runs. `read_timeout` limits one read and `wait_timeout` limits observation; neither proves no business effect occurred. A display-stream gap or end marker also cannot replace original write reconciliation.
+
+After `CloseIncomplete` or a cancelled close wait, retain the Runtime/resources and retry `aclose()`. Actual shutdown refuses new work once started; only a rejected option/origin preflight leaves the entry open. Do not remove leases, force-close the database or take over with new configuration while threads, clients or remote effects remain unsettled. See [runtime and deployment](/en/docs/operations/) for usage.
+
+
+The CLI checks synchronous-close completion after a business command. A failed close or non-None result reports exit code 2; that does not prove submission never occurred. Read the original Run/receipt, fix the factory and settle the original actual calls, then retrieve the same request with its original ID, input, definition and budget.

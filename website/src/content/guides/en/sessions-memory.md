@@ -3,7 +3,7 @@ title: Sessions, memory & RAG
 description: Separate conversation history, lasting facts and source documents. Bound model context and retain traceable evidence.
 locale: en
 slug: sessions-memory
-sources: [docs/session-api.md, docs/recall-and-rag.md, docs/managed-memory.md, docs/document-ingestion.md, docs/hybrid-retrieval.md, docs/context-artifacts.md, docs/support-journey.md, docs/html-ingestion.md, docs/docx-ingestion.md, docs/pdf-ingestion.md]
+sources: [docs/session-api.md, docs/recall-and-rag.md, docs/managed-memory.md, docs/document-ingestion.md, docs/hybrid-retrieval.md, docs/context-artifacts.md, docs/support-journey.md, docs/html-ingestion.md, docs/docx-ingestion.md, docs/pdf-ingestion.md, docs/agent-api.md]
 ---
 
 ## Four different kinds of data
@@ -167,3 +167,8 @@ Start with facts explicitly written by a trusted host. To extract memory automat
 Recall can bound item counts, characters and candidate scans. Context assembly still chooses complete message groups, facts and references actually sent to the model. Large tool results can be explicitly stored as artifacts and read on demand. Character or estimated-token limits are not exact provider token or spending caps.
 
 Retrieved sources are checked for version, digest and expiry; the application still validates generated answers and citations. Trusted scopes and resource bindings constrain reads, but do not independently provide authentication or enterprise document ACLs. Continue to [runtime and deployment](/en/docs/operations/) to manage component configuration and ownership.
+
+
+## Observe the current Turn
+
+The `AgentRun` returned by `session.submit` also offers `subscribe_events()` and `stream_updates()`. Observe its original RunRef/cursor; cancelling a subscription neither cancels the Turn nor releases Session busy. `session.run` validates wait options before submission, so invalid options create no Turn/receipt. Check the original state before another turn. See [runtime and deployment](/en/docs/operations/) and [API](/en/docs/api-reference/) for complete usage.

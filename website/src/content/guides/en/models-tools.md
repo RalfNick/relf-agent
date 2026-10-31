@@ -1,10 +1,50 @@
 ---
 title: Models & tools
-description: Register ordinary Python functions, connect a real model and drive a task with LocalEngine.
+description: Register ordinary Python functions, connect models through Agent or explicit LocalEngine assembly.
 locale: en
 slug: models-tools
-sources: [docs/sdk-model-tools.md, docs/getting-started.md, docs/model-adapters.md, docs/completion-verification.md, README.md]
+sources: [docs/sdk-model-tools.md, docs/getting-started.md, docs/model-adapters.md, docs/completion-verification.md, README.md, docs/agent-api.md]
 ---
+
+## Start with the Agent entry
+
+A single model/tool loop can start with `Agent` without assembling an Engine first. Save this offline example as `facade_agent.py` and run `python facade_agent.py` from a separate directory with the SDK installed:
+
+```python
+import asyncio
+import json
+from relf_agent import Agent, ModelResponse, ToolCall, ToolRegistry
+
+tools = ToolRegistry()
+
+@tools.tool(effect="read_only")
+async def lookup(ticket: str):
+    return {"ticket": ticket, "status": "open"}
+
+class OfflineTicket:
+    identity = {"kind": "website-agent-entry", "version": "1"}
+
+    async def complete(self, messages, tools):
+        if not any(message["role"] == "tool" for message in messages):
+            return ModelResponse(tool_calls=(ToolCall("lookup", {"ticket": "INC-001"}, "one"),))
+        return ModelResponse(output={"ticket": "INC-001", "status": "open"})
+
+async def main():
+    async with Agent(model=OfflineTicket(), tools=tools,
+                     db_path=".ralf/facade.sqlite") as agent:
+        run = await agent.submit("Check INC-001", command_id="facade-1", budget=8)
+        observed = await run.wait(wait_timeout=10)
+        print(json.dumps({"run_id": run.ref.run_id, "state": observed.snapshot.state,
+                          "result": observed.snapshot.result}))
+
+asyncio.run(main())
+```
+
+Expect `succeeded` and the ticket result. Repeating the script retrieves the same `run_id`. The deterministic Provider demonstrates the tool loop and recovery identity, not real model quality. Agent creates and owns this Runtime; the original Engine still controls tool dispatch and approvals.
+
+For a real model, replace `OfflineTicket()` with an explicitly configured Provider, retain the `ToolRegistry`, and use new task identity and data. Nonempty `tools=[lookup]` lacks registered effect metadata and is rejected; type annotations do not imply authorization. `Agent.run(...)` combines submit/wait and returns `WaitResult`; inspect `snapshot.state`. Multiple Agents can share the existing Runtime with fixed database, component identities and resource ownership.
+
+The following sections explain tool declarations and assembly when you need direct Engine control.
 
 ## Register a Python function
 

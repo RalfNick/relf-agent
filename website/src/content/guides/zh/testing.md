@@ -3,10 +3,10 @@ title: 测试与评估
 description: 运行离线应用回归、检查模型协议，并区分固定样例结果与真实任务质量。
 locale: zh
 slug: testing
-sources: [docs/sdk-model-tools.md, docs/business-evaluation.md, docs/task-evaluation.md, docs/planning-evaluation.md, docs/agent-api.md, docs/completion-verification.md]
+sources: [docs/sdk-model-tools.md, docs/business-evaluation.md, docs/task-evaluation.md, docs/planning-evaluation.md, docs/agent-api.md, docs/completion-verification.md, docs/agent-stream-updates.md, docs/managed-tools.md]
 ---
 
-先按[快速开始](/zh/docs/quickstart/)安装 SDK `0.1.0a6` 并激活 Python 环境。下面的离线路径不需要模型密钥、网络服务或 pytest，已对照固定的 a6 源码基线验证。
+先按[快速开始](/zh/docs/quickstart/)安装 SDK `0.1.0a8` 并激活 Python 环境。下面的离线路径不需要模型密钥、网络服务或 pytest，已对照固定的 a8 基版本维护提交验证。
 
 ## 先选择需要的证据
 
@@ -224,3 +224,16 @@ relf-evaluate-business --provider openai --model-env RELF_EVAL_MODEL \
 重复业务测量可用 `--offline --repeats 3 --max-calls 48` 将同样八个样例运行三次；真实重复运行须另行明确调用额度。失败和未尝试项保留在分母中。重复只是同一任务的描述性测量，不是独立任务样本。对外声明质量前，应扩展你自己的版本化案例和独立业务 oracle。
 
 继续阅读[业务评估（英文）](repo:docs/business-evaluation.md)、[完整任务评测](repo:docs/task-evaluation.md)和[完成验证](repo:docs/completion-verification.md)；或回到[连续应用教程](/zh/docs/app-tutorial/)，用 [API／CLI 参考](/zh/docs/api-reference/)定位失败。
+
+
+## 验证新增应用与观察路径
+
+先完成本页已有离线回归，再检查这些维护能力：
+
+- [Agent 便捷入口](/zh/docs/models-tools/)：相同请求返回同一 Run，按 Snapshot 判定结果。
+- [连续应用](/zh/docs/app-tutorial/)：生成 journey／customize，跨进程 Session、RAG 引用、Facts 与组件替换都保留原身份。
+- [事件与展示流](/zh/docs/operations/)：游标只跨过已交付事件，重连只读观察；展示重放回到原事件，实际模型／工具调用为 0，不用断开的 UI 触发重复业务。
+- [无模型 Tool 图](/zh/docs/workflows/)：默认流程和两次逐节点审批最终均为两个 Tool Action、0 个 Model Action、2 credits；重复控制不额外派发。
+- 自有适配器故障：分别观察业务结果、实际处理器结束和资源关闭；关闭失败不得丢弃原 cleanup／租约，返回校验失败不得新建替代请求。
+
+这些检查验证文档示例与所选执行契约，不替代完整 SDK／平台资格、真实独立接入或业务模型质量。当前网站教程使用固定源码安装，私有候选的原验收按其准确版本单列。

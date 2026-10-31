@@ -3,7 +3,7 @@ title: 工作流与多 Agent
 description: 从静态图到有界的 Plan 与 Team，按任务需要选择编排方式。
 locale: zh
 slug: workflows
-sources: [docs/static-workflows.md, docs/orchestration.md, docs/parallel-workflows.md, docs/dynamic-dag.md, docs/concepts.md, docs/user-input.md]
+sources: [docs/static-workflows.md, docs/orchestration.md, docs/parallel-workflows.md, docs/dynamic-dag.md, docs/concepts.md, docs/user-input.md, docs/managed-tools.md, docs/runtime-assembly.md]
 ---
 
 ## 先选择任务结构
@@ -38,6 +38,59 @@ relf --config runtime.toml --format text inspect RUN_ID
 ```
 
 静态图支持显式依赖、条件、输入映射和合并；有界并行需要显式配置 `max_concurrency`。纯 Transform 只做 JSON 数据计算，外部 I/O 使用受管理工具。完整定义见[静态图指南](repo:docs/static-workflows.md)。
+
+## 不需要模型时，直接运行 async Tool 流程
+
+固定维护源码的 graph 模板还生成一个独立的订单／库存工具应用。从一个可写工作目录开始，选择不存在的目标：
+
+```bash
+relf --format text init ../my-tool-flow --template graph
+cd ../my-tool-flow
+python -m agent_app.tool_graph --order-id ORD-1 --command-id order-1
+python -m agent_app.tool_graph --order-id ORD-1 --command-id order-1
+```
+
+两次应得到相同 `run_id` 和结果；`model_actions=0`、`tool_actions=2`、`credits_spent=2`。`lookup → stock` 是两个只读 async Python 工具，结果包含订单、SKU 和可用性。新订单使用新命令 ID；这不是实际网络调用或写入效果证明。
+
+先仅提交另一个订单：
+
+```bash
+python -m agent_app.tool_graph --order-id ORD-2 --command-id order-2 --submit-only
+```
+
+将 `RUN_ID` 换成上条返回的实际 ID，再检查、恢复并确认 `succeeded`：
+
+```bash
+relf --db .ralf/tool-graph.sqlite --factory agent_app.tool_runtime:create_engine --format text inspect RUN_ID
+relf --db .ralf/tool-graph.sqlite --factory agent_app.tool_runtime:create_engine resume RUN_ID
+relf --db .ralf/tool-graph.sqlite --format text inspect RUN_ID
+```
+
+`tool-runtime.toml` 显式声明 `providers = {}`，`tool-graph.json` 定义节点和映射，`agent_app/tool_runtime.py` 注册 `order-fixture` 及原恢复工厂。替换其中两个 async 函数即可接自己的业务；同步注册工厂只装配工具，异步客户端按[异步装配](repo:docs/async-assembly.md)管理，不能返回未等待的 coroutine。
+
+空 Provider 只适用于有限 **Local Tool／Transform 图**，字段仍必填。普通 Agent／混合图需要可解析的 Provider，TemporalProfile 仍要求非空配置。Tool 节点复用原 Action、预算、授权、审批、回执和未知效果核验；不是任意节点／reducer 或逐记录数据流。原 a8 包没有这些生成文件。
+
+### 给新工具流程加审批
+
+从上面的 `my-tool-flow` 目录执行。只在新项目首次提交前改配置，不改写旧 Run 的 Profile：
+
+```bash
+relf --format text init ../approved-tool-flow --template graph
+cd ../approved-tool-flow
+python -c 'from pathlib import Path; p=Path("tool-runtime.toml"); p.write_text(p.read_text().replace("requires_approval = false", "requires_approval = true"))'
+python -m agent_app.tool_graph --order-id ORD-3 --command-id order-3
+```
+
+首次停在 `waiting_approval`：已创建第一个 Tool Action（`tool_actions=1`），但尚未派发，`credits_spent=0`。这里的 Action 数不等于实际 handler 调用数。用返回的 Run ID 检查提案，从 pending 取 `ACTION_ID`／`OPERATION_DIGEST`，为每项决定选择自己的稳定 `DECISION_ID`：
+
+```bash
+relf --db .ralf/tool-graph.sqlite --factory agent_app.tool_runtime:create_engine --format text inspect RUN_ID
+relf --db .ralf/tool-graph.sqlite --factory agent_app.tool_runtime:create_engine approve RUN_ID ACTION_ID --digest OPERATION_DIGEST --command-id DECISION_ID
+relf --db .ralf/tool-graph.sqlite --factory agent_app.tool_runtime:create_engine resume RUN_ID
+relf --db .ralf/tool-graph.sqlite --format text inspect RUN_ID
+```
+
+第一个节点批准后，resume 可能停在第二个节点审批；重新检查新的 Action／digest，换一个决定 ID，再执行上述控制步骤，直到 Snapshot 为 `succeeded`。重试同一批准使用原 ID，只回读原回执，不增加调用；最终仍为两个 Tool Action、0 个 Model Action、2 credits。此例对只读工具演示审批；改成写操作时另行声明真实效果类别、下游幂等／查询与核验契约。
 
 ## 定义一个团队
 

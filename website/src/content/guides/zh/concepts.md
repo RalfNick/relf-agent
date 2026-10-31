@@ -3,7 +3,7 @@ title: 核心概念
 description: 将 Agent 定义、持久执行事实与外部业务效果分开理解。
 locale: zh
 slug: concepts
-sources: [docs/concepts.md, docs/recovery-guide.md, docs/agent-api.md, docs/completion-verification.md]
+sources: [docs/concepts.md, docs/recovery-guide.md, docs/agent-api.md, docs/completion-verification.md, docs/agent-stream-updates.md]
 ---
 
 ## 一次任务如何执行
@@ -40,6 +40,12 @@ Model → Decision → Tool / Approval → Result
 | Runtime Profile | 用 JSON／TOML 选择注册组件，保留版本与恢复身份 |
 
 这些入口复用原执行权威，不会各自创建一套审批或预算日志。`Agent.run` 是提交并等待，返回的 `WaitResult.snapshot` 才包含实际业务状态；等待成功返回也可能表示正在等待审批。
+
+## 观察记录与执行事实
+
+`AgentRun.subscribe_events()` 订阅持久事件并支持游标重连。显式选择策略后，`stream_updates()` 还会展示模型文本和 async 工具进度；它不增加执行权威。展示 delta、收到响应／回执、业务终态和实际处理器结束是不同证据。
+
+只保留已交付游标；关闭或取消观察不取消业务、不恢复暂停任务。完整离线操作见[运行与部署](/zh/docs/operations/)，返回值见 [API](/zh/docs/api-reference/)。
 
 ## 命令与执行身份
 

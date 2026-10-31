@@ -6,7 +6,7 @@ import { checkRepositoryTargets } from '../scripts/check-repository-links.mjs';
 
 test('repository links pin the published commit and retain section fragments', () => {
   assert.equal(repositoryUrl('docs/user-input.md#receipts-restart-and-session-occupancy'),
-    'https://github.com/RalfNick/relf-agent/blob/ba1c81fca67e15e70c1d51d0f4ecbbbcbbb37239/docs/user-input.md#receipts-restart-and-session-occupancy');
+    'https://github.com/RalfNick/relf-agent/blob/300c62ce8dd417df6b471ce1c10a1b7a562d2c46/docs/user-input.md#receipts-restart-and-session-occupancy');
   assert.match(repositoryUrl('docs', 'tree'), /\/tree\/[a-f0-9]{40}\/docs$/);
 });
 
