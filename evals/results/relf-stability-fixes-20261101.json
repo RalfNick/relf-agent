@@ -1,0 +1,95 @@
+{
+  "kind": "stability-review-fixes",
+  "date": "2026-11-01",
+  "source_commit": "886c64847ccb6baa1e3a3a1b114ba790cdc31aa0",
+  "sdk": {
+    "version": "0.1.0a8+maintenance.f3da3f48e894e745",
+    "wheel": "dist/stability-fixes-20261101/sdk-artifacts/relf_agent-0.1.0a8+maintenance.f3da3f48e894e745-py3-none-any.whl",
+    "wheel_sha256": "e742393cf5570ae12e9fe49002b6dd8a0d5ba84eca7d324e2cbfeb0749db9a82",
+    "sdist": "dist/stability-fixes-20261101/sdk-artifacts/relf_agent-0.1.0a8+maintenance.f3da3f48e894e745.tar.gz",
+    "sdist_sha256": "a3f84bbff411181f10cb90b5bed39d345ff0fc63c4de354d3fa7535e6bafc4ea",
+    "product_files": 451,
+    "changed_products": [
+      "src/relf_agent/executors.py",
+      "src/relf_agent/tools.py"
+    ]
+  },
+  "application": {
+    "version": "0.1.0+local.ddcf607b0929",
+    "wheel": "dist/stability-fixes-20261101/application-artifacts/relf_local_documents_example-0.1.0+local.ddcf607b0929-py3-none-any.whl",
+    "wheel_sha256": "04cf1af63f89cbade831e37e556bd560e916116095874d30d5464ab5018a6259",
+    "sdist": "dist/stability-fixes-20261101/application-artifacts/relf_local_documents_example-0.1.0+local.ddcf607b0929.tar.gz",
+    "sdist_sha256": "f50e2d413e06ad6f05a7d740a1f7450e05aaba9d36f694536ccdf780240b9d31",
+    "sdk_version": "0.1.0a8+maintenance.f3da3f48e894e745"
+  },
+  "fixed_P2": 4,
+  "fixed_packaging_P3": 1,
+  "state_documents_unified": true,
+  "source": {
+    "exit_code": 0,
+    "count": 1320,
+    "tests": 1320,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 492.421,
+    "installed": false
+  },
+  "installed": {
+    "exit_code": 0,
+    "count": 1320,
+    "tests": 1320,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 395.389,
+    "installed": true
+  },
+  "same_test_ids": true,
+  "original_1002_preserved": true,
+  "packaging_regression": {
+    "red_failures": 1,
+    "green_passes": 1,
+    "exact_sdk_sdist_app_built_and_installed": true
+  },
+  "production_only": {
+    "passed": true,
+    "identity": {
+      "sdk": "0.1.0a8+maintenance.f3da3f48e894e745",
+      "sdk_module": "0.1.0a8+maintenance.f3da3f48e894e745",
+      "app": "0.1.0+local.ddcf607b0929",
+      "app_module": "0.1.0+local.ddcf607b0929",
+      "sdk_path": "/private/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-stability-20261101-k097yyhj/production/venv/lib/python3.12/site-packages/relf_agent/__init__.py",
+      "app_path": "/private/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-stability-20261101-k097yyhj/production/venv/lib/python3.12/site-packages/local_documents/__init__.py",
+      "pytest": false,
+      "temporal": false
+    },
+    "commands": 24,
+    "runtime_only_no_pytest_or_temporal": true,
+    "sdk_sdist_app_build_install": true,
+    "chat_twice_no_runs": true,
+    "old_new_recovery": [
+      "old-new",
+      "new-old"
+    ],
+    "one_business_effect_per_case": true,
+    "model_generation_requests": 0,
+    "new_model_quality": null,
+    "source_checkout_imports": false
+  },
+  "review": {
+    "critical": 0,
+    "important": 1,
+    "minor": 0,
+    "important_fixed": "partial-subclass direct __call__ replacement/code drift;4RED->GREEN",
+    "final_correction_adjacent_passes": 120
+  },
+  "protected_historical_artifacts": 17,
+  "previously_known_minor": "unmatched slash-command quote exits chat; original state preserved",
+  "platform": "macOS ARM64 / Python3.12; selected installed/offline scope",
+  "new_model_quality": null,
+  "new_service_or_platform_qualification": false,
+  "independent_adoption": false,
+  "pushed": false,
+  "public_release": false
+}
