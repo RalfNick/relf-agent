@@ -1,0 +1,2 @@
+include assistant.example.toml
+recursive-include demo-documents *.md *.txt
