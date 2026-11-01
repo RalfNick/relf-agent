@@ -1,9 +1,20 @@
 import { readFile, writeFile, readdir } from "node:fs/promises";
 import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { repositoryInfo } from '../src/lib/repository.mjs';
 
 const locales = ["zh", "en"];
 const sha = (text) => createHash("sha256").update(text).digest("hex");
+const repoRoot = fileURLToPath(new URL('../../', import.meta.url));
+function publishedSource(source) {
+  try {
+    return execFileSync('git', ['show', `${repositoryInfo.ref}:${source}`],
+      { cwd: repoRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  } catch (cause) {
+    throw new Error(`Cannot read pinned documentation source ${repositoryInfo.ref}:${source}. A full checkout containing this Git object is required.`, { cause });
+  }
+}
 const current = {};
 const problems = [];
 const zhFiles = (await readdir("src/content/guides/zh"))
@@ -44,7 +55,7 @@ for (const file of zhFiles) {
         source.includes("..")
       )
         throw new Error(`Invalid source path: ${source}`);
-      entry.sources[source] = sha(await readFile(`../${source}`, "utf8"));
+      entry.sources[source] = sha(publishedSource(source));
     }
   }
   current[file.replace(".md", "")] = entry;

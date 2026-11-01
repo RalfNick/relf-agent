@@ -55,8 +55,8 @@
     },
     "installation": {
       "translations": {
-        "zh": "5f9253d65795d0caec8135f07ce72f1a7fdd24c07d7aab9d25725a070267eab6",
-        "en": "5741b4b8a89514e94bf68204d6f8f6e126109f1623876222ff8f4e8d98a19c0f"
+        "zh": "b1e0c773779bc613cb4c3107d85a2c8c88e15ccc83d28fa983ceba484bdad177",
+        "en": "99040fb853a4daab49d5a9deca049ad507c1958004ac3a8ef94a34c4beb55114"
       },
       "sources": {
         "docs/getting-started.md": "5d41b268cfca9c8524ccdab4de3bee88fd6f647201d4121e899b89744aae02e3",

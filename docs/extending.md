@@ -115,7 +115,7 @@ identity／backend_id 表达端点、数据库／namespace、模型、版本及�
 
 工具实例状态、partial 绑定参数、闭包和外部依赖不会自动序列化；改变它们时同步更新 `ToolSpec.version/config` 并构造新的 Registry。Provider／Harness／ToolExecutor／ContextBuilder／记忆的 identity 应反映实际当前配置。内核在恢复、异步装配后的派发、模型响应采纳、工具授权后，以及最终会话写入完成后、提交节点／Run 成功前复核固定发布。会话读取和保存固定使用同一执行组件；若适配器在等待期间更换实际后端，Run 失败，已发生的外部写入仍可能存在。
 
-低阶 `ToolRegistry.register()` 同样固定 handler／reconciler 的直接函数、绑定方法、partial 及 callable 的代码入口，包含 partial 子类的 `__call__`。检查覆盖发布／参数校验、真实工作线程开始、异步结果及回执序列化完成；这些是进程内临时检查，原持久 Manifest 和实现摘要不变。更换直接代码入口会拒绝继续，描述符仍可读取以清理原资源；恢复原实现后才可继续原 Run 或重试原 Runtime 关闭。此项不递归跟踪闭包、默认参数、对象状态或外部依赖，已有外部效果也不会因拒绝采纳而撤销。
+低阶 `ToolRegistry.register()` 同样固定 handler／reconciler 的直接函数、绑定方法、partial（含子类）及 callable 的代码入口。实例的普通 Python `__call__`、标准 `property` 的 getter，以及类构造器实际继承的 metaclass `__call__`／`__new__`／`__init__` 均静态固定；注册和复核不执行这些描述符的 getter。标准 staticmethod／classmethod 和构造入口中的内建描述符使用稳定绑定；自定义不透明描述符、描述符子类、遮蔽内建 `partial.func` 存储的子类及缺少原身份元数据的独立内建 method-wrapper 在注册时明确拒绝，请使用普通 Python 函数包装。检查覆盖发布／参数校验、真实工作线程开始、异步结果及回执序列化完成；这些是进程内临时检查，原持久 Manifest 和实现摘要不变。更换直接代码入口会拒绝继续，`get()` 仍可取得原描述符以清理资源；恢复原实现后才可继续原 Run 或重试原 Runtime 关闭。此项只固定直接入口与 getter 代码，不跟踪 getter 动态返回的任意辅助 callable，也不递归跟踪闭包、默认参数、对象状态、partial 参数或外部依赖；这些依赖改变时仍由集成方同步更新 `ToolSpec.version/config`。已有外部效果不会因拒绝采纳而撤销。
 
 没有工具提案的 DecisionProposal 必须给出完整最终结果：缺少输出或空白文本会在采纳前拒绝；False、0、空对象／数组属于合法 JSON。默认 NativeHarness 透明转交 ModelResponse，自定义 Harness 可以变换原始响应，最终验收对象仍是它提出的输出。配置输出 Schema 时，文本按 JSON 解析后再校验；Schema 允许 null 时可返回 None 或 JSON null，编码后的空白文本仍拒绝。
 

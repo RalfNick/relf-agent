@@ -9,7 +9,7 @@ description = "Local Markdown/TXT assistant example using Relf-Agent"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0"
-dependencies = ["relf-agent==0.1.0a8+maintenance.f3da3f48e894e745"]
+dependencies = ["relf-agent==0.1.0a8+maintenance.a97223496646bac0"]
 
 [project.scripts]
 relf-docs = "local_documents.cli:main"

@@ -123,13 +123,15 @@ GitHub Actions 与 Cloudflare 共用 `npm run verify`：静态检查 → 单元�
 
 当前每种语言为两个查询分块。Pagefind 1.5.2 原实现会吞掉部分分块错误，因此 `scripts/strict-pagefind.mjs` 在构建时给主线程与 Worker 的同一个已知 catch 增加重新抛出，防止显示不完整结果。补丁只匹配一个准确位置，版本或实现变化会中止构建，必须重新审阅；单元测试与浏览器故障注入覆盖失败和重试。开发模式没有生成索引时显示重试与文档入口。
 
-`repository.json` 集中记录 SDK 版本、固定公开源码提交和验证日期。组件调用 `repositoryUrl()`，Markdown 使用 `[标题](repo:docs/example.md#section)`，由 Sätteri MDAST 插件转换；不要再写死分支。构建检查所有生成的仓库链接，使用固定 Git tree 确认目标存在，不显示未发布的“编辑本页”。`npm run docs:links -- --remote` 另外只读核验固定提交属于远端 HEAD 的历史，需要网络和对应 Git 对象；CI 使用完整 checkout。英文指向中文的可选资料标注语言，关键操作应提供站内双语路径。
+`repository.json` 集中记录 SDK 版本、固定公开源码提交和验证日期。组件调用 `repositoryUrl()`，Markdown 使用 `[标题](repo:docs/example.md#section)`，由 Sätteri MDAST 插件转换。只有 `[当前交付](current-delivery:docs/current-delivery.md)` 是显式例外，固定映射到 `main` 的该文件；此别名拒绝其他路径、查询参数和片段。教程源码及其余 `repo:` 链接继续固定。构建检查所有生成的仓库链接，使用固定 Git tree 确认教程目标存在，不显示未发布的“编辑本页”。`npm run docs:links -- --remote` 另外只读核验固定提交属于远端 HEAD 的历史，需要网络和对应 Git 对象；CI 使用完整 checkout。英文指向中文的可选资料标注语言，关键操作应提供站内双语路径。
 
 修改仓库 URL 或 Markdown 链接转换配置后，先运行 `npm exec -- astro sync --force` 清除内容层缓存，再执行 `npm run build`。共享配置变化可能不会使已缓存的 Markdown 链接失效；构建检查会拒绝旧仓库地址，避免仅部分页面使用新链接。
 
 `npm run docs:examples` 需要 Python 3.12 和 SDK 基础依赖（先在虚拟环境安装 SDK）。脚本在临时目录导出固定提交的 SDK，直接提取两种语言的教程代码，验证模型示例改输出 Schema 后的新命令身份、重放、Session、输入、离线应用测试和混合检索。真实模型示例只替换成确定性 Provider 验证装配；不会运行付费模型／Embedding 探针。完整连续应用和评估命令的本轮验证记录见 reviews。
 
-修改技术源文档或任一翻译后，`npm run docs:check` 会提示需要同步。对照每篇 frontmatter 的 `sources` 审阅中英文，确认两者一致后记录并提交新快照：
+`npm run docs:check` 通过 `git show <repository.json ref>:<sources 路径>` 读取每篇 frontmatter 声明的技术源，始终核对固定教程基线；当前工作树的后续维护不会改变这份来源快照。检查需要包含该提交与文件对象的完整 checkout；对象缺失时明确失败，不回退到工作树，也不自动联网获取。
+
+修改任一翻译或显式更新固定源码基线后，`npm run docs:check` 会提示需要同步。对照该提交中每篇 frontmatter 的 `sources` 审阅中英文，确认两者一致后记录并提交新快照：
 
 ```bash
 node scripts/check-docs.mjs --record

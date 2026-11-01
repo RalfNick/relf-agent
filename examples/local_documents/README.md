@@ -13,7 +13,7 @@
 准备同一份 SDK wheel 与完整的本示例目录。将下面两个绝对路径替换为收到的实际路径；也可以先将完整源码压缩副本解压，再把 `APP_SOURCE` 指向其中的 `examples/local_documents`。不要只复制 `src`，还需要本目录的配置、演示资料和包元数据。
 
 ```sh
-SDK_WHEEL="/ABS/relf-agent/dist/public-preflight-fixes-20261030/private-artifacts/relf_agent-0.1.0a8+maintenance.f3da3f48e894e745-py3-none-any.whl"
+SDK_WHEEL="/ABS/relf-agent/dist/public-preflight-fixes-20261030/private-artifacts/relf_agent-0.1.0a8+maintenance.a97223496646bac0-py3-none-any.whl"
 APP_SOURCE="/ABS/relf-agent/examples/local_documents"
 SDK_SHA256="从当前交付页复制对应 SDK wheel 的 SHA256"
 
@@ -49,7 +49,7 @@ import local_documents
 import relf_agent
 print("SDK:", m.version("relf-agent"), relf_agent.__file__)
 print("App:", m.version("relf-local-documents-example"), local_documents.__file__)
-assert m.version("relf-agent") == "0.1.0a8+maintenance.f3da3f48e894e745"
+assert m.version("relf-agent") == "0.1.0a8+maintenance.a97223496646bac0"
 assert m.version("relf-local-documents-example").split("+", 1)[0] == "0.1.0"
 assert m.version("relf-local-documents-example") == local_documents.__version__
 assert "site-packages" in local_documents.__file__
@@ -163,6 +163,8 @@ relf-docs --config assistant.toml approve "$REPORT_RUN" --action "$REPORT_ACTION
 ```
 
 只有核对正文、路径和来源后才输入 `yes`。独立 `approve` 命令**只持久记录原审批决定，不运行写入**。批准成功不等于报告已保存，此时文件仍应不存在。
+
+人工输出将 ANSI／OSC、回车、退格和 Unicode 格式控制符显示为可见的 `\xNN`／`\uNNNN`／`\UNNNNNNNN` 转义；普通中文、换行和制表符保持可读。审批预览会说明这是转义呈现，保存仍使用原始正文；SHA、Action ID、审批摘要与原效果回执不因显示变化。`--json` 保留原字段值，供程序解析，不将终端转义后的文字当成新正文提交。
 
 退出整个终端程序，在一个新终端使用原目录、原配置和同一环境，重新激活 venv、注入同一个凭据环境变量，然后恢复原任务：
 

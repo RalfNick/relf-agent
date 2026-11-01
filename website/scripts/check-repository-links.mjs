@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { readdir, readFile } from 'node:fs/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { resolve, join } from 'node:path';
-import { repositoryInfo } from '../src/lib/repository.mjs';
+import { currentDeliveryUrl, repositoryInfo } from '../src/lib/repository.mjs';
 
 const repoRoot = fileURLToPath(new URL('../../', import.meta.url));
 const previousRepository = 'https://github.com/RalfNick/ralf-agent';
@@ -15,6 +15,7 @@ export function checkRepositoryTargets(urls, files) {
       problems.push(`Stale repository URL: ${value}`);
       continue;
     }
+    if (value === currentDeliveryUrl) continue;
     if (!value.startsWith(`${repositoryInfo.url}/blob/`) && !value.startsWith(`${repositoryInfo.url}/tree/`)) continue;
     const suffix = value.slice(repositoryInfo.url.length + 1);
     const [kind, ref, ...parts] = suffix.split('/');
@@ -39,7 +40,7 @@ async function htmlUrls(dir) {
     else if (entry.name.endsWith('.html')) {
       const html = await readFile(path, 'utf8');
       urls.push(...[...html.matchAll(/(?:href|src)="([^"]+)"/g)].map((m) => m[1].replaceAll('&amp;', '&')));
-      if (/href="repo:/.test(html)) throw new Error(`Unresolved repository link in ${path}`);
+      if (/href="(?:repo|current-delivery):/.test(html)) throw new Error(`Unresolved repository link in ${path}`);
     }
   }
   return urls;
@@ -49,8 +50,9 @@ export async function checkBuiltRepositoryLinks(dir) {
   const urls = await htmlUrls(dir);
   const problems = checkRepositoryTargets(urls, publishedFiles());
   if (problems.length) throw new Error(problems.join('\n'));
-  const count = new Set(urls.filter((url) => url.startsWith(`${repositoryInfo.url}/blob/`) || url.startsWith(`${repositoryInfo.url}/tree/`))).size;
-  console.log(`Repository targets: ${count} published paths checked at ${repositoryInfo.ref.slice(0, 12)}.`);
+  const count = new Set(urls.filter((url) => url !== currentDeliveryUrl && (url.startsWith(`${repositoryInfo.url}/blob/`) || url.startsWith(`${repositoryInfo.url}/tree/`)))).size;
+  const current = urls.includes(currentDeliveryUrl) ? 1 : 0;
+  console.log(`Repository targets: ${count} published paths checked at ${repositoryInfo.ref.slice(0, 12)}; ${current} current-delivery path on main.`);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {

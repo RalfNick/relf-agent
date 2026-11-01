@@ -16,7 +16,7 @@ Relf-Agent 把模型决策、工具调用、人工审批和业务结果保存为
 
 > 源码基版本仍为 `0.1.0a8`，已包含此后的维护能力与 Runtime 秒数校验修复；它不是原 a8 归档的能力说明。安装请使用[当前交付入口](docs/current-delivery.md)指定的唯一私有候选。发行名 `relf-agent`、导入 `relf_agent`、CLI `relf` 保持，本地基础应用无需模型密钥、Redis、Temporal 或 Docker。
 
-> 默认分支为 `main`。历史公开 a2、原 a8 与官网固定教程按各自记录保留；本轮不推送、远端 CI、部署或公开发布，不重新核验在线发布状态。历史版本及安装方式见[安装指南](docs/installation.md)。
+> 默认分支为 `main`。源码 `e94c57c` 已于 2026-11-01 使用 RalfNick 合入并推送，核对所选提交 CI 运行数为 0；安装包仍按精确私有制品交付，未创建新 Release。当前 Callable／审批预览维护仅本地提交，不推送、触发远端 CI、部署或公开发布。历史公开 a2、原 a8 与官网固定教程按各自记录保留，安装方式见[安装指南](docs/installation.md)。
 
 ## 为什么使用 Relf-Agent
 

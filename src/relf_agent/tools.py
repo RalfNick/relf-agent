@@ -9,6 +9,15 @@ from collections.abc import Callable
 from contextvars import ContextVar
 from dataclasses import asdict, dataclass, field
 from functools import partial
+from types import (
+    BuiltinFunctionType,
+    ClassMethodDescriptorType,
+    FunctionType,
+    MethodDescriptorType,
+    MethodType,
+    MethodWrapperType,
+    WrapperDescriptorType,
+)
 from typing import Any
 
 from jsonschema import Draft202012Validator
@@ -173,9 +182,13 @@ class RegisteredTool:
 
     def check(self):
         """Check transient executable entries without changing persisted identity."""
-        if self._entry_pins is not None and not _same_entry_pin(
-            (_entry_pin(self.handler), _entry_pin(self.reconciler)), self._entry_pins
-        ):
+        if self._entry_pins is None:
+            return
+        try:
+            current = (_entry_pin(self.handler), _entry_pin(self.reconciler))
+        except ValidationError as exc:
+            raise DefinitionMismatch("Original tool executable entry changed") from exc
+        if not _same_entry_pin(current, self._entry_pins):
             raise DefinitionMismatch("Original tool executable entry changed")
 
     @property
@@ -220,6 +233,9 @@ class ToolRegistry:
             raise DefinitionMismatch(f"Tool already registered: {spec.name}")
         if not callable(handler) or (reconciler is not None and not callable(reconciler)):
             raise ValidationError("Tool handlers and reconcilers must be callable")
+        # Admission and later checks share static lookup; unsupported descriptors
+        # fail before publishing a name, without evaluating their getters.
+        entry_pins = (_entry_pin(handler), _entry_pin(reconciler))
         from .delegated_coding import registered_coding_tool
 
         registered_coding_tool(RegisteredTool(spec, handler, reconciler, ""))
@@ -233,7 +249,7 @@ class ToolRegistry:
             handler,
             reconciler,
             digest(identities),
-            (_entry_pin(handler), _entry_pin(reconciler)),
+            entry_pins,
         )
         return handler
 
@@ -293,19 +309,77 @@ class ToolRegistry:
         ]
 
 
+def _class_entry(owner, name):
+    # Read actual MRO dictionaries, bypassing metaclass/descriptor getters.
+    for base in type.__dict__["__mro__"].__get__(owner):
+        namespace = type.__dict__["__dict__"].__get__(base)
+        if name in namespace:
+            return namespace[name]
+    raise ValidationError(f"Unsupported callable descriptor for {name}")
+
+
+def _direct_function_pin(function):
+    if type(function) is FunctionType:
+        return (function, function.__code__)
+    if type(function) in {
+        BuiltinFunctionType,
+        MethodDescriptorType,
+        ClassMethodDescriptorType,
+        WrapperDescriptorType,
+    }:
+        return (function,)
+    raise ValidationError(
+        "Unsupported callable descriptor; use an explicit Python function wrapper"
+    )
+
+
+def _descriptor_pin(descriptor):
+    # Only these built-in descriptor forms have known binding behavior. Custom
+    # descriptors (including subclasses overriding __get__) need an explicit
+    # ordinary wrapper, rather than running arbitrary getters during validation.
+    if type(descriptor) in {staticmethod, classmethod}:
+        return (descriptor, _direct_function_pin(descriptor.__func__))
+    if type(descriptor) is property:
+        return (descriptor, _direct_function_pin(descriptor.fget))
+    return _direct_function_pin(descriptor)
+
+
 def _entry_pin(function):
-    # Only direct entry bindings and code objects are retained, by identity.
-    # Partial arguments, defaults, closures and receiver state remain the
-    # integrator's explicit version/config responsibility and may hold secrets.
+    # Only direct entries and code objects are retained, by identity. Never
+    # serialize defaults, closures, receiver state or partial arguments.
     if function is None:
         return None
     if isinstance(function, partial):
-        return (function, _entry_pin(function.func), _entry_pin(type(function).__call__))
-    if inspect.ismethod(function):
-        return (function.__self__, _entry_pin(function.__func__))
-    if inspect.isroutine(function):
-        return (function, getattr(function, "__code__", None))
-    return (function, _entry_pin(type(function).__call__))
+        if _class_entry(type(function), "func") is not partial.func:
+            raise ValidationError("Unsupported callable descriptor for partial.func; use a wrapper")
+        return (
+            function,
+            _entry_pin(partial.func.__get__(function)),
+            _descriptor_pin(_class_entry(type(function), "__call__")),
+        )
+    if type(function) is MethodType:
+        return (function.__self__, _direct_function_pin(function.__func__))
+    if isinstance(function, type):
+        return (
+            function,
+            _descriptor_pin(_class_entry(type(function), "__call__")),
+            _descriptor_pin(_class_entry(function, "__new__")),
+            _descriptor_pin(_class_entry(function, "__init__")),
+        )
+    if type(function) is MethodWrapperType:
+        raise ValidationError("Unsupported callable method-wrapper; use a Python function wrapper")
+    if type(function) is BuiltinFunctionType:
+        # This is the captured callable, just as for a captured Python method.
+        # Rebinding the owner's attribute does not change this executable entry.
+        return (function,)
+    if type(function) in {
+        FunctionType,
+        MethodDescriptorType,
+        ClassMethodDescriptorType,
+        WrapperDescriptorType,
+    }:
+        return _direct_function_pin(function)
+    return (function, _descriptor_pin(_class_entry(type(function), "__call__")))
 
 
 def _same_entry_pin(current, original):
