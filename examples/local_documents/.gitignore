@@ -1,0 +1,9 @@
+.assistant/
+reports/
+assistant.toml
+.venv/
+build/
+dist/
+*.egg-info/
+__pycache__/
+.env

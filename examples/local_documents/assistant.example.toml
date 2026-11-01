@@ -1,0 +1,12 @@
+[paths]
+documents = "demo-documents"
+output = "reports"
+state = ".assistant"
+
+[model]
+adapter = "deepseek"
+name = "deepseek-flash"
+base_url = "https://api.deepseek.com"
+api_key_env = "DEEPSEEK_API_KEY"
+timeout = 45
+max_output_tokens = 2048

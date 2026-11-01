@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "relf-local-documents-example"
+version = "0.1.0"
+description = "Local Markdown/TXT assistant example using Relf-Agent"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+dependencies = ["relf-agent==0.1.0a8+maintenance.0608576182db502f"]
+
+[project.scripts]
+relf-docs = "local_documents.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
