@@ -4,7 +4,7 @@
 
 本轮唯一推荐包、精确提交／哈希、安装命令、支持矩阵和剩余状态见[当前交付入口](current-delivery.md)。本地候选已组合事件／展示流、连续应用及组件替换、Local无模型Tool配置与必要维护修复；不与原Alpha或历史私有包混用资格。
 
-本地资料助手首版与此前四项 P2／源码包修复已按[当前交付入口](current-delivery.md)验收，源码 `e94c57c` 已合入并推送到 main，所选提交 CI 核对为 0；私有包没有公开发行。当前 Callable／审批预览／交付链接修复仍仅本地提交，不推送、远端 CI 或部署。安装与启动见[资料助手交付](local-documents-assistant.md)。独立业务接入使用[空目录接入与验收流程](independent-onboarding.md)，继续作为后续事项；历史制品保留原资格。
+资料助手首版及此前维护源码e94c57c已合入main，当时CI核对为0；本轮Callable边界、审批预览与官网交付链接修复已按[当前入口](current-delivery.md)冻结新候选。新源码仅本地提交，制品未公开发行、官网未部署。安装见[资料助手交付](local-documents-assistant.md)；独立采用与历史资格继续分开记录。
 
 [项目首页](../README.md) · [示例目录](../examples/README.md) · [贡献指南](../CONTRIBUTING.md)
 

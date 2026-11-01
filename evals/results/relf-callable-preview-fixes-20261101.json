@@ -1,0 +1,107 @@
+{
+  "kind": "callable-preview-delivery-fixes",
+  "date": "2026-11-01",
+  "source_commit": "80de9bdc2188d27067c7acd752f5f5a796cbea48",
+  "base_commit": "e94c57c9da5312bbcd69956620e543e9477ace99",
+  "sdk": {
+    "version": "0.1.0a8+maintenance.a97223496646bac0",
+    "wheel": "dist/callable-preview-fixes-20261101/sdk-artifacts/relf_agent-0.1.0a8+maintenance.a97223496646bac0-py3-none-any.whl",
+    "wheel_sha256": "5cfbfec568a26445efd8a9c6009adc60660f320fcf875a747ddfea37e370363b",
+    "sdist": "dist/callable-preview-fixes-20261101/sdk-artifacts/relf_agent-0.1.0a8+maintenance.a97223496646bac0.tar.gz",
+    "sdist_sha256": "b88d0b054b721f6f8e3eadbf57dcf7c20ddd47ee0e651aaf639299dc80d99a92",
+    "product_files": 451,
+    "changed_products": [
+      "src/relf_agent/tools.py"
+    ]
+  },
+  "application": {
+    "version": "0.1.0+local.3d98685c70e5",
+    "wheel": "dist/callable-preview-fixes-20261101/application-artifacts/relf_local_documents_example-0.1.0+local.3d98685c70e5-py3-none-any.whl",
+    "wheel_sha256": "e7a8d3488590ef92d96d96e7e440b763dae099e08d22072b177069b50add4fbf",
+    "sdist": "dist/callable-preview-fixes-20261101/application-artifacts/relf_local_documents_example-0.1.0+local.3d98685c70e5.tar.gz",
+    "sdist_sha256": "10f48dc1394136be272e7eefe17f72fafcbc22690e2be721c205ce1656c55bb7",
+    "sdk_version": "0.1.0a8+maintenance.a97223496646bac0"
+  },
+  "fixed_P2": 3,
+  "fixed_P3": 2,
+  "source": {
+    "exit_code": 0,
+    "count": 1407,
+    "tests": 1407,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 306.353,
+    "installed": false
+  },
+  "installed": {
+    "exit_code": 0,
+    "count": 1407,
+    "tests": 1407,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 304.87,
+    "installed": true
+  },
+  "same_test_ids": true,
+  "previous_1320_preserved": true,
+  "new_callable_cases": 59,
+  "new_terminal_cases": 28,
+  "production_only": {
+    "passed": true,
+    "identity": {
+      "sdk": "0.1.0a8+maintenance.a97223496646bac0",
+      "sdk_module": "0.1.0a8+maintenance.a97223496646bac0",
+      "app": "0.1.0+local.3d98685c70e5",
+      "app_module": "0.1.0+local.3d98685c70e5",
+      "sdk_path": "/private/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-callable-preview-20261101-tpoi6fgt/production/venv/lib/python3.12/site-packages/relf_agent/__init__.py",
+      "app_path": "/private/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-callable-preview-20261101-tpoi6fgt/production/venv/lib/python3.12/site-packages/local_documents/__init__.py",
+      "pytest": false,
+      "temporal": false
+    },
+    "commands": 24,
+    "runtime_only_no_pytest_or_temporal": true,
+    "sdk_sdist_app_build_install": true,
+    "chat_twice_no_runs": true,
+    "old_new_recovery": [
+      "old-new",
+      "new-old"
+    ],
+    "one_business_effect_per_case": true,
+    "model_generation_requests": 0,
+    "new_model_quality": null,
+    "source_checkout_imports": false
+  },
+  "website": {
+    "tests": 31,
+    "astro_errors": 0,
+    "astro_warnings": 0,
+    "bilingual_pairs": 14,
+    "built_pages": 32,
+    "local_links_assets": 1985,
+    "pinned_repository": "300c62ce8dd417df6b471ce1c10a1b7a562d2c46",
+    "source_hashes_and_code_blocks_unchanged": true,
+    "current_delivery_link": "https://github.com/RalfNick/relf-agent/blob/main/docs/current-delivery.md",
+    "deployed": false,
+    "online_verified": false
+  },
+  "final_review": {
+    "critical": 0,
+    "important": 1,
+    "minor": 0,
+    "fixed": "captured builtin identity false drift;4RED->240adjacentGREEN"
+  },
+  "protected_artifacts": 21,
+  "existing_main_push": {
+    "commit": "e94c57c9da5312bbcd69956620e543e9477ace99",
+    "account": "RalfNick",
+    "observed_ci_runs": 0
+  },
+  "current_batch_pushed": false,
+  "public_release": false,
+  "new_model_quality": null,
+  "new_platform_or_service_qualification": false,
+  "independent_adoption": false,
+  "known_minor": "unclosed slash-command quote ends current chat, state preserved"
+}

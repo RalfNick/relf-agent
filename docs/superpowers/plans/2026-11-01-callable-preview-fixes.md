@@ -30,30 +30,32 @@
 
 Files: src/relf_agent/tools.py and a small internal helper only if needed; tests/test_generic_tool_pins.py or a new focused module; docs/extending.md.
 
-- [ ] Add RED tests for unchanged property __call__, getter/code replacement, accepted class __init__/__new__/metaclass drift, inherited entries, both execution and reconciliation; preserve baseline manifest values and no getter execution during registration/checks.
-- [ ] Implement stable static descriptor/code pins and clear unsupported-form admission, preserving existing runtime boundaries and saved identity format.
-- [ ] Pass new and adjacent tool/approval/lifecycle tests; record exact commands/counts and limitations.
+- [x] Add RED tests for unchanged property __call__, getter/code replacement, accepted class __init__/__new__/metaclass drift, inherited entries, both execution and reconciliation; preserve baseline manifest values and no getter execution during registration/checks.
+- [x] Implement stable static descriptor/code pins and clear unsupported-form admission, preserving existing runtime boundaries and saved identity format.
+- [x] Pass new and adjacent tool/approval/lifecycle tests; record exact commands/counts and limitations.
 
 ## Task 2 — inert human terminal presentation
 
 Files: examples/local_documents/src/local_documents/cli.py; focused new app tests; app README notes.
 
-- [ ] Reproduce raw ANSI hidden paragraph and other terminal controls in default preview. Add end-to-end original approval/save/hash and JSON parsing tests.
-- [ ] Escape untrusted text for human display at a common output boundary, including history/errors/paths; keep original strings and structured JSON intact. Preserve existing plain-text UX and cancellation semantics.
-- [ ] Pass targeted UI/input/approval and installed-original-byte checks.
+- [x] Reproduce raw ANSI hidden paragraph and other terminal controls in default preview. Add end-to-end original approval/save/hash and JSON parsing tests.
+- [x] Escape untrusted text for human display at a common output boundary, including history/errors/paths; keep original strings and structured JSON intact. Preserve existing plain-text UX and cancellation semantics.
+- [x] Pass targeted UI/input/approval and installed-original-byte checks.
 
 ## Task 3 — current website link
 
 Files: website/src/lib/repository.mjs, website guides zh/en, scripts/tests that assert repository links.
 
-- [ ] Add failing current-delivery resolution assertion.
-- [ ] Introduce a distinct current-delivery link mapping to main; keep existing repo: tutorial links pinned to300c62c and validate paths strictly.
-- [ ] Pass website unit, link/doc checks and local build without deployment/network; retain baseline verification date.
+- [x] Add failing current-delivery resolution assertion.
+- [x] Introduce a distinct current-delivery link mapping to main; keep existing repo: tutorial links pinned to300c62c and validate paths strictly.
+- [x] Pass website unit, link/doc checks and local build without deployment/network; retain baseline verification date.
 
 ## Task 4 — state and immutable candidates
 
-- [ ] Update current status to record e94c57c main push with zero observed CI, private artifacts/no release, and this batch's local-only scope; historical records unchanged.
-- [ ] Concentrated fresh review with one regression-first correction pass; run source impact suite and style, then local implementation commit with [skip ci] and single-command hook bypass.
-- [ ] Build exact archived commit into unique SDK/app wheels and sdists, pin app SDK dependency, preserve prior21 artifacts. No overwrites.
-- [ ] Run the frozen previous1320 selection plus new relevant cases, same IDs in source/installed environments; validate standalone SDK sdist app, runtime-only startup and old/new Local approval/recovery/dedup. No repeat true-model/platform qualification.
-- [ ] Record acceptance and explicit remaining limits; local documentation commit, hook/worktree/artifact postcommit audit. No push or public release.
+- [x] Update current status to record e94c57c main push with zero observed CI, private artifacts/no release, and this batch's local-only scope; historical records unchanged.
+- [x] Concentrated fresh review with one regression-first correction pass; run source impact suite and style, then local implementation commit with [skip ci] and single-command hook bypass.
+- [x] Build exact archived commit into unique SDK/app wheels and sdists, pin app SDK dependency, preserve prior21 artifacts. No overwrites.
+- [x] Run the frozen previous1320 selection plus new relevant cases, same IDs in source/installed environments; validate standalone SDK sdist app, runtime-only startup and old/new Local approval/recovery/dedup. No repeat true-model/platform qualification.
+- [x] Record acceptance and explicit remaining limits; local documentation commit, hook/worktree/artifact postcommit audit. No push or public release.
+
+Final gates: source1407 /306.353s and exact installed1407 /304.870s, zero failures/errors/skips, original1320 nodes and1deselect retained. SDK 0.1.0a8+maintenance.a97223496646bac0, app 0.1.0+local.3d98685c70e5 from 80de9bdc2188d27067c7acd752f5f5a796cbea48;21 old artifacts retained; runtime-only24 commands and local website31tests/14pairs/32pages passed. Final documentation commit and postcommit integrity receipt close this batch; no push/deploy/release.
