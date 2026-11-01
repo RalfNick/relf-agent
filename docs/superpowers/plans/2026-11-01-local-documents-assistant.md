@@ -51,7 +51,7 @@ Interfaces: Config + DocumentLibrary + render_report from Task1; Application(con
 
 Files: examples/local_documents/README.md, examples/README.md, own current-goal status additions, evals/results and architecture/reviews record. Build only example distribution in new ignored evidence paths.
 
-- [ ] Provide exact wheel installation/config/start/chat/query/report/status/approve/resume/cancel/history commands, demo md/txt, privacy/data and recovery limits.
+- [x] Provide exact wheel installation/config/start/chat/query/report/status/approve/resume/cancel/history commands, demo md/txt, privacy/data and recovery limits.
 - [ ] Build example wheel once code stable; install frozen SDK + app outside checkout and verify no source imports. Run example full suite and README commands there.
 - [ ] Call explicitly authorized DeepSeek with finite task/call limits: grounded QA and no evidence, report preview/reject, approval then fresh-process recovery, duplicate controls/submit, output SHA and continued Session. Keep live fixture/control failures and timing separately.
 - [ ] One fresh read-only whole-application review; fix important findings once with regression-first checks. Freeze exact app+SDK hashes, local commits [skip ci] with single-command hook bypass, preserve user documents/old artifacts. Mark goal complete only on evidence for every mandatory gate.

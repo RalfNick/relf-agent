@@ -122,3 +122,26 @@ def pin_config(config):
                 ) from None
     finally:
         Path(temporary).unlink(missing_ok=True)
+
+
+def original_config(config):
+    """Read the pinned address for observation without current model credentials."""
+    try:
+        value = json.loads((config.state / "config.json").read_text())
+    except (OSError, ValueError) as error:
+        raise DefinitionMismatch("原配置记录不可读；无法确认原任务的报告目标") from error
+    pinned = value.get("config") if type(value) is dict else None
+    if (
+        type(value) is not dict
+        or set(value) != {"application", "config"}
+        or value.get("application") != "local-documents-v1"
+        or type(pinned) is not dict
+        or set(pinned) != set(config.public)
+        or any(
+            type(pinned[key]) is not str or not Path(pinned[key]).is_absolute()
+            for key in ("documents", "output", "state")
+        )
+        or pinned["state"] != str(config.state)
+    ):
+        raise DefinitionMismatch("原配置记录与本地执行地址不一致")
+    return pinned

@@ -31,6 +31,8 @@ def emit(value, as_json=False):
         )
     if "command_id" in value:
         print(f"命令 ID: {value['command_id']}")
+    if value.get("configuration_mismatch"):
+        print(value["message"])
     if value.get("answer"):
         print("\n" + value["answer"])
         if value.get("sources"):
@@ -42,6 +44,8 @@ def emit(value, as_json=False):
         )
     for turn in value.get("turns", []):
         print(f"{turn['turn_seq']}. {turn['run_id']} [{turn['state']}] {turn['question']}")
+        if turn.get("answer_validation", {}).get("status") == "rejected":
+            print("  原回答引用校验未通过，未作为可信回答展示；执行终态仍保留原事实。")
     if value.get("error"):
         print(f"错误: {value['error']} {value.get('message', '')}")
     if value.get("state") == "waiting_reconciliation":

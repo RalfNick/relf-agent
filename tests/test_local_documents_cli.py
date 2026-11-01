@@ -131,6 +131,13 @@ def test_cli_real_process_report_preview_approval_recovery_and_duplicates(tmp_pa
         assert result["state"] == "waiting_approval"
         (preview,) = result["pending"]
         assert not (config.output / "summary.md").exists()
+        changed_config = path.with_name("changed.toml")
+        changed_config.write_text(
+            path.read_text().replace('output="reports"', 'output="different-output"')
+        )
+        changed = invoke(changed_config, "status", result["run_id"], key=False)
+        assert changed["pending"] == result["pending"] and changed["configuration_mismatch"] is True
+        assert not (config.output.parent / "different-output").exists()
         approval = [
             "approve",
             result["run_id"],

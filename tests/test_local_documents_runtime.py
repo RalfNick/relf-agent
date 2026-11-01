@@ -379,3 +379,48 @@ def test_insufficient_report_is_rejected_without_write_or_retry_loop(tmp_path):
         assert model.calls == 1
 
     asyncio.run(scenario())
+
+
+def test_status_preserves_original_approval_target_after_configured_output_changes(tmp_path):
+    config = make_config(tmp_path)
+
+    async def scenario():
+        async with api("runtime").Application(config, provider=DocumentModel()) as app:
+            handle = await app.submit(
+                "报告", session_id="one", command_id="r1", report_path="original.md"
+            )
+            original = await app.observe(handle, wait_timeout=5)
+        changed = replace(config, output=tmp_path / "different-output")
+        observed = api("runtime").inspect_run(changed, handle.ref.run_id)
+        assert observed["pending"] == original["pending"]
+        assert observed["configuration_mismatch"] is True
+        assert not changed.output.exists()
+        assert not (config.output / "original.md").exists()
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.parametrize("citations", [["fake"], []])
+def test_history_does_not_publish_ungrounded_model_output_as_verified(tmp_path, citations):
+    config = make_config(tmp_path)
+
+    class InvalidSource:
+        identity = {"kind": "invalid-source-history-fixture", "version": "1"}
+
+        async def complete(self, messages, tools):
+            return ModelResponse({"answer": "invented", "grounded": True, "citations": citations})
+
+    async def scenario():
+        async with api("runtime").Application(config, provider=InvalidSource()) as app:
+            handle = await app.submit("问题", session_id="one", command_id="q1")
+            with pytest.raises(RalfError):
+                await app.observe(handle, wait_timeout=5)
+        result = api("runtime").history(config, "one")
+        (turn,) = result["turns"]
+        assert turn["state"] == "succeeded"  # Keep the SDK's original execution fact.
+        assert turn["result"] is None
+        assert turn["answer_validation"]["status"] == "rejected"
+        assert "invented" not in json.dumps(result)
+        assert "fake" not in json.dumps(result)
+
+    asyncio.run(scenario())

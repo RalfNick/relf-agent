@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 from dataclasses import asdict
+from pathlib import Path
 
 from relf_agent import (
     AgentSpec,
@@ -20,11 +21,11 @@ from relf_agent import (
     ToolRegistry,
     ToolSpec,
 )
-from relf_agent.errors import DefinitionMismatch, ValidationError
+from relf_agent.errors import DefinitionMismatch, RalfError, ValidationError
 from relf_agent.types import RunSnapshot, canonical, digest
 from relf_agent.workspace_writes import validate_write_receipt, write_request
 
-from .config import pin_config
+from .config import original_config, pin_config
 from .documents import DocumentLibrary
 from .evidence import read_run, render_report, validate_answer
 from .report_completion import ReportCompletion
@@ -73,6 +74,7 @@ def make_provider(config):
 
 def inspect_run(config, run_id):
     run = read_run(config.database, run_id)
+    pinned = original_config(config)
     snapshot = RunSnapshot.from_record(run)
     value = {
         "run_id": run_id,
@@ -82,6 +84,9 @@ def inspect_run(config, run_id):
         "answer": None,
         "sources": [],
     }
+    if pinned != config.public:
+        value["configuration_mismatch"] = True
+        value["message"] = "当前配置不同；下面展示原任务固定的目标，执行恢复须使用原配置。"
     if snapshot.state == "succeeded":
         value.update(validate_answer(snapshot.result, run))
     for item in snapshot.pending:
@@ -92,7 +97,7 @@ def inspect_run(config, run_id):
             {
                 "action_id": item["action_id"],
                 "digest": item["digest"],
-                "path": str(config.output / path),
+                "path": str(Path(pinned["output"]) / path),
                 "content": text,
                 "sha256": hashlib.sha256(text.encode()).hexdigest(),
             }
@@ -124,9 +129,22 @@ def history(config, session_id):
                     "run_id": run["id"],
                     "question": run["input"]["question"],
                     "state": run["state"],
-                    "result": run["result"],
+                    "result": None,
+                    "answer_validation": {"status": "not_complete"},
                 }
             )
+            if run["state"] == "succeeded":
+                try:
+                    checked = validate_answer(run["result"], run)
+                except RalfError as error:
+                    turns[-1]["answer_validation"] = {
+                        "status": "rejected",
+                        "code": error.code,
+                        "message": str(error),
+                    }
+                else:
+                    turns[-1]["result"] = checked
+                    turns[-1]["answer_validation"] = {"status": "verified"}
     return {"session_id": session_id, "turns": turns, "limit": 100}
 
 
