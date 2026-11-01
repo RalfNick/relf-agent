@@ -2,7 +2,9 @@
 
 import argparse
 import asyncio
+import codecs
 import hashlib
+import io
 import json
 import math
 import os
@@ -11,6 +13,7 @@ import signal
 import stat
 import sys
 import uuid
+import weakref
 from types import SimpleNamespace
 
 from relf_agent.errors import RalfError, SessionBusy, ValidationError
@@ -59,23 +62,63 @@ def emit(value, as_json=False):
     sys.stdout.flush()
 
 
+class _InputReader:
+    def __init__(self, stream):
+        decoder = codecs.getincrementaldecoder(stream.encoding or "utf-8")(
+            errors=stream.errors or "strict"
+        )
+        self.decoder = io.IncrementalNewlineDecoder(decoder, translate=True)
+        self.buffer = ""
+        self.eof = False
+        self.lock = asyncio.Lock()
+
+    async def read_line(self, fd):
+        async with self.lock:
+            if "\n" not in self.buffer and not self.eof:
+                loop = asyncio.get_running_loop()
+                ready = loop.create_future()
+
+                def receive():
+                    if ready.done():
+                        return
+                    try:
+                        # A ready pipe/terminal read returns its available bytes;
+                        # readline() could buffer later lines or block on a partial one.
+                        data = os.read(fd, 65536)
+                        self.eof = not data
+                        self.buffer += self.decoder.decode(data, final=self.eof)
+                    except BlockingIOError:
+                        return
+                    except Exception as error:
+                        ready.set_exception(error)
+                        return
+                    if "\n" in self.buffer or self.eof:
+                        ready.set_result(None)
+
+                loop.add_reader(fd, receive)
+                try:
+                    await ready
+                finally:
+                    loop.remove_reader(fd)
+            line, newline, self.buffer = self.buffer.partition("\n")
+            return line + newline
+
+
+# Keep decoded lines and partial code points between prompts, without retaining
+# closed/replaced stdin streams or starting an input thread.
+_input_readers = weakref.WeakKeyDictionary()
+
+
 async def read_line(prompt):
-    # Avoid an input thread that cannot be stopped when the event loop closes.
     print(prompt, end="", file=sys.stderr, flush=True)
-    fd = sys.stdin.fileno()
+    stream = sys.stdin
+    fd = stream.fileno()
     if stat.S_ISREG(os.fstat(fd).st_mode):
-        return sys.stdin.readline()
-    loop, ready = asyncio.get_running_loop(), asyncio.get_running_loop().create_future()
-
-    def receive():
-        if not ready.done():
-            ready.set_result(sys.stdin.readline())
-
-    loop.add_reader(fd, receive)
-    try:
-        return await ready
-    finally:
-        loop.remove_reader(fd)
+        return stream.readline()
+    reader = _input_readers.get(stream)
+    if reader is None:
+        reader = _input_readers[stream] = _InputReader(stream)
+    return await reader.read_line(fd)
 
 
 async def input_line(prompt, interrupted):

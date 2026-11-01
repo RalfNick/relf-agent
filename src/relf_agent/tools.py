@@ -169,12 +169,22 @@ class RegisteredTool:
     handler: Callable
     reconciler: Callable | None
     implementation_digest: str
+    _entry_pins: tuple | None = field(default=None, repr=False, compare=False)
+
+    def check(self):
+        """Check transient executable entries without changing persisted identity."""
+        if self._entry_pins is not None and not _same_entry_pin(
+            (_entry_pin(self.handler), _entry_pin(self.reconciler)), self._entry_pins
+        ):
+            raise DefinitionMismatch("Original tool executable entry changed")
 
     @property
     def manifest(self):
+        self.check()
         return {**asdict(self.spec), "implementation_digest": self.implementation_digest}
 
     def validate(self, arguments):
+        self.check()
         if not isinstance(arguments, dict) or not Draft202012Validator(
             self.spec.input_schema
         ).is_valid(arguments):
@@ -182,6 +192,7 @@ class RegisteredTool:
 
     def resolve_arguments(self, arguments):
         """Resolve typed defaults before action identity, approval and policy."""
+        self.check()
         from .tool_functions import TypedFunctionHandler
 
         if type(self.handler) is TypedFunctionHandler:
@@ -218,7 +229,11 @@ class ToolRegistry:
         canonical(asdict(spec))
         identities = [_callable_identity(function) for function in (handler, reconciler)]
         self._tools[spec.name] = RegisteredTool(
-            copy.deepcopy(spec), handler, reconciler, digest(identities)
+            copy.deepcopy(spec),
+            handler,
+            reconciler,
+            digest(identities),
+            (_entry_pin(handler), _entry_pin(reconciler)),
         )
         return handler
 
@@ -254,7 +269,11 @@ class ToolRegistry:
         # frozen dataclasses do not freeze nested Schema/config dictionaries.
         # A policy or caller receives a detached descriptor, not registry state.
         return RegisteredTool(
-            copy.deepcopy(tool.spec), tool.handler, tool.reconciler, tool.implementation_digest
+            copy.deepcopy(tool.spec),
+            tool.handler,
+            tool.reconciler,
+            tool.implementation_digest,
+            tool._entry_pins,
         )
 
     def manifests(self, names):
@@ -272,6 +291,29 @@ class ToolRegistry:
             }
             for tool in (self.get(name) for name in names)
         ]
+
+
+def _entry_pin(function):
+    # Only direct entry bindings and code objects are retained, by identity.
+    # Partial arguments, defaults, closures and receiver state remain the
+    # integrator's explicit version/config responsibility and may hold secrets.
+    if function is None:
+        return None
+    if isinstance(function, partial):
+        return (function, _entry_pin(function.func), _entry_pin(type(function).__call__))
+    if inspect.ismethod(function):
+        return (function.__self__, _entry_pin(function.__func__))
+    if inspect.isroutine(function):
+        return (function, getattr(function, "__code__", None))
+    return (function, _entry_pin(type(function).__call__))
+
+
+def _same_entry_pin(current, original):
+    if type(current) is tuple and type(original) is tuple:
+        return len(current) == len(original) and all(
+            _same_entry_pin(a, b) for a, b in zip(current, original, strict=True)
+        )
+    return current is original
 
 
 def _callable_identity(function):
@@ -303,18 +345,31 @@ def _callable_identity(function):
 
 
 async def invoke(
-    function, arguments: dict, context, *, thread_tracker: ThreadExecutionTracker | None = None
+    function,
+    arguments: dict,
+    context,
+    *,
+    thread_tracker: ThreadExecutionTracker | None = None,
+    verify: Callable | None = None,
 ) -> Any:
+    values = copy.deepcopy(arguments)
+    if verify is not None:
+        verify()
     if inspect.iscoroutinefunction(function):
-        return await function(copy.deepcopy(arguments), context)
+        return await function(values, context)
+
+    def call():
+        # A worker may have waited in the pool while registration drifted.
+        if verify is not None:
+            verify()
+        return function(values, context)
+
     # A trusted sync handler cannot block the coordinator's event loop.
     tracker = thread_tracker or current_thread_tracker.get()
     if tracker is None:
-        result = await asyncio.to_thread(function, copy.deepcopy(arguments), context)
+        result = await asyncio.to_thread(call)
     else:
-        result = await tracker.run(
-            function, copy.deepcopy(arguments), context, group=context.run_id
-        )
+        result = await tracker.run(call, group=context.run_id)
     if inspect.isawaitable(result):
         return await result
     return result

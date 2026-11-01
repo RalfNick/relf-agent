@@ -13,8 +13,9 @@
 准备同一份 SDK wheel 与完整的本示例目录。将下面两个绝对路径替换为收到的实际路径；也可以先将完整源码压缩副本解压，再把 `APP_SOURCE` 指向其中的 `examples/local_documents`。不要只复制 `src`，还需要本目录的配置、演示资料和包元数据。
 
 ```sh
-SDK_WHEEL="/ABS/relf-agent/dist/public-preflight-fixes-20261030/private-artifacts/relf_agent-0.1.0a8+maintenance.0608576182db502f-py3-none-any.whl"
+SDK_WHEEL="/ABS/relf-agent/dist/public-preflight-fixes-20261030/private-artifacts/relf_agent-0.1.0a8+maintenance.f3da3f48e894e745-py3-none-any.whl"
 APP_SOURCE="/ABS/relf-agent/examples/local_documents"
+SDK_SHA256="从当前交付页复制对应 SDK wheel 的 SHA256"
 
 mkdir relf-docs-demo
 cd relf-docs-demo
@@ -22,14 +23,14 @@ python3.12 -m venv .venv
 . .venv/bin/activate
 ```
 
-核对 SDK 文件。这个命令在 macOS／Linux 均不依赖额外的 SHA 工具：
+从[当前交付入口](../../docs/current-delivery.md)复制该 wheel 的 SHA256 填入 `SDK_SHA256`，不要沿用历史包哈希。核对 SDK 文件。这个命令在 macOS／Linux 均不依赖额外的 SHA 工具：
 
 ```sh
-python - "$SDK_WHEEL" <<'PY'
+python - "$SDK_WHEEL" "$SDK_SHA256" <<'PY'
 import hashlib
 import sys
 from pathlib import Path
-expected = "082b5ec9d1c107539b925d8a9f1332560eb7f92ec518b0e603ad02b5046cb482"
+expected = sys.argv[2]
 actual = hashlib.sha256(Path(sys.argv[1]).read_bytes()).hexdigest()
 assert actual == expected, (actual, expected)
 print("SDK SHA256 OK:", actual)
@@ -48,7 +49,7 @@ import local_documents
 import relf_agent
 print("SDK:", m.version("relf-agent"), relf_agent.__file__)
 print("App:", m.version("relf-local-documents-example"), local_documents.__file__)
-assert m.version("relf-agent") == "0.1.0a8+maintenance.0608576182db502f"
+assert m.version("relf-agent") == "0.1.0a8+maintenance.f3da3f48e894e745"
 assert m.version("relf-local-documents-example").split("+", 1)[0] == "0.1.0"
 assert m.version("relf-local-documents-example") == local_documents.__version__
 assert "site-packages" in local_documents.__file__
@@ -136,6 +137,8 @@ relf-docs --config assistant.toml --session main chat
 ```
 
 交互 `/approve`、`/reject` 显示原正文和路径，输入 `yes` 才提交决定，并恢复同一任务。普通 `/report` 或独立 `report` 命令不会自动批准。用相同 `--session` 和原配置重启程序后，会话继续保存在原 SQLite；模型每次只读取有界历史，不是无限上下文。`history` 最多展示 100 个 Turn。
+
+搜索会扫描支持文件的完整文本，再围绕命中位置返回有界摘录。长行中部开始的摘录额外提供 `start_column`（从 1 开始的 Unicode 字符列号）；从所示起止行拼接正文后，由该列开始即可核对摘录，来源 ID 包含此位置。普通行首来源不增加字段。
 
 **来源是读取时快照。** SHA 和行范围描述工具读取时的文件。随后修改文件不会回写旧回答或已批准报告，旧来源也不能代表现在的文件版本；需要当前内容时提交新的查询。
 

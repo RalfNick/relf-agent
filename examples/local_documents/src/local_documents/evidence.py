@@ -81,7 +81,9 @@ def report_path(path):
 
 def source_lines(sources):
     return [
-        f"- {item['path']} (L{item['start_line']}-L{item['end_line']}; sha256={item['sha256']})"
+        f"- {item['path']} (L{item['start_line']}-L{item['end_line']}; "
+        + (f"start_column={item['start_column']}; " if "start_column" in item else "")
+        + f"sha256={item['sha256']})"
         for item in sources
     ]
 

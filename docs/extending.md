@@ -115,6 +115,8 @@ identity／backend_id 表达端点、数据库／namespace、模型、版本及�
 
 工具实例状态、partial 绑定参数、闭包和外部依赖不会自动序列化；改变它们时同步更新 `ToolSpec.version/config` 并构造新的 Registry。Provider／Harness／ToolExecutor／ContextBuilder／记忆的 identity 应反映实际当前配置。内核在恢复、异步装配后的派发、模型响应采纳、工具授权后，以及最终会话写入完成后、提交节点／Run 成功前复核固定发布。会话读取和保存固定使用同一执行组件；若适配器在等待期间更换实际后端，Run 失败，已发生的外部写入仍可能存在。
 
+低阶 `ToolRegistry.register()` 同样固定 handler／reconciler 的直接函数、绑定方法、partial 及 callable 的代码入口，包含 partial 子类的 `__call__`。检查覆盖发布／参数校验、真实工作线程开始、异步结果及回执序列化完成；这些是进程内临时检查，原持久 Manifest 和实现摘要不变。更换直接代码入口会拒绝继续，描述符仍可读取以清理原资源；恢复原实现后才可继续原 Run 或重试原 Runtime 关闭。此项不递归跟踪闭包、默认参数、对象状态或外部依赖，已有外部效果也不会因拒绝采纳而撤销。
+
 没有工具提案的 DecisionProposal 必须给出完整最终结果：缺少输出或空白文本会在采纳前拒绝；False、0、空对象／数组属于合法 JSON。默认 NativeHarness 透明转交 ModelResponse，自定义 Harness 可以变换原始响应，最终验收对象仍是它提出的输出。配置输出 Schema 时，文本按 JSON 解析后再校验；Schema 允许 null 时可返回 None 或 JSON null，编码后的空白文本仍拒绝。
 
 Registry 的 Schema/config 描述是独立副本，policy 可以读取它们；修改副本不会改变登记的工具或原审批。核验历史未知效果使用原 Manifest 成本，不要求当前工具仍注册。

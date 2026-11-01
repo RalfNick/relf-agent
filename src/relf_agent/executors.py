@@ -128,12 +128,20 @@ class PythonToolExecutor:
 
     async def execute(self, envelope: DispatchEnvelope) -> EffectObservation:
         tool = self._registered(envelope)
-        result = await invoke(tool.handler, envelope.arguments, envelope.context)
-        return EffectObservation(result)
+        result = await invoke(tool.handler, envelope.arguments, envelope.context, verify=tool.check)
+        observation = EffectObservation(result)
+        tool.check()
+        return observation
 
     async def reconcile(self, envelope: DispatchEnvelope) -> EffectObservation | None:
         tool = self._registered(envelope)
         if tool.reconciler is None:
             return None
-        result = await invoke(tool.reconciler, envelope.arguments, envelope.context)
-        return None if result is None else EffectObservation(result, source="tool-reconciler")
+        result = await invoke(
+            tool.reconciler, envelope.arguments, envelope.context, verify=tool.check
+        )
+        observation = (
+            None if result is None else EffectObservation(result, source="tool-reconciler")
+        )
+        tool.check()
+        return observation

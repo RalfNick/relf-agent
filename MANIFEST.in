@@ -15,6 +15,9 @@ recursive-include architecture *.md
 recursive-include docs *.md
 recursive-include examples *.py
 recursive-include examples *.md
+include examples/local_documents/pyproject.toml examples/local_documents/assistant.example.toml
+include examples/local_documents/demo-documents/reports.txt
+include examples/local_documents/LICENSE examples/local_documents/NOTICE
 recursive-include .github *.md *.yml
 recursive-include tests *.py
 include tests/codex_control_fixture.json
