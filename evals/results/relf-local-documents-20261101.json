@@ -1,0 +1,50 @@
+{
+  "kind": "local-documents-assistant-v1-freeze",
+  "date": "2026-11-01",
+  "source_commit": "1cd0c3cedf6323d505ac14be846232e88a6a1648",
+  "application_version": "0.1.0+local.52ddc2d194b8",
+  "application_wheel_sha256": "8f8ac49190f0afd0d110d68a3afbe58d7a107f68ae482ce0a87b2cc04935d498",
+  "application_sdist_sha256": "484a17cbc0b17d02f4387995903aabcfa5be5a4108aae0a1a9e48ba29a90673e",
+  "sdk_version": "0.1.0a8+maintenance.0608576182db502f",
+  "sdk_wheel_sha256": "082b5ec9d1c107539b925d8a9f1332560eb7f92ec518b0e603ad02b5046cb482",
+  "sdk_modified": false,
+  "sdk_rebuilt": false,
+  "source_tests": 192,
+  "installed_example_tests": 38,
+  "production_only_without_pytest_or_temporal": true,
+  "real_model": {
+    "provider": "DeepSeek",
+    "model": "deepseek-flash",
+    "attempts": 12,
+    "commands": 14,
+    "seconds": 35.5990720000118,
+    "checks": {
+      "grounded_question": true,
+      "session_restart": true,
+      "insufficient_evidence": true,
+      "preview_zero_write": true,
+      "approval_without_execution": true,
+      "approved_report_exact_bytes": true,
+      "original_receipts_one_write": true,
+      "rejection_zero_write": true,
+      "readonly_without_credentials": true
+    },
+    "report_sha256": "623a9df617855da79ea06cd8ab2c62f96dd2accce0c82d2c05af68bf169813ab",
+    "report_write_attempts": 1
+  },
+  "final_review": {
+    "important_findings_fixed": 2,
+    "red_regressions": 3,
+    "independent_cases": 29,
+    "deferred_minors": [
+      "unmatched slash-command quote ends chat; restart with same configuration"
+    ]
+  },
+  "environment": "macOS-15.6.1-arm64-arm-64bit",
+  "quality_scope": "fixed fictional demo documents and selected tasks; provenance is not arbitrary semantic entailment",
+  "independent_adoption": false,
+  "other_platforms_or_models_qualified": false,
+  "historical_candidates_and_failures_retained": true,
+  "pushed": false,
+  "public_release": false
+}
