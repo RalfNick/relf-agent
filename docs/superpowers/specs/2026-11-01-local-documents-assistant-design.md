@@ -16,6 +16,7 @@
 - `documents.py`：经原 Workspace 读取 UTF-8 md/txt，有界递归/文件大小/摘录；输出真实相对路径、行号、内容 SHA 与引用 ID。
 - `evidence.py`：只读原 SQLite Run/工具结果，核对回答或报告引用确实来自已完成的读取动作；来源表示读取时快照，不冒充当前文件内容。
 - `runtime.py`：三个工具 `search_documents`、`read_document`、`save_report`，单 Agent + Session 装配；使用原效果键和原生写回执。写入正文由模型正文加已核验来源组成；审批展示与实际写入使用同一确定性渲染。
+- `report_completion.py`：复用原 CompletionVerifier，纯检查报告的已提交保存回执；模型只回答文字时反馈继续，资料不足时拒绝报告完成。
 - `cli.py`：chat / ask / report / status / history / approve / resume / cancel。原 Run ID 即恢复入口；重复命令不创建第二效果。
 - README、配置样例、演示资料及离线/实际模型验证记录。
 
@@ -24,6 +25,8 @@
 查询的最终 JSON 包含 `answer`、`grounded` 与 `citations`。引用 ID 必须出现在该 Run 已接受的读取结果中；声称有依据却无有效引用时明确报来源错误。未找到资料可以返回不足，不制造引用。这是来源真实性检查，不是任意回答内容的语义正确性保证。
 
 报告请求包含用户指定的 `.md` 文件名。`save_report` 参数包含路径、正文与引用；应用核对与原输入一致、引用有效，追加确定性的来源区。它声明 `idempotent_write`、`requires_approval=True`，真正写入只调用原 Workspace create-only 端口，核验用原 effect key 查询并验证原请求。报告完成后独立读取输出 SHA。拒绝/取消不写目标文件，原 pending 参数不在恢复时重新生成。
+
+报告的成功终态必须有原保存工具的已提交回执。模型提前给出有依据的文字但没有提案时，纯 CompletionVerifier 通过原决策预算内的反馈要求继续；没有依据时明确拒绝报告完成，不通过循环补造证据。它不派发工具、不提交运行状态，也不增加执行权威。
 
 状态查询和 history 不要求密钥，不派发模型。approve 展示完整原正文和绝对目标路径；只有明确确认才提交原 action/digest 决定。批准后可在另一进程 resume；默认普通命令停在 waiting_approval，不自动批准。busy Session 提示原 Run，不能以新 Turn 绕过。
 

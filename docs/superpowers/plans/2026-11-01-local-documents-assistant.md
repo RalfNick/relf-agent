@@ -45,7 +45,7 @@ Interfaces: Config + DocumentLibrary + render_report from Task1; Application(con
 
 - [x] Write real SQLite/Workspace tests: two-turn recall, approval preview zero report, rejection/cancel no effect, new process resume, same-command original receipt, create-only conflict, forged citation, connection failure and cancellation/close. Observe RED.
 - [x] Register read tools and managed report effect; implement API/CLI with stable config identity, read-only inspection, clear state/error output and no auto-approval.
-- [x] Run the complete example suite and affected Session/Runtime/Workspace contracts; 146 passed in41.50s; all prior failures retained. Application resume only observes unknown model actions; existing core retry behavior remains unchanged.
+- [x] Run the complete example suite and affected Session/Runtime/Workspace contracts; initial146 passed in41.50s. Actual-model missing report proposal reopened only the application completion rule; new receipt-gating regression RED→GREEN, full example plus existing completion contracts189 passed in42.28s. All prior failures retained. Application resume only observes unknown model actions; core remains unchanged.
 
 ## Task 3 — install, real model, docs and freeze
 

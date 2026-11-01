@@ -27,6 +27,7 @@ from relf_agent.workspace_writes import validate_write_receipt, write_request
 from .config import pin_config
 from .documents import DocumentLibrary
 from .evidence import read_run, render_report, validate_answer
+from .report_completion import ReportCompletion
 
 INSTRUCTIONS = """你是本地资料助手。用户输入为包含 question 和 report_path 的 JSON。
 每个问题先调用 search_documents，以简短关键词检索本次需要的资料，必要时 read_document。
@@ -153,6 +154,7 @@ class Application:
                 providers={"default": self.provider},
                 tools=tools,
                 recall_policy=MemoryRecallPolicy(),
+                verifier=ReportCompletion(),
             )
             self.runtime = Runtime(self.engine, owned=True, close_timeout=60)
             await self.runtime.__aenter__()

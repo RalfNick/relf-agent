@@ -310,3 +310,72 @@ def test_file_close_failure_keeps_original_resources_for_safe_retry(tmp_path):
             pass
 
     asyncio.run(scenario())
+
+
+def test_report_cannot_finish_with_text_instead_of_original_save_receipt(tmp_path):
+    config = make_config(tmp_path)
+
+    class EarlyTextModel(DocumentModel):
+        identity = {"kind": "early-text-fixture", "version": "1"}
+
+        async def complete(self, messages, tools):
+            observations = [json.loads(m["content"]) for m in messages if m["role"] == "tool"]
+            feedback = any("Completion verification:" in str(m.get("content")) for m in messages)
+            if len(observations) == 1 and not feedback:
+                source = observations[0]["sources"][0]
+                return ModelResponse(
+                    {"answer": "报告应包含告警规则", "grounded": True, "citations": [source["id"]]}
+                )
+            return await super().complete(messages, tools)
+
+    async def scenario():
+        async with api("runtime").Application(config, provider=EarlyTextModel()) as app:
+            handle = await app.submit(
+                "概括报告内容", session_id="one", command_id="r1", report_path="summary.md"
+            )
+            result = await app.observe(handle, wait_timeout=5)
+            assert result["state"] == "waiting_approval"
+            assert not (config.output / "summary.md").exists()
+            (preview,) = result["pending"]
+            app.approve(
+                handle.ref.run_id, preview["action_id"], preview["digest"], command_id="approve-1"
+            )
+            await app.resume(handle.ref.run_id)
+            assert (await app.observe(handle, wait_timeout=5))["state"] == "succeeded"
+            record = api("evidence").read_run(config.database, handle.ref.run_id)
+            assert any(
+                a.get("completion_verification", {}).get("verdict", {}).get("status") == "retry"
+                for a in record["actions"]
+            )
+            assert (config.output / "summary.md").read_text() == preview["content"]
+
+    asyncio.run(scenario())
+
+
+def test_insufficient_report_is_rejected_without_write_or_retry_loop(tmp_path):
+    config = make_config(tmp_path)
+
+    class NoEvidence:
+        identity = {"kind": "no-evidence-fixture", "version": "1"}
+
+        def __init__(self):
+            self.calls = 0
+
+        async def complete(self, messages, tools):
+            self.calls += 1
+            return ModelResponse(
+                {"answer": "资料未提供，无法形成报告。", "grounded": False, "citations": []}
+            )
+
+    async def scenario():
+        model = NoEvidence()
+        async with api("runtime").Application(config, provider=model) as app:
+            handle = await app.submit(
+                "预算报告", session_id="one", command_id="r1", report_path="budget.md"
+            )
+            result = await app.observe(handle, wait_timeout=5)
+            assert result["state"] == "failed" and result["error"]["code"] == "completion_rejected"
+            assert not (config.output / "budget.md").exists()
+        assert model.calls == 1
+
+    asyncio.run(scenario())
