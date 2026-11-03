@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-03",
+  "base_commit": "f0bf2743de32193b5f10a70acdd6149b527b91fb",
+  "source_is_uncommitted": true,
+  "scope": [
+    "fixed-http-get-query",
+    "profile-stream-update-policy"
+  ],
+  "sdk": {
+    "version": "0.1.0a8+foundation.4d5f21d82d5d96bd",
+    "wheel": "dist/foundation-gaps-20261103/sdk-artifacts/relf_agent-0.1.0a8+foundation.4d5f21d82d5d96bd-py3-none-any.whl",
+    "wheel_sha256": "a997c3b5835534b93e4ae3c2b05bd3e2f420de96510be0d24345aa48a57dfc6f",
+    "sdist": "dist/foundation-gaps-20261103/sdk-artifacts/relf_agent-0.1.0a8+foundation.4d5f21d82d5d96bd.tar.gz",
+    "sdist_sha256": "10f0bdd0238ab61b1d63fb5565dee5f3fd4ce8378badb51e74617b74ac967a71",
+    "product_digest": "4d5f21d82d5d96bd18e76b1cc330b165336cfd7107646f4a0f53fbbec5e14aef",
+    "product_files": 452
+  },
+  "source": {
+    "tests": 440,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "time": 35.174
+  },
+  "installed": {
+    "tests": 440,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "time": 37.794
+  },
+  "test_ids_identical": 440,
+  "runtime_only_commands": 10,
+  "sdist_rebuilt_products_equal": 452,
+  "post_compatibility": {
+    "directions": 2,
+    "actual_requests": 2,
+    "old_version": "0.1.0a8+maintenance.a97223496646bac0"
+  },
+  "historical_artifacts_unchanged": 290,
+  "original_user_review_unchanged": true,
+  "fresh_review": {
+    "p1": 0,
+    "p2": 1,
+    "p3": 0,
+    "p2_fixed_red_to_green": 3
+  },
+  "environment": {
+    "platform": "macOS-15.6.1-arm64-arm-64bit",
+    "python": "3.12.7"
+  },
+  "new_model_quality": null,
+  "real_temporal_service_tested": false,
+  "pushed": false,
+  "public_release": false,
+  "recommended_candidate_replaced": false
+}

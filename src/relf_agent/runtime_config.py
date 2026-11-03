@@ -37,6 +37,7 @@ COMPONENT_KINDS = frozenset(
         "stage_policy",
         "model_continuation",
         "model_history",
+        "stream_updates",
     }
 )
 

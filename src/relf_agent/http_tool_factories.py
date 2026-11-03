@@ -5,7 +5,9 @@ from .http_tools import HTTPToolSource
 from .tool_sources import ToolDescriptor, ToolPolicy, _caller_schema, register_tool_source
 from .tools import ToolRegistry, ToolSpec
 
-SOURCE_FIELDS = frozenset({"headers", "timeout", "max_input_bytes", "max_output_bytes"})
+SOURCE_FIELDS = frozenset(
+    {"headers", "timeout", "max_input_bytes", "max_output_bytes", "method", "query_parameters"}
+)
 POLICY_FIELDS = frozenset({"version", "effect", "requires_approval", "cost", "effect_key_argument"})
 
 

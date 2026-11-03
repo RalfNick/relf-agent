@@ -2,7 +2,7 @@
 
 本页针对 `19dcc60` 后的维护源码，原 a8 两包没有这些 API。先使用当前源码或独立私有验证包；本批不准备新 Alpha、不推送或公开发布。
 
-第一批按用户新目标冻结为生命周期／事件／增量流单一主线，唯一推荐私有版本、运行命令和门槛见[交付清单](../architecture/reviews/2026-10-29-stream-batch-freeze.md)。原 `0.1.0a8` 包不包含这些 API。
+当前推荐私有版本、支持矩阵与交付状态见[当前交付入口](current-delivery.md)。2026-10-29 第一批的生命周期／事件／增量流冻结范围、运行命令和门槛保留在[原批交付清单](../architecture/reviews/2026-10-29-stream-batch-freeze.md)。原 `0.1.0a8` 包不包含这些 API。
 
 `AgentRun.stream_updates()` 把原持久事件订阅投影为 `AgentStreamEvent`，同时展示模型文本、显式异步工具进度和原权威事实。Local 仍由原 Coordinator／Store 提交；Temporal 仍由原 Workflow／History 接收。它不是新的执行引擎，也不是逐记录 Workflow 数据流。
 
@@ -57,7 +57,58 @@ finally:
 
 `chunk_chars=1..256` 控制文本合并，默认128字符；小于阈值的末尾文本随完整响应到达时发出。展示停用或达到限额后停止拆分剩余文本，但继续完整消费、校验响应。预算沿用模型／工具实际尝试，增量不额外预留 execution credits。
 
-`stream_updates=None` 为默认值，不改变原 Manifest 或新增展示事件。显式策略固定在新 Run 的 Release；更改策略不能用于继续旧配置的 Run。首批提供 SDK 注入，未增加 JSON／TOML 内置声明工厂；可通过原宿主工厂组合，不在 Profile 中导入代码。
+`stream_updates=None` 为默认值，不改变原 Manifest 或新增展示事件。显式策略固定在新 Run 的 Release；更改策略不能用于继续旧配置的 Run。首批仅提供 SDK 注入；2026-11-03 的维护源码增加下方策略声明，原冻结候选不包含这一增量。
+
+## JSON／TOML 配置展示策略
+
+在现有 Local `RuntimeProfile` 或 `TemporalProfile` 的 `components` 中选择原有策略：
+
+```json
+{
+  "stream_updates": {
+    "adapter": "bounded",
+    "config": {
+      "max_deltas": 64,
+      "max_bytes": 65536,
+      "max_payload_bytes": 4096,
+      "publish_timeout": 0.25
+    }
+  }
+}
+```
+
+JSON 上例是 `components` 的值。已有 `[[profiles]]` 的 TOML 配置使用：
+
+```toml
+[profiles.components.stream_updates]
+adapter = "bounded"
+
+[profiles.components.stream_updates.config]
+max_deltas = 64
+max_bytes = 65536
+max_payload_bytes = 4096
+publish_timeout = 0.25
+```
+
+`config` 可以省略，或只设置需要覆盖的字段，其余使用上述默认值。只允许这四项：
+`max_deltas` 为1–1024的整数，`max_bytes` 为256–1048576的整数，
+`max_payload_bytes` 为256到 `min(65536, max_bytes)` 的整数，
+`publish_timeout` 为大于0且不超过2的有限秒数；布尔值不能作为数值。
+未知字段、错误类型和超限值在创建执行数据库或调用组件工厂前拒绝。
+
+Local `RuntimeBuilder.build`／`abuild`、`Runtime.from_profile`／`afrom_profile` 和
+`TemporalRuntimeBuilder.abuild` 都复用这一声明。工厂仅返回原 `StreamUpdatePolicy`，
+没有新增资源或关闭步骤；省略组件仍不启用展示。配置变更应使用新 Profile 版本；
+恢复旧 Run 时保留原 Profile、策略及组件，原命令／审批回执和事件游标继续使用。
+
+策略配置启用展示接收，异步工具仍须显式调用 `emit_tool_delta`。它不会自动把
+`Provider.complete` 改成流式调用；模型文本增量仍需显式 SDK `StreamedModelProvider`
+或宿主已注册的 Provider 工厂。配置不导入 Python 代码，也不接管底层客户端或
+wrapper 的流迭代器清理责任；`retry_stream_closes()` 仍由持有者按下文规则调用。
+普通 Provider 可继续完成任务，配置策略本身不会产生模型文本片段。
+
+本次 Temporal 声明仅覆盖离线装配与原 Manifest 一致性；原真实 Service 的验收范围
+见下文，不授予新的高级组合、在途 Activity 故障或真实写效果资格。
 
 ## 异步工具显式报告
 

@@ -3,7 +3,8 @@
 import copy
 import re
 import threading
-from urllib.parse import urlsplit
+import unicodedata
+from urllib.parse import urlencode, urlsplit
 
 import httpx
 from jsonschema import Draft202012Validator
@@ -62,6 +63,68 @@ def _configuration(url, version, headers, timeout, input_limit, output_limit):
     return result
 
 
+def _query_name(value):
+    if (
+        type(value) is not str
+        or not value
+        or any(char.isspace() or unicodedata.category(char) == "Cc" for char in value)
+    ):
+        raise ValidationError(
+            "HTTP query names require non-empty text without whitespace or controls"
+        )
+    try:
+        value.encode("utf-8")
+    except UnicodeEncodeError:
+        raise ValidationError("HTTP query names require valid UTF-8") from None
+    return value
+
+
+def _query_configuration(method, parameters):
+    if type(method) is not str or method not in {"POST", "GET"}:
+        raise ValidationError("HTTP tool method must be POST or GET")
+    if method == "POST" and parameters is not None:
+        raise ValidationError("HTTP POST tools cannot configure query parameters")
+    if parameters is None:
+        return None
+    if type(parameters) is not dict:
+        raise ValidationError("HTTP query parameters require an explicit dictionary")
+    result = {_query_name(key): _query_name(value) for key, value in parameters.items()}
+    if len(set(result.values())) != len(result):
+        raise ValidationError("HTTP query parameter targets must be unique")
+    return result
+
+
+def _query(arguments, parameters, max_bytes):
+    encoded, size = [], 0
+    for key in sorted(arguments):
+        _query_name(key)
+        if parameters is not None and key not in parameters:
+            raise ValidationError("HTTP argument has no fixed query parameter mapping")
+        name = key if parameters is None else parameters[key]
+        value = arguments[key]
+        values = value if type(value) is list else [value]
+        if not values:
+            raise ValidationError("HTTP query values require scalars or non-empty scalar lists")
+        for item in values:
+            if type(item) not in (str, int, float, bool):
+                raise ValidationError(
+                    "HTTP query values require strings, finite numbers or booleans"
+                )
+            try:
+                part = urlencode(
+                    [(name, item if type(item) is str else canonical(item))],
+                    encoding="utf-8",
+                    errors="strict",
+                )
+            except UnicodeEncodeError:
+                raise ValidationError("HTTP query values require valid UTF-8") from None
+            size += len(part) + bool(encoded)
+            if size > max_bytes:
+                raise ValidationError("HTTP query exceeds its byte limit")
+            encoded.append(part)
+    return "&".join(encoded)
+
+
 class HTTPToolSource:
     def __init__(
         self,
@@ -73,12 +136,18 @@ class HTTPToolSource:
         timeout=30,
         max_input_bytes=1048576,
         max_output_bytes=1048576,
+        method="POST",
+        query_parameters=None,
     ):
         if not isinstance(descriptor, ToolDescriptor):
             raise ValidationError("HTTP source requires one explicit ToolDescriptor")
         self._headers = _configuration(
             url, version, headers, timeout, max_input_bytes, max_output_bytes
         )
+        self._query_parameters = _query_configuration(method, query_parameters)
+        if method == "GET" and any(delimiter in url for delimiter in ("?", "#")):
+            raise ValidationError("HTTP GET endpoint cannot contain query or fragment delimiters")
+        self._method = method
         self._descriptor = ToolDescriptor(**descriptor.to_dict())
         self._url, self._version = url, version
         self._timeout, self._input_limit, self._output_limit = (
@@ -92,12 +161,12 @@ class HTTPToolSource:
 
     @property
     def identity(self):
-        return {
+        result = {
             "kind": "http-json-tool-source",
             "version": "1",
             "behavior_version": self._version,
             "url": self._url,
-            "method": "POST",
+            "method": self._method,
             "header_names": sorted(self._headers),
             "header_fingerprint": digest(self._headers),
             "timeout": self._timeout,
@@ -105,6 +174,9 @@ class HTTPToolSource:
             "max_output_bytes": self._output_limit,
             "tool": self._descriptor.to_dict(),
         }
+        if self._method == "GET":
+            result["query_parameters"] = copy.deepcopy(self._query_parameters)
+        return result
 
     def _check(self):
         if canonical(self.identity) != self._identity:
@@ -121,9 +193,21 @@ class HTTPToolSource:
         if token is not None and not self._tracker._begin(token):
             return None
         try:
-            result = http_tool_transport.execute(
-                self._url, self._headers, payload, self._timeout, self._output_limit, stopped
-            )
+            if self._method == "POST":
+                result = http_tool_transport.execute(
+                    self._url, self._headers, payload, self._timeout, self._output_limit, stopped
+                )
+            else:
+                result = http_tool_transport.execute(
+                    self._url,
+                    self._headers,
+                    None,
+                    self._timeout,
+                    self._output_limit,
+                    stopped,
+                    method="GET",
+                    query=payload,
+                )
             if self._descriptor.output_schema is not None and not Draft202012Validator(
                 self._descriptor.output_schema
             ).is_valid(result):
@@ -144,11 +228,14 @@ class HTTPToolSource:
         ).is_valid(arguments):
             raise ValidationError("HTTP arguments differ from the pinned Schema")
         try:
-            payload = canonical(copy.deepcopy(arguments)).encode("utf-8")
+            values = copy.deepcopy(arguments)
+            payload = canonical(values).encode("utf-8")
         except (ValueError, RecursionError):
             raise ValidationError("HTTP input requires finite UTF-8 JSON") from None
         if len(payload) > self._input_limit:
             raise ValidationError("HTTP input exceeds its byte limit")
+        if self._method == "GET":
+            payload = _query(values, self._query_parameters, self._input_limit)
         stopped = threading.Event()
         ambient = current_thread_tracker.get()
         tracker = ambient or self._tracker

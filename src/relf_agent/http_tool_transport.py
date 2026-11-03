@@ -1,4 +1,4 @@
-"""One fixed HTTP POST lifetime, retained until its owned client closes."""
+"""One fixed HTTP request lifetime, retained until its owned client closes."""
 
 import time
 
@@ -8,7 +8,7 @@ from .tool_json import decode_output
 from .tool_sources import ToolSourceError
 
 
-def execute(url, headers, payload, timeout, output_limit, stopped):
+def execute(url, headers, payload, timeout, output_limit, stopped, *, method="POST", query=None):
     deadline = time.monotonic() + timeout
 
     def check():
@@ -18,15 +18,22 @@ def execute(url, headers, payload, timeout, output_limit, stopped):
     try:
         check()
         with httpx.Client(timeout=timeout, follow_redirects=False, trust_env=False) as client:
+            if method == "POST":
+                options = {
+                    "content": payload,
+                    "headers": {
+                        **headers,
+                        "Content-Type": "application/json",
+                        "Accept-Encoding": "identity",
+                    },
+                }
+            else:
+                url = url + ("?" + query if query else "")
+                options = {"headers": {**headers, "Accept-Encoding": "identity"}}
             with client.stream(
-                "POST",
+                method,
                 url,
-                content=payload,
-                headers={
-                    **headers,
-                    "Content-Type": "application/json",
-                    "Accept-Encoding": "identity",
-                },
+                **options,
             ) as response:
                 check()
                 if not 200 <= response.status_code < 300:

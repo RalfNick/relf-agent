@@ -641,6 +641,10 @@ class ComponentRegistry:
 
         register_artifact_bindings(self)
 
+        from .stream_update_factories import register_stream_updates
+
+        register_stream_updates(self)
+
     def register(self, kind, name, factory, *, validator=None):
         self._register(kind, name, factory, validator, asynchronous=False)
 

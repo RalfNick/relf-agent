@@ -1,7 +1,7 @@
 # 固定目标 HTTP JSON 工具
 
 `HTTPToolSource` 通过原 ToolSource／ToolRegistry 接入可信业务 HTTP 接口。
-宿主固定 URL、POST、Schema、版本和显式头；模型只提供 JSON 参数。
+宿主固定 URL、POST／GET、Schema、版本和显式头；模型只提供 JSON 参数。
 授权、审批、effect key、未知效果与恢复仍由原 Engine／Temporal History 管理。
 
 ## SDK 注入
@@ -37,12 +37,47 @@ API 不接受运行输入提供 URL、方法或头，不跟随重定向，不自
 显式 headers 被复制，identity 仅保存头名和值摘要；不将秘密放入 URL 或字面 Profile。
 原实际端点／DNS／服务实现及凭据权限仍由宿主负责。
 
+默认方法为 `POST`，原 identity、canonical JSON 请求正文和传输调用保持兼容。
 默认输入和响应正文各限1 MiB，可设1–16777216字节。输入是 canonical UTF-8 JSON，
 响应必须为HTTP 2xx、一个有限 UTF-8 JSON 值，并符合可选输出Schema；重复键、
 孤立surrogate、非有限数字、无效／过量正文均拒绝。错误不携带URI、头、正文或
-服务诊断。Content-Type固定JSON，Accept-Encoding固定identity；压缩响应拒绝，
+服务诊断。POST的Content-Type固定JSON，Accept-Encoding固定identity；压缩响应拒绝，
 避免无界解压。显式头禁止Host／Content-Length／Transfer-Encoding／Content-Type／
-Accept-Encoding及大小写重复字段。GET、映射、流式业务响应、凭据代理另行支持。
+Accept-Encoding及大小写重复字段。流式业务响应、凭据代理另行支持。
+
+## 固定 GET 查询
+
+显式设置 `method="GET"`，参数默认采用 argument 名称。可用
+`query_parameters` 固定 argument 名到目标参数名的一一映射：
+
+```python
+source = HTTPToolSource(
+    ToolDescriptor("search", "Search records", {"type": "object"}),
+    "https://your-business.example/search",
+    version="search-v1",
+    method="GET",
+    query_parameters={"query": "q", "tags": "tag", "active": "enabled"},
+)
+# {"tags": ["a&b", "中文"], "query": "a b", "active": True}
+# 实际查询：enabled=true&q=a+b&tag=a%26b&tag=%E4%B8%AD%E6%96%87
+```
+
+仅接受精确大写 `POST`／`GET`；POST 不允许配置 `query_parameters`。
+GET 固定 URL 不得包含裸 `?`／`#`，包括末尾空分隔符；配置阶段即拒绝，避免查询进入 fragment 或改变参数名。
+GET 按 argument 键排序，列表保留顺序并编码为重复参数。字符串、有限数字和布尔值
+可单独使用或放入非空列表；布尔值编码为 `true`／`false`，字符串空值保留。
+null、对象、嵌套／空列表、非法名称和未映射的实际 argument 在请求前拒绝。
+映射中的可选 argument 缺省时不发送；空映射只接受无参数调用。名称须非空且无
+空白／控制字符，目标参数名不能重复。名称和值均进行 UTF-8 百分号编码，参数不能改变
+固定 host／path。GET 不发送请求正文或 Content-Type。
+
+原 canonical JSON 输入与编码后查询的 UTF-8 字节数分别受 `max_input_bytes` 限制，
+避免 Unicode 或参数名扩张绕过限制。GET identity 另外固定 `query_parameters`；
+变更方法或映射须使用新版本并保留原运行配置。查询参数可能出现在服务访问日志中，
+应用不要用查询参数传递秘密。
+
+GET 不自动更改效果分类或审批要求；宿主仍必须注册明确的 `ToolPolicy`。
+需要审批的 GET 继续等待原 Action 审批，保留稳定 effect key、关闭重开与重复回执语义。
 
 ## 生命周期与效果
 
@@ -61,8 +96,9 @@ JSON工厂不接受Python reconciler；可查询写入由宿主使用SDK自定�
 
 `RuntimeBuilder.abuild`和`TemporalRuntimeBuilder.abuild`共用`tools/http-json`。
 组件config只接受1–256个tools；每项必须有descriptor/url/version/policy，另可有
-prefix/headers/timeout/max_input_bytes/max_output_bytes。未知字段和重复名称在
-分配前拒绝，工厂通过原owned ledger关闭Source，部分构造失败也排空已拥有资源。
+prefix/headers/timeout/max_input_bytes/max_output_bytes/method/query_parameters。未知字段、
+非法方法／映射和重复名称在分配前拒绝，工厂通过原owned ledger关闭Source，
+部分构造失败也排空已拥有资源。
 同步装配在分配前拒绝并提示abuild。
 
 ```json
@@ -76,6 +112,21 @@ prefix/headers/timeout/max_input_bytes/max_output_bytes。未知字段和重复�
   }]}
 }
 ```
+
+GET 可在同一个 JSON 工具声明中增加 `"method": "GET"` 和
+`"query_parameters": {"query": "q"}`。等价 TOML 字段使用原组件结构：
+
+```toml
+[[profiles.components.tools.config.tools]]
+url = "https://your-business.example/search"
+version = "search-v1"
+method = "GET"
+# descriptor／policy 仍须按原结构显式声明。
+[profiles.components.tools.config.tools.query_parameters]
+query = "q"
+```
+
+配置预检只校验固定声明，不连接服务；GET 不新增客户端所有权或执行后端。
 
 Temporal写工具仍需耐久EffectJournal；本适配器不增加执行数据库／Authority。
 可以用另一ToolSource或显式组件工厂替换接口。CLI完整起步示例见[CLI指南](cli-tools.md)。

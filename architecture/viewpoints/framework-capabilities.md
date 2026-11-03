@@ -1,5 +1,7 @@
 # RALF 通用框架能力与扩展验收
 
+**本地基础增量（2026-11-03）：** 固定GET／查询映射和原增量策略的JSON／TOML声明复用ToolSource／组件工厂，源码／安装各440项有限验收。默认POST与缺省Manifest保持，Local／Temporal执行权威不变；推荐原包不含新能力，本批源码、测试与文档仅本地提交，详见[本批记录](../reviews/2026-11-03-foundation-gaps.md)。完整R04／R12／R22及其余长期目标保持独立。
+
 **真实任务追加（2026-10-29）：** 当前同包有限Single Agent／语义RAG／Plan／Team三次重复共78/78，引用、原业务写入和独立冷重连均按[本批证据](../reviews/2026-10-29-default-task-quality.md)核对。规则DAG与固定Supervisor不是自主规划质量；性能含计量开销，完整R项、外部采用与对等比较继续分开。
 
 **当前维护范围（2026-10-29）：** 生命周期／增量流和连续应用分别按其私有制品验收；本批通过现有 Local Tool Action 补齐空 Provider 配置、可安装 async 图示例及恢复验证，见[本批记录](../reviews/2026-10-29-model-free-local-tools.md)。不增加或关闭长期 R 项，不扩 Temporal 直接 Tool、任意循环、流式数据流或企业平台。当前推荐私有包、原 Alpha 和平台资格分别见[交付状态](../../docs/implementation-status.md)。下一批仅按固定最终配置评价实际任务，历史矩阵保留原范围。
