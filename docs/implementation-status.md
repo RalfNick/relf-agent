@@ -2,7 +2,9 @@
 
 ## 当前交付摘要
 
-2026-11-04：Local Workflow 增加通用受管理异步节点：结构化 `NodeExecutor`／可选 `NodeReconciler`、独立 Registry、`GraphNode(executor=...)`、默认 identity 组件及 JSON／TOML 工厂装配。编译复用原 Tool v2／并行 v3，审批、预算、未知效果、取消和恢复继续由原 LocalEngine 负责；不向 Agent 开放私有节点工具。已覆盖真实进程崩溃窗口与取消后关闭重试，最终源码／准确安装各1003项通过；首次全库失败保留，两项旧10秒超时的整轮时序仍待验证。范围及准确验证包见[本批验收](../architecture/reviews/2026-11-04-managed-async-nodes.md)与[使用指南](managed-async-nodes.md)。Temporal 仍拒绝此类节点及其 Local 配置；不新增分布式、流式数据流或循环能力。原推荐制品与历史记录保留，本批仅本地交付。
+2026-11-04 旧编排10秒专项：基线 `1c5bd47` 已按此前授权推送开发分支，本次后续修复仅本地提交。测试会话防空闲睡眠、独立阶段／8秒栈诊断和 SQLite 显式关闭已补齐；源码／准确安装相关集合各33项，旧新夹具双向20个进程及修复后完整离线回归 **15319 passed、895 skipped，零失败／错误** 通过。原窗口、期限和恢复断言保持，SDK产品455文件未改；历史具体停点与唯一原因未确认，原失败／制品保留。见[本批验收](../architecture/reviews/2026-11-04-orchestration-crash-timeouts.md)，不新增外部服务／平台或公开发行资格。
+
+2026-11-04：Local Workflow 增加通用受管理异步节点：结构化 `NodeExecutor`／可选 `NodeReconciler`、独立 Registry、`GraphNode(executor=...)`、默认 identity 组件及 JSON／TOML 工厂装配。编译复用原 Tool v2／并行 v3，审批、预算、未知效果、取消和恢复继续由原 LocalEngine 负责；不向 Agent 开放私有节点工具。已覆盖真实进程崩溃窗口与取消后关闭重试，最终源码／准确安装各1003项通过；首次全库失败保留，其后旧10秒专项的整轮复验见上条记录，首轮失败保持。范围及准确验证包见[本批验收](../architecture/reviews/2026-11-04-managed-async-nodes.md)与[使用指南](managed-async-nodes.md)。Temporal 仍拒绝此类节点及其 Local 配置；不新增分布式、流式数据流或循环能力。原推荐制品与历史记录保留，本批仅本地交付。
 
 2026-11-03：本地源码补齐固定HTTP GET／参数映射与`stream_updates/bounded`声明，相关源码／准确安装各440项通过；原推荐制品保持，新代码、测试与文档已本地提交，未推送；验证包仍仅本地保存。见[本批验收](../architecture/reviews/2026-11-03-foundation-gaps.md)，真实Service／模型／新平台资格独立。
 

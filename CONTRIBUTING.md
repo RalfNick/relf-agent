@@ -37,6 +37,10 @@ python -m build
 
 当前基础 CI 使用 Linux、Python 3.11／3.12／3.13，安装 `.[dev,pdf,tokenizer,skills,temporal]`，与上述开发环境一致。全量测试在收集时需要 Temporal SDK；安装 `temporal` extra 不会启动或连接 Temporal 服务，也不会改变 SDK 的基础依赖。其他安装、服务和契约检查见[CI 配置](.github/workflows/ci.yml)。外部服务测试可能因缺少配置而跳过，跳过不视为服务能力验收。打包与安装后验证见[发布指南](docs/releasing.md)。
 
+macOS 的测试会话会临时启动 `/usr/bin/caffeinate -i -w <pytest PID>`，防止运行期间的空闲睡眠；会话结束或中断时只清理自己持有的进程，不修改系统电源配置。Linux 不启动该进程。该保护不覆盖强制合盖或显式睡眠；长回归仍需保持开盖接电。需要连同收集阶段一起防止空闲睡眠时，可在 macOS 使用 `caffeinate -i python -m pytest -q`。
+
+编排崩溃测试仍对每个原始子进程使用 `timeout=10`，不预热、不自动重试。阶段 JSONL 与第 8 秒线程栈仅用于定位；超时仍保留原异常和失败结果。诊断可区分导入、Store／Engine 初始化、提交、执行和关闭，但父进程没有捕获 stdout 本身不能证明子进程尚未写出。事务上下文退出只提交／回滚，测试中的 SQLite 连接还须显式关闭。
+
 只修改文字、导航或链接时，检查链接、锚点与 `git diff --check`；修改示例命令时实际运行对应的最小示例。分类、写法和参考项目见[文档维护指南](docs/documentation-guide.md)，无需为文字调整运行全量产品测试。
 
 执行与恢复相关改动还需遵循以下约束：

@@ -1,11 +1,13 @@
 """Local real-process proposal/child durability windows; counters are test probes."""
 
+from .orchestration_crash_probe import probe  # isort: skip
+
 import argparse
 import asyncio
 import json
 import os
 import sqlite3
-from contextlib import contextmanager
+from contextlib import closing, contextmanager
 from dataclasses import asdict
 from pathlib import Path
 
@@ -24,6 +26,8 @@ from relf_agent import (
     ValueRef,
 )
 
+probe.mark("imports_ready")
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -36,7 +40,7 @@ def main():
     counter = Path(args.database).with_suffix(".counter.sqlite")
 
     def count(kind):
-        with sqlite3.connect(counter) as conn:
+        with closing(sqlite3.connect(counter)) as conn, conn:
             conn.execute("CREATE TABLE IF NOT EXISTS counts(kind TEXT)")
             conn.execute("INSERT INTO counts VALUES (?)", (kind,))
 
@@ -63,6 +67,11 @@ def main():
             return PlanProposal([PlanStep("work", "one", "task")])
 
     class Store(SQLiteStore):
+        def __init__(self, *args, **kwargs):
+            probe.mark("store_init_begin")
+            super().__init__(*args, **kwargs)
+            probe.mark("store_init_end")
+
         @contextmanager
         def transaction(self):
             with super().transaction():
@@ -72,14 +81,18 @@ def main():
                 and not self.conn.in_transaction
                 and self.conn.execute("SELECT 1 FROM events WHERE kind=?", (args.crash,)).fetchone()
             ):
+                probe.mark("crash_committed", event_kind=args.crash)
                 os._exit(77)
 
+    store = Store(args.database)
+    probe.mark("engine_init_begin")
     with LocalEngine(
-        Store(args.database),
+        store,
         providers={"default": Provider()},
         tools=ToolRegistry(),
         planners={"counted": Planner()},
     ) as e:
+        probe.mark("engine_ready")
         run_id = args.run_id
         if run_id is None:
             members = {"one": AgentSpec("one", "One")}
@@ -89,6 +102,7 @@ def main():
                 members["one"] = TeamSpec(
                     "inner", {"leaf": AgentSpec("leaf", "Leaf")}, child_budget=2
                 )
+            probe.mark("submit_begin")
             run_id = e.submit(
                 DynamicWorkflowSpec(
                     "crash",
@@ -101,8 +115,14 @@ def main():
                 command_id="s",
                 budget=8,
             ).run_id
+            probe.mark("submit_end")
         print(json.dumps({"run_id": run_id}), flush=True)
-        print(json.dumps(asdict(asyncio.run(e.drive(run_id)))), flush=True)
+        probe.mark("run_id_flushed")
+        probe.mark("drive_begin")
+        result = asyncio.run(e.drive(run_id))
+        probe.mark("drive_end")
+        print(json.dumps(asdict(result)), flush=True)
+    probe.mark("engine_closed")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,454 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-04",
+  "base_commit": "1c5bd4777b771f536cbc23e764cb4b0cb2bc2e09",
+  "scope": "Test-host continuity, SQLite fixture resource ownership and original ten-second orchestration crash gates",
+  "production_files_unchanged": 455,
+  "historical_original_full": {
+    "collected": 16206,
+    "passed": 15303,
+    "failed_or_error": 8,
+    "skipped": 895,
+    "skip_reasons": {
+      "requires actual Temporal Service and PostgreSQL": 7,
+      "requires actual Temporal and PostgreSQL": 7,
+      "Historical old83/a5 shared-namespace probes: use original a5 code; a6 cross-namespace migration is unsupported": 10,
+      "requires actual Temporal Service": 483,
+      "requires actual PostgreSQL EffectJournal": 1,
+      "Set RALF_CODEX_CREATE_RECOVERY_INTEGRATION=1 with explicit Docker and proof directory": 2,
+      "Explicitly enable the isolated supervised CREATE recovery Docker tests": 2,
+      "Set RALF_TEST_POSTGRES_DSN for real PostgreSQL integration": 38,
+      "Set RALF_TEST_POSTGRES_DSN for actual PostgreSQL Runner journal cases": 27,
+      "requires explicit actual local Docker fixture": 4,
+      "requires explicit local Docker image and socket": 10,
+      "Set actual PostgreSQL/Qdrant service settings": 2,
+      "Set RALF_TEST_POSTGRES_DSN for actual PostgreSQL crash tests": 2,
+      "Set RALF_DEV89_REDIS_URL to an isolated disposable service for real integration": 25,
+      "Set RALF_DEV89_POSTGRES_DSN to an isolated disposable service for real integration": 25,
+      "requires actual PostgreSQL": 2,
+      "requires actual PostgreSQL via RALF_TEST_POSTGRES_DSN": 20,
+      "Set RALF_TEST_QDRANT_URL to exercise a real Qdrant service": 1,
+      "Requires real PostgreSQL test DSN": 2,
+      "requires actual local Docker fixture": 9,
+      "requires actual owned Temporal and Docker services": 6,
+      "requires actual local Temporal and Docker fixtures": 1,
+      "requires explicit actual Docker fixture": 2,
+      "requires actual owned Temporal Service": 23,
+      "requires owned actual Temporal service": 8,
+      "requires explicit ownership of new real Temporal and PG backup services": 1,
+      "Requires explicitly selected actual Temporal/PostgreSQL no-submit service probe": 2,
+      "Requires actual Temporal and PostgreSQL": 54,
+      "Requires real Temporal/PostgreSQL": 11,
+      "Requires actual Qdrant": 1,
+      "requires externally owned actual Temporal and PostgreSQL": 66,
+      "requires explicitly selected actual Docker CREATE probe": 3,
+      "requires externally owned actual Temporal Service": 1,
+      "requires actual Temporal and PostgreSQL services": 3,
+      "requires actual Temporal and selected remote service": 2,
+      "requires actual Temporal": 2,
+      "requires immutable basic SDK interpreter": 1,
+      "requires immutable old manual Worker": 1,
+      "requires externally owned Temporal Service": 14,
+      "requires owned actual Temporal and PostgreSQL EffectJournal": 8,
+      "requires actual owned Temporal and PostgreSQL EffectJournal": 6
+    }
+  },
+  "historical_attribution": {
+    "sleep_contamination_confirmed": true,
+    "round_start": "2026-11-04T09:28:42.412583+08:00",
+    "round_end": "2026-11-04T10:38:45.381866+08:00",
+    "reported_monotonic_seconds": 2289.261623832863,
+    "related_events": [
+      {
+        "at": "2026-11-04 09:48:15 +08:00",
+        "type": "sleep",
+        "reason": "Idle Sleep",
+        "reported_seconds": 928
+      },
+      {
+        "at": "2026-11-04 10:03:43 +08:00",
+        "type": "wake",
+        "reason": null,
+        "reported_seconds": 41
+      },
+      {
+        "at": "2026-11-04 10:04:24 +08:00",
+        "type": "sleep",
+        "reason": "Maintenance Sleep",
+        "reported_seconds": 1
+      },
+      {
+        "at": "2026-11-04 10:04:25 +08:00",
+        "type": "wake",
+        "reason": null,
+        "reported_seconds": 5
+      },
+      {
+        "at": "2026-11-04 10:04:30 +08:00",
+        "type": "sleep",
+        "reason": "Maintenance Sleep",
+        "reported_seconds": 198
+      },
+      {
+        "at": "2026-11-04 10:07:48 +08:00",
+        "type": "wake",
+        "reason": null,
+        "reported_seconds": 10
+      },
+      {
+        "at": "2026-11-04 10:07:58 +08:00",
+        "type": "sleep",
+        "reason": "Clamshell Sleep",
+        "reported_seconds": 278
+      },
+      {
+        "at": "2026-11-04 10:12:36 +08:00",
+        "type": "wake",
+        "reason": null,
+        "reported_seconds": 25
+      },
+      {
+        "at": "2026-11-04 10:13:01 +08:00",
+        "type": "sleep",
+        "reason": "Maintenance Sleep",
+        "reported_seconds": 392
+      },
+      {
+        "at": "2026-11-04 10:19:33 +08:00",
+        "type": "wake",
+        "reason": null,
+        "reported_seconds": 6
+      },
+      {
+        "at": "2026-11-04 10:19:39 +08:00",
+        "type": "sleep",
+        "reason": "Maintenance Sleep",
+        "reported_seconds": 57
+      },
+      {
+        "at": "2026-11-04 10:20:36 +08:00",
+        "type": "wake",
+        "reason": null,
+        "reported_seconds": 45
+      },
+      {
+        "at": "2026-11-04 10:21:21 +08:00",
+        "type": "sleep",
+        "reason": "Maintenance Sleep",
+        "reported_seconds": 75
+      },
+      {
+        "at": "2026-11-04 10:22:36 +08:00",
+        "type": "wake",
+        "reason": null,
+        "reported_seconds": 1
+      },
+      {
+        "at": "2026-11-04 10:22:37 +08:00",
+        "type": "wake",
+        "reason": null,
+        "reported_seconds": null
+      }
+    ],
+    "exact_old_child_stop_point": "not captured; stdout_seq=[] does not prove no child output",
+    "sole_cause_claimed": false,
+    "pre_fix_diagnostic_fd_growth": {
+      "first_setup": 44,
+      "last_call": 64,
+      "cases": 5
+    }
+  },
+  "diagnostic_prefix": {
+    "label": "diagnostic-round-1",
+    "base": "1c5bd4777b771f536cbc23e764cb4b0cb2bc2e09",
+    "exit_code": 2,
+    "elapsed_seconds": 2240.679720874876,
+    "child_deadline_seconds": 10,
+    "manual_remote_ci": false,
+    "models_or_external_services_configured": false,
+    "observer_does_not_modify_child_commands": true,
+    "intentional_interrupt": true,
+    "passed": 8904,
+    "skipped": 223,
+    "qualified_full_run": false
+  },
+  "red_cases": 8,
+  "focused_green": 13,
+  "source_related": {
+    "collected": 33,
+    "passed": 33,
+    "failed_or_error": 0,
+    "skipped": 0,
+    "skip_reasons": {}
+  },
+  "installed_related": {
+    "collected": 33,
+    "passed": 33,
+    "failed_or_error": 0,
+    "skipped": 0,
+    "skip_reasons": {}
+  },
+  "same_related_ids": true,
+  "isolated_install": {
+    "exit_code": 0,
+    "elapsed_seconds": 11.433519292157143,
+    "candidate": "0.1.0a8+nodes2.636723b3b3d32c60",
+    "module_identity": {
+      "module": "/private/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-managed-nodes-20261104-vxnjvroq/venv/lib/python3.12/site-packages/relf_agent/__init__.py",
+      "module_version": "0.1.0a8+nodes2.636723b3b3d32c60",
+      "distribution_version": "0.1.0a8+nodes2.636723b3b3d32c60"
+    },
+    "workspace": "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-timeout-compat-20261104-t8o1io0e",
+    "source_directory_in_checks": false,
+    "original_wheel_sha256": "fe07c8015efbd44284eac0909d6b30855cb67f4a79f6c5c4d5ea57230a46b6fa"
+  },
+  "cross_fixture": {
+    "processes": 20,
+    "old_new_directions": 2,
+    "windows": 5,
+    "per_child_timeout_seconds": 10,
+    "plan_calls_per_pair": 1,
+    "model_calls_per_pair": 1,
+    "runs_per_pair": 2
+  },
+  "fixed_full": {
+    "collected": 16214,
+    "passed": 15319,
+    "failed_or_error": 0,
+    "skipped": 895,
+    "skip_reasons": {
+      "requires actual Temporal Service and PostgreSQL": 7,
+      "requires actual Temporal and PostgreSQL": 7,
+      "Historical old83/a5 shared-namespace probes: use original a5 code; a6 cross-namespace migration is unsupported": 10,
+      "requires actual Temporal Service": 483,
+      "requires actual PostgreSQL EffectJournal": 1,
+      "Set RALF_CODEX_CREATE_RECOVERY_INTEGRATION=1 with explicit Docker and proof directory": 2,
+      "Explicitly enable the isolated supervised CREATE recovery Docker tests": 2,
+      "Set RALF_TEST_POSTGRES_DSN for real PostgreSQL integration": 38,
+      "Set RALF_TEST_POSTGRES_DSN for actual PostgreSQL Runner journal cases": 27,
+      "requires explicit actual local Docker fixture": 4,
+      "requires explicit local Docker image and socket": 10,
+      "Set actual PostgreSQL/Qdrant service settings": 2,
+      "Set RALF_TEST_POSTGRES_DSN for actual PostgreSQL crash tests": 2,
+      "Set RALF_DEV89_REDIS_URL to an isolated disposable service for real integration": 25,
+      "Set RALF_DEV89_POSTGRES_DSN to an isolated disposable service for real integration": 25,
+      "requires actual PostgreSQL": 2,
+      "requires actual PostgreSQL via RALF_TEST_POSTGRES_DSN": 20,
+      "Set RALF_TEST_QDRANT_URL to exercise a real Qdrant service": 1,
+      "Requires real PostgreSQL test DSN": 2,
+      "requires actual local Docker fixture": 9,
+      "requires actual owned Temporal and Docker services": 6,
+      "requires actual local Temporal and Docker fixtures": 1,
+      "requires explicit actual Docker fixture": 2,
+      "requires actual owned Temporal Service": 23,
+      "requires owned actual Temporal service": 8,
+      "requires explicit ownership of new real Temporal and PG backup services": 1,
+      "Requires explicitly selected actual Temporal/PostgreSQL no-submit service probe": 2,
+      "Requires actual Temporal and PostgreSQL": 54,
+      "Requires real Temporal/PostgreSQL": 11,
+      "Requires actual Qdrant": 1,
+      "requires externally owned actual Temporal and PostgreSQL": 66,
+      "requires explicitly selected actual Docker CREATE probe": 3,
+      "requires externally owned actual Temporal Service": 1,
+      "requires actual Temporal and PostgreSQL services": 3,
+      "requires actual Temporal and selected remote service": 2,
+      "requires actual Temporal": 2,
+      "requires immutable basic SDK interpreter": 1,
+      "requires immutable old manual Worker": 1,
+      "requires externally owned Temporal Service": 14,
+      "requires owned actual Temporal and PostgreSQL EffectJournal": 8,
+      "requires actual owned Temporal and PostgreSQL EffectJournal": 6
+    },
+    "wall_start": 1793767686.715519,
+    "wall_end": 1793770211.746094,
+    "wall_monotonic_difference": 0.06727297930046916,
+    "session_guard_only": true,
+    "label": "fixed-round-1",
+    "base": "1c5bd4777b771f536cbc23e764cb4b0cb2bc2e09",
+    "exit_code": 0,
+    "elapsed_seconds": 2524.9711903329007,
+    "child_deadline_seconds": 10,
+    "manual_remote_ci": false,
+    "models_or_external_services_configured": false,
+    "observer_does_not_modify_child_commands": true,
+    "all_original_ids_preserved": true,
+    "added_cases": 8
+  },
+  "original_crash_windows": [
+    {
+      "window": "child_submitted",
+      "case_call_seconds": 2.4350860421545804,
+      "fd_before": 44,
+      "fd_after_call": 44,
+      "fd_delta": 0,
+      "guard_pid": 15139,
+      "traces": {
+        "crash": {
+          "last_phase": "crash_committed",
+          "elapsed_since_probe_bootstrap": 1.0672295419499278,
+          "cpu_at_last_phase": 0.501017,
+          "eight_second_stack_captured": false
+        },
+        "recover": {
+          "last_phase": "engine_closed",
+          "elapsed_since_probe_bootstrap": 1.1200212077237666,
+          "cpu_at_last_phase": 0.555965,
+          "eight_second_stack_captured": false
+        }
+      }
+    },
+    {
+      "window": "plan_proposal_received",
+      "case_call_seconds": 2.210234500002116,
+      "fd_before": 44,
+      "fd_after_call": 44,
+      "fd_delta": 0,
+      "guard_pid": 15139,
+      "traces": {
+        "crash": {
+          "last_phase": "crash_committed",
+          "elapsed_since_probe_bootstrap": 0.9737454168498516,
+          "cpu_at_last_phase": 0.418456,
+          "eight_second_stack_captured": false
+        },
+        "recover": {
+          "last_phase": "engine_closed",
+          "elapsed_since_probe_bootstrap": 1.0117920408956707,
+          "cpu_at_last_phase": 0.432861,
+          "eight_second_stack_captured": false
+        }
+      }
+    },
+    {
+      "window": "plan_revision_adopted",
+      "case_call_seconds": 1.9327565422281623,
+      "fd_before": 44,
+      "fd_after_call": 44,
+      "fd_delta": 0,
+      "guard_pid": 15139,
+      "traces": {
+        "crash": {
+          "last_phase": "crash_committed",
+          "elapsed_since_probe_bootstrap": 0.5869260840117931,
+          "cpu_at_last_phase": 0.196726,
+          "eight_second_stack_captured": false
+        },
+        "recover": {
+          "last_phase": "engine_closed",
+          "elapsed_since_probe_bootstrap": 1.1645819996483624,
+          "cpu_at_last_phase": 0.513574,
+          "eight_second_stack_captured": false
+        }
+      }
+    },
+    {
+      "window": "plan_verified",
+      "case_call_seconds": 2.3732614163309336,
+      "fd_before": 44,
+      "fd_after_call": 44,
+      "fd_delta": 0,
+      "guard_pid": 15139,
+      "traces": {
+        "crash": {
+          "last_phase": "crash_committed",
+          "elapsed_since_probe_bootstrap": 0.9952335422858596,
+          "cpu_at_last_phase": 0.484386,
+          "eight_second_stack_captured": false
+        },
+        "recover": {
+          "last_phase": "engine_closed",
+          "elapsed_since_probe_bootstrap": 1.1436854163184762,
+          "cpu_at_last_phase": 0.565904,
+          "eight_second_stack_captured": false
+        }
+      }
+    },
+    {
+      "window": "run_succeeded",
+      "case_call_seconds": 2.0951242921873927,
+      "fd_before": 44,
+      "fd_after_call": 44,
+      "fd_delta": 0,
+      "guard_pid": 15139,
+      "traces": {
+        "crash": {
+          "last_phase": "crash_committed",
+          "elapsed_since_probe_bootstrap": 0.9817182910628617,
+          "cpu_at_last_phase": 0.47167,
+          "eight_second_stack_captured": false
+        },
+        "recover": {
+          "last_phase": "engine_closed",
+          "elapsed_since_probe_bootstrap": 0.9077918748371303,
+          "cpu_at_last_phase": 0.460329,
+          "eight_second_stack_captured": false
+        }
+      }
+    }
+  ],
+  "host_guard": {
+    "platform": "Darwin only",
+    "lifetime": "pytest session",
+    "no_permanent_power_setting_change": true,
+    "bootstrap_handoff": {
+      "session_guard_pid": 15139,
+      "elapsed": 15.017743665724993,
+      "outer_guard_reaped": true
+    },
+    "actual_assertion": {
+      "guard_pid": 15139,
+      "pytest_pid": 15135,
+      "own_idle_assertion": [
+        "pid 15139(caffeinate): [0x002e1049000192db] 00:00:59 PreventUserIdleSystemSleep named: \"caffeinate command-line tool\""
+      ],
+      "return_code": 0,
+      "power_settings_changed": false
+    },
+    "post_round_power_check": {
+      "start": "2026-11-04T12:48:06.715519+08:00",
+      "end": "2026-11-04T13:30:11.746094+08:00",
+      "guard_pid": 15139,
+      "own_assertion_released": true,
+      "related_power_events": [],
+      "sleep_events": [],
+      "pmset_exit_code": 0,
+      "power_settings_changed": false
+    },
+    "force_clamshell_prevented": false,
+    "collection_covered_by_external_bootstrap_only": true
+  },
+  "independent_review": {
+    "material_findings": 0,
+    "read_only": true
+  },
+  "integrity": {
+    "original_artifacts_unchanged": 296,
+    "production_inputs_unchanged": true,
+    "fixed_test_inputs_stable": true,
+    "original_failure_xml_unchanged": true,
+    "user_review_unchanged": true
+  },
+  "environment": {
+    "os": "Darwin",
+    "arch": "arm64",
+    "python": "3.12.7",
+    "external_models": false,
+    "external_services": false,
+    "owned_localhost_tests": true
+  },
+  "delivery": {
+    "local_only": true,
+    "single_commit_hooks_override_authorized": true,
+    "push": false,
+    "remote_ci": false,
+    "public_release": false,
+    "new_delivery_candidate": false
+  },
+  "raw_evidence": "dist/orchestration-crash-timeouts-20261104/",
+  "limitations": [
+    "Historical child exact stop point unknown",
+    "Idle assertion does not prevent forced sleep/clamshell",
+    "No new external-service/model/platform qualification",
+    "Historical sdist test snapshots are preserved"
+  ]
+}
