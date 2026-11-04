@@ -17,6 +17,7 @@ LOCAL_COMPONENTS = frozenset(
         "workflow_interpreter",
         "workflow_scheduler",
         "workflow_transforms",
+        "workflow_executors",
     }
 )
 EXECUTION_FLAGS = frozenset(

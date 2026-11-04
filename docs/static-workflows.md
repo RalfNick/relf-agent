@@ -1,6 +1,6 @@
 # 静态图 Workflow
 
-版本：0.1.0.dev12；日期：2026-10-06。Agent／Transform 使用计划 v1，受管理 Tool 节点使用 v2，见[工具节点指南](managed-tools.md)。当前支持单 Coordinator 的静态串行／显式有界并行图：依赖、条件、输入映射、显式合并和持久恢复。并行计划使用 v3，见[并行指南](parallel-workflows.md)。本页限定静态图。已交付的动态规划、团队及嵌套范围见[当前能力](implementation-status.md)；任意循环和流式数据流不由本页承诺。
+当前维护源码支持单 Coordinator 的静态串行／显式有界并行图：依赖、条件、输入映射、显式合并和持久恢复。串行 Agent／Transform 图使用计划 v1；含受管理 Tool 或异步 NodeExecutor 的串行图使用 v2，见[工具节点指南](managed-tools.md)与[异步节点指南](managed-async-nodes.md)。并行计划使用 v3，见[并行指南](parallel-workflows.md)。本页限定静态图。已交付的动态规划、团队及嵌套范围见[当前能力](implementation-status.md)；任意循环和流式数据流不由本页承诺。
 
 ## 1. 安装后直接运行
 
@@ -95,7 +95,7 @@ branches = [
 
 ## 4. 自定义组件
 
-`WorkflowCompiler` 和 `WorkflowInterpreter` 都是纯同步端口，分别返回 `ExecutionPlan` 和 `WorkflowSelection`。默认 `StaticWorkflowCompiler` 将 Agent、顺序 Workflow 和图归一成格式 v1 的计划。解释器可在已满足依赖的节点中改变选择顺序；引擎独立检查所选节点、输入、跳过集合和完成结果，禁止它绕过计划约束。
+`WorkflowCompiler` 和 `WorkflowInterpreter` 都是纯同步端口，分别返回 `ExecutionPlan` 和 `WorkflowSelection`。默认 `StaticWorkflowCompiler` 将 Agent、顺序 Workflow 和图编译为上述 v1／v2／v3 计划；executor 声明纯转换为原 ToolNode。解释器可在已满足依赖的节点中改变选择顺序；引擎独立检查所选节点、输入、跳过集合和完成结果，禁止它绕过计划约束。
 
 `NodeTransform` 是纯同步的 JSON 数据计算。默认 `IdentityTransform` 复制输入，只接受空配置。自定义示例：
 
@@ -127,13 +127,17 @@ engine = LocalEngine(
 # Submit {"values": [1, 2, 3]} and drive; close the engine after owned work finishes.
 ```
 
-配置工厂也可注册 `workflow_compiler`、`workflow_interpreter`、`workflow_transforms`；默认 adapter 分别为 `static`、`static`、`identity`，自定义映射由显式 `ComponentRegistry.register` 提供。参见[运行装配](runtime-assembly.md)。
+配置工厂也可注册 `workflow_compiler`、`workflow_interpreter`、`workflow_transforms`；默认 adapter 分别为 `static`、`static`、`identity`，自定义映射由显式 `ComponentRegistry.register` 提供。异步节点使用 `workflow_executors` 组件，其默认 `identity` 工厂返回 NodeExecutorRegistry。参见[运行装配](runtime-assembly.md)。
 
-变换不得调用数据库／网络、提交业务效果或启动线程；返回值必须已经是有限 JSON，awaitable、generator 和上下文管理器都不能代表完成。纯性是可信应用的契约，框架不会把任意 Python 代码变成安全隔离环境。需要外部 I/O 时使用受管理工具；外部 I/O 可通过已交付的受管理 Tool 节点执行；通用异步 NodeExecutor 仍是后续增量。
+变换不得调用数据库／网络、提交业务效果或启动线程；返回值必须已经是有限 JSON，awaitable、generator 和上下文管理器都不能代表完成。纯性是可信应用的契约，框架不会把任意 Python 代码变成安全隔离环境。需要外部 I/O 时使用受管理 Tool 或异步 NodeExecutor。
+
+`GraphNode(executor="name", input=..., config=...)` 通过 `LocalEngine(workflow_executors=registry)` 选择已注册组件，调用 `async execute(input, config, context)`，传入完整 JSON、独立 config 和原 InvocationContext。NodeExecutorSpec 显式声明效果类别、版本、审批、成本与 Schema；Spec／节点输出 Schema 在原 Action 回执和结果保存后校验，失败保留已发生效果。NodeExecutorRegistry 借用组件，客户端关闭沿原应用或 BuildContext 的 owned／borrowed 契约管理。
+
+内部保留 alias 对应的编译 ToolNode，包括 `from_plan` 往返，须与原计划、Manifest 和私有注册精确匹配；它不开放给 Agent.tools 或 tool_set binding。Local 串行、有界并行及 Team／Dynamic 嵌套图使用同一效果恢复路径；Temporal 当前拒绝 executor 图。完整注册、JSON／TOML 装配及[离线审批／重开示例](../examples/managed_async_nodes.py)见[异步节点指南](managed-async-nodes.md)。
 
 ## 5. 版本与恢复
 
-首次接受命令时编译一次，保存不可变计划与节点输入／结果，固定编译器、解释器、使用到的变换和计划摘要。重提相同调用方请求返回原回执；恢复消费原计划，不重新编译。组件或后端变化会拒绝继续；新配置只影响新任务，旧版本及数据需要保留。
+首次接受命令时编译一次，保存不可变计划与节点输入／结果，固定编译器、解释器、使用到的变换／executor 注册和计划摘要。重提相同调用方请求返回原回执；恢复消费原计划，不重新编译。组件或后端变化会拒绝继续；新配置只影响新任务，旧版本及数据需要保留。
 
 已保存模型响应、效果观察或节点结果按各自恢复边界继续。Agent 会话保存使用稳定消息 ID，即使保存后、节点完成提交前退出，也不会重复追加或重执行业务效果。纯变换在其原子结果提交前崩溃可重新计算，因此不能隐藏外部效果。下游效果保证仍依赖幂等键或核验接口。
 

@@ -36,6 +36,9 @@ class ParallelWorkflowRuntime:
         index, node = next((i, n) for i, n in enumerate(run["plan"]["nodes"]) if n["id"] == node_id)
         recorded = self.engine._step_manifest(run, index)["tools"]
         names = [node["tool"]] if node.get("tool") else (node.get("agent") or {}).get("tools", [])
+        from .workflow_executors import is_alias
+
+        names = [name for name in names if not is_alias(name)]
         return [
             handler.runner
             for name in names

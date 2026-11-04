@@ -5,7 +5,7 @@ from __future__ import annotations
 import copy
 import json
 import re
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from typing import Any, Protocol
 
 from jsonschema import Draft202012Validator
@@ -68,14 +68,10 @@ class Literal:
 
 @dataclass(frozen=True)
 class InputMap:
-    fields: dict[str, ValueRef | Literal]
+    fields: dict[str, ValueRef | Literal | InputMap]
 
     def __post_init__(self):
-        if not isinstance(self.fields, dict) or any(
-            not isinstance(key, str) or not isinstance(value, (ValueRef, Literal))
-            for key, value in self.fields.items()
-        ):
-            raise ValidationError("InputMap requires string fields with ValueRef or Literal")
+        encode_binding(self)
         object.__setattr__(self, "fields", copy.deepcopy(self.fields))
 
 
@@ -83,27 +79,71 @@ Binding = ValueRef | Literal | InputMap
 
 
 def encode_binding(value):
+    try:
+        result = _encode_binding(value, 0, set())
+        canonical(result)
+        return result
+    except RecursionError as exc:
+        raise ValidationError("Workflow bindings must be finite JSON data") from exc
+
+
+def _encode_binding(value, depth, active):
     if isinstance(value, ValueRef):
         return {"kind": "ref", **asdict(value)}
     if isinstance(value, Literal):
         return {"kind": "literal", "value": copy.deepcopy(value.value)}
     if isinstance(value, InputMap):
-        return {"kind": "object", "fields": {k: encode_binding(v) for k, v in value.fields.items()}}
+        if (
+            depth >= 32
+            or id(value) in active
+            or not isinstance(value.fields, dict)
+            or any(not isinstance(key, str) for key in value.fields)
+        ):
+            raise ValidationError("InputMap requires finite string fields within 32 map levels")
+        active.add(id(value))
+        try:
+            return {
+                "kind": "object",
+                "fields": {
+                    key: _encode_binding(item, depth + 1, active)
+                    for key, item in value.fields.items()
+                },
+            }
+        finally:
+            active.remove(id(value))
     raise ValidationError("Workflow values require an explicit binding")
 
 
 def decode_binding(value):
+    try:
+        return _decode_binding(value, 0, set())
+    except RecursionError as exc:
+        raise ValidationError("Workflow bindings must be finite JSON data") from exc
+
+
+def _decode_binding(value, depth, active):
     if not isinstance(value, dict):
         raise ValidationError("Workflow binding must be an object")
-    value = copy.deepcopy(value)
-    kind = value.pop("kind", None)
+    kind = value.get("kind")
+    fields = {key: item for key, item in value.items() if key != "kind"}
     try:
         if kind == "ref":
-            return ValueRef(**value)
+            return ValueRef(**fields)
         if kind == "literal":
-            return Literal(**value)
-        if kind == "object" and set(value) == {"fields"} and isinstance(value["fields"], dict):
-            return InputMap({key: decode_binding(item) for key, item in value["fields"].items()})
+            return Literal(**fields)
+        if kind == "object" and set(fields) == {"fields"} and isinstance(fields["fields"], dict):
+            if depth >= 32 or id(value) in active:
+                raise ValidationError("InputMap requires a finite tree within 32 map levels")
+            active.add(id(value))
+            try:
+                return InputMap(
+                    {
+                        key: _decode_binding(item, depth + 1, active)
+                        for key, item in fields["fields"].items()
+                    }
+                )
+            finally:
+                active.remove(id(value))
     except TypeError as exc:
         raise ValidationError("Invalid Workflow binding fields") from exc
     raise ValidationError("Unknown or invalid Workflow binding kind")
@@ -135,6 +175,7 @@ class GraphNode:
     config: dict = field(default_factory=dict)
     output_schema: dict | bool | None = None
     tool: str | None = None
+    executor: str | None = None
 
     def __post_init__(self):
         if (
@@ -143,20 +184,28 @@ class GraphNode:
             or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_.-]{0,63}", self.id)
         ):
             raise ValidationError("Node requires a stable identifier (input is reserved)")
-        if sum(value is not None for value in (self.agent, self.transform, self.tool)) != 1:
-            raise ValidationError("Node requires exactly one Agent, pure transform or Tool")
+        variants = (self.agent, self.transform, self.tool, self.executor)
+        if sum(value is not None for value in variants) != 1:
+            raise ValidationError(
+                "Node requires exactly one Agent, pure transform, Tool or executor"
+            )
         if self.agent is not None and not isinstance(self.agent, AgentSpec):
             raise ValidationError("Agent node requires AgentSpec")
         if self.transform is not None:
             _require_text(self.transform, "Transform name")
         if self.tool is not None:
             _require_text(self.tool, "Tool name")
+        if self.executor is not None and (
+            not isinstance(self.executor, str)
+            or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_.-]{0,63}", self.executor)
+        ):
+            raise ValidationError("Node executor requires a stable registered name")
         if (
             not isinstance(self.depends_on, (tuple, list))
             or any(not isinstance(name, str) or not name for name in self.depends_on)
             or type(self.allow_skipped_dependencies) is not bool
             or not isinstance(self.config, dict)
-            or (self.transform is None and self.config)
+            or (self.transform is None and self.executor is None and self.config)
             or (self.when is not None and not isinstance(self.when, BranchCondition))
         ):
             raise ValidationError("Invalid Workflow node configuration")
@@ -170,6 +219,7 @@ class GraphNode:
     def to_dict(self):
         return {
             **({"tool": self.tool} if self.tool is not None else {}),
+            **({"executor": self.executor} if self.executor is not None else {}),
             "id": self.id,
             "agent": None if self.agent is None else asdict(self.agent),
             "transform": self.transform,
@@ -191,8 +241,8 @@ class GraphNode:
     def from_dict(cls, value):
         if not isinstance(value, dict):
             raise ValidationError("Workflow node must be an object")
-        value = copy.deepcopy(value)
         try:
+            value = copy.deepcopy(value)
             if value.get("agent") is not None:
                 value["agent"] = AgentSpec(**value["agent"])
             if "input" in value:
@@ -201,16 +251,38 @@ class GraphNode:
                 when = value["when"]
                 value["when"] = BranchCondition(**{**when, "value": decode_binding(when["value"])})
             return cls(**value)
-        except (TypeError, KeyError) as exc:
+        except (TypeError, KeyError, RecursionError) as exc:
             raise ValidationError("Invalid Workflow node declaration") from exc
 
 
+def lower_node(node):
+    """Compile one public executor declaration to the original managed Tool IR."""
+    if not isinstance(node, GraphNode):
+        raise ValidationError("Lower a GraphNode declaration")
+    if node.executor is None:
+        return node
+    return replace(
+        node,
+        executor=None,
+        tool="__relf_node__:" + node.executor,
+        input=InputMap({"input": node.input, "config": Literal(node.config)}),
+        config={},
+    )
+
+
 def _references(binding):
-    if isinstance(binding, ValueRef):
-        return {binding.source} - {"input"}
-    if isinstance(binding, InputMap):
-        return set().union(*(_references(value) for value in binding.fields.values()))
-    return set()
+    # Bindings can contain mutable dictionaries even inside frozen declarations.
+    # Validate before walking so cycles or late invalid values fail as typed errors.
+    encode_binding(binding)
+
+    def collect(value):
+        if isinstance(value, ValueRef):
+            return {value.source} - {"input"}
+        if isinstance(value, InputMap):
+            return set().union(*(collect(item) for item in value.fields.values()))
+        return set()
+
+    return collect(binding)
 
 
 def _validate_nodes(nodes, output):
@@ -268,6 +340,8 @@ class ExecutionPlan:
         _require_text(value["version"], "Workflow version")
         if not isinstance(value["nodes"], (list, tuple)):
             raise ValidationError("Plan nodes must be a list")
+        if any(isinstance(node, dict) and "executor" in node for node in value["nodes"]):
+            raise ValidationError("Static execution plans require lowered executor nodes")
         nodes = [GraphNode.from_dict(node) for node in value["nodes"]]
         if value["schema_version"] == 1 and any(node.tool is not None for node in nodes):
             raise ValidationError("Tool nodes require static plan v2")
@@ -307,16 +381,17 @@ class GraphWorkflowSpec:
     ):
         _concurrency(max_concurrency)
         _validate_nodes(nodes, output)
+        lowered = [lower_node(node) for node in nodes]
         plan = ExecutionPlan(
             {
                 "format": "ralf-static-plan",
                 "schema_version": 3
                 if max_concurrency > 1
-                else (2 if any(node.tool is not None for node in nodes) else 1),
+                else (2 if any(node.tool is not None for node in lowered) else 1),
                 **({"max_concurrency": max_concurrency} if max_concurrency > 1 else {}),
                 "name": name,
                 "version": version,
-                "nodes": [node.to_dict() for node in nodes],
+                "nodes": [node.to_dict() for node in lowered],
                 "output": None if output is None else encode_binding(output),
                 "output_schema": output_schema,
             }
@@ -324,6 +399,7 @@ class GraphWorkflowSpec:
         value = plan.to_dict()
         value.pop("format")
         value.pop("schema_version")
+        value["nodes"] = [node.to_dict() for node in nodes]
         object.__setattr__(self, "_data_json", canonical({"kind": "graph", **value}))
 
     def to_dict(self):
@@ -358,15 +434,15 @@ class GraphWorkflowSpec:
     def from_dict(cls, value):
         if not isinstance(value, dict):
             raise ValidationError("Graph declaration must be an object")
-        value = copy.deepcopy(value)
         try:
+            value = copy.deepcopy(value)
             if value.pop("kind", "graph") != "graph":
                 raise ValidationError("Graph declaration kind must be graph")
             value["nodes"] = [GraphNode.from_dict(node) for node in value["nodes"]]
             if value.get("output") is not None:
                 value["output"] = decode_binding(value["output"])
             return cls(**value)
-        except (TypeError, KeyError) as exc:
+        except (TypeError, KeyError, RecursionError) as exc:
             raise ValidationError("Invalid Graph Workflow declaration") from exc
 
 
@@ -383,6 +459,9 @@ class StaticWorkflowCompiler:
         if isinstance(spec, GraphWorkflowSpec):
             value = spec.to_dict()
             value.pop("kind")
+            value["nodes"] = [
+                lower_node(GraphNode.from_dict(node)).to_dict() for node in value["nodes"]
+            ]
             return ExecutionPlan(
                 {
                     "format": "ralf-static-plan",

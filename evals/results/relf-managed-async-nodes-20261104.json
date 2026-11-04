@@ -1,0 +1,229 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-04",
+  "scope": "Local managed async Workflow nodes",
+  "superseded_verification_candidate": {
+    "version": "0.1.0a8+nodes.e749eb31046f475f",
+    "wheel": "dist/managed-async-nodes-20261103/sdk-artifacts/relf_agent-0.1.0a8+nodes.e749eb31046f475f-py3-none-any.whl",
+    "wheel_sha256": "7f20fa688680a8dc502129d40009c42efd38a625b2eb719423ff936c230dd903",
+    "sdist": "dist/managed-async-nodes-20261103/sdk-artifacts/relf_agent-0.1.0a8+nodes.e749eb31046f475f.tar.gz",
+    "sdist_sha256": "9fe49701b22c09f8f6ead3b1ba49ce57dee1ccc24e359c73d079c7a170b6d75a"
+  },
+  "source": {
+    "base_commit": "e75c7561bb14eb54e3f80d32e6dcbc59cd86143d",
+    "built_from_worktree": true,
+    "product_files": 455,
+    "product_digest": "e749eb31046f475f23c933684347f38a5a46f923db38d5c9f0ed4bb8f18cdb73",
+    "version_assignment_unchanged": "0.1.0a8",
+    "readme_sha256": "c7fe5fa6fd11b98a9ded3580e67ecbb3345eae37a34dc4828a10b1da3a5ad454",
+    "build_digest": "636723b3b3d32c604f5551c408b8455902e6b19a01bd58cb7b8d5c5bcbc24a7f"
+  },
+  "candidate": {
+    "version": "0.1.0a8+nodes2.636723b3b3d32c60",
+    "wheel": "dist/managed-async-nodes-20261103/final/sdk-artifacts/relf_agent-0.1.0a8+nodes2.636723b3b3d32c60-py3-none-any.whl",
+    "wheel_sha256": "fe07c8015efbd44284eac0909d6b30855cb67f4a79f6c5c4d5ea57230a46b6fa",
+    "sdist": "dist/managed-async-nodes-20261103/final/sdk-artifacts/relf_agent-0.1.0a8+nodes2.636723b3b3d32c60.tar.gz",
+    "sdist_sha256": "dd293a2f9a7ae111122fc3d9627eed29d0f27b8b99959a5ca492b78f3d8b9211"
+  },
+  "validation_environment": {
+    "platform": "Darwin",
+    "machine": "arm64",
+    "python": "3.12.7",
+    "external_models": false,
+    "external_services": false,
+    "owned_localhost_tests": true
+  },
+  "selected_source": {
+    "collected": 1003,
+    "passed": 1003,
+    "failures_or_errors": 0,
+    "skipped": 0,
+    "skip_reasons": [],
+    "elapsed_seconds": 243.1626688754186
+  },
+  "exact_installed": {
+    "collected": 1003,
+    "passed": 1003,
+    "failures_or_errors": 0,
+    "skipped": 0,
+    "skip_reasons": [],
+    "elapsed_seconds": 219.64027725020424,
+    "tests_byte_unchanged": true,
+    "checkout_build_fixture": "reuse exact frozen wheel for five original starter cases; installed README checks read exact wheel METADATA long description",
+    "original_attempt": "992 passed, 5 fixture setup errors; no build module in checkout-external environment"
+  },
+  "same_selected_test_ids": true,
+  "new_tests_by_module": {
+    "test_workflow_async_adapter_pins": 9,
+    "test_workflow_async_cancellation": 6,
+    "test_workflow_async_configuration": 12,
+    "test_workflow_async_definitions": 49,
+    "test_workflow_async_nodes": 23,
+    "test_workflow_async_recovery": 13,
+    "test_workflow_executors": 41
+  },
+  "full_offline_source": {
+    "collected": 16206,
+    "passed": 15303,
+    "failures_or_errors": 8,
+    "skipped": 895,
+    "command": [
+      "/Users/bytedance/Codex-Projects/ralf-agent/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "-ra",
+      "--junitxml=/Users/bytedance/Codex-Projects/ralf-agent/dist/managed-async-nodes-20261103/full-source.xml"
+    ],
+    "exit_code": 1,
+    "elapsed_seconds": 2289.261623832863,
+    "status": "failed",
+    "skip_reason_counts": {
+      "Explicitly enable the isolated supervised CREATE recovery Docker tests": 2,
+      "Historical old83/a5 shared-namespace probes: use original a5 code; a6 cross-namespace migration is unsupported": 10,
+      "Requires actual Qdrant": 1,
+      "Requires actual Temporal and PostgreSQL": 54,
+      "Requires explicitly selected actual Temporal/PostgreSQL no-submit service probe": 2,
+      "Requires real PostgreSQL test DSN": 2,
+      "Requires real Temporal/PostgreSQL": 11,
+      "Set RALF_CODEX_CREATE_RECOVERY_INTEGRATION=1 with explicit Docker and proof directory": 2,
+      "Set RALF_DEV89_POSTGRES_DSN to an isolated disposable service for real integration": 25,
+      "Set RALF_DEV89_REDIS_URL to an isolated disposable service for real integration": 25,
+      "Set RALF_TEST_POSTGRES_DSN for actual PostgreSQL Runner journal cases": 27,
+      "Set RALF_TEST_POSTGRES_DSN for actual PostgreSQL crash tests": 2,
+      "Set RALF_TEST_POSTGRES_DSN for real PostgreSQL integration": 38,
+      "Set RALF_TEST_QDRANT_URL to exercise a real Qdrant service": 1,
+      "Set actual PostgreSQL/Qdrant service settings": 2,
+      "requires actual PostgreSQL": 2,
+      "requires actual PostgreSQL EffectJournal": 1,
+      "requires actual PostgreSQL via RALF_TEST_POSTGRES_DSN": 20,
+      "requires actual Temporal": 2,
+      "requires actual Temporal Service": 483,
+      "requires actual Temporal Service and PostgreSQL": 7,
+      "requires actual Temporal and PostgreSQL": 7,
+      "requires actual Temporal and PostgreSQL services": 3,
+      "requires actual Temporal and selected remote service": 2,
+      "requires actual local Docker fixture": 9,
+      "requires actual local Temporal and Docker fixtures": 1,
+      "requires actual owned Temporal Service": 23,
+      "requires actual owned Temporal and Docker services": 6,
+      "requires actual owned Temporal and PostgreSQL EffectJournal": 6,
+      "requires explicit actual Docker fixture": 2,
+      "requires explicit actual local Docker fixture": 4,
+      "requires explicit local Docker image and socket": 10,
+      "requires explicit ownership of new real Temporal and PG backup services": 1,
+      "requires explicitly selected actual Docker CREATE probe": 3,
+      "requires externally owned Temporal Service": 14,
+      "requires externally owned actual Temporal Service": 1,
+      "requires externally owned actual Temporal and PostgreSQL": 66,
+      "requires immutable basic SDK interpreter": 1,
+      "requires immutable old manual Worker": 1,
+      "requires owned actual Temporal and PostgreSQL EffectJournal": 8,
+      "requires owned actual Temporal service": 8
+    },
+    "original_failures_preserved": true,
+    "readme_failures": {
+      "count": 6,
+      "classification": "baseline existing relative README links; unchanged from e75c756",
+      "focused_red_then_green": true,
+      "fixed_in_final_metadata": true
+    },
+    "orchestration_timeouts": {
+      "count": 2,
+      "original_child_timeout_seconds": 10,
+      "unchanged_serial_rounds": [
+        {
+          "round": 1,
+          "exit_code": 0,
+          "elapsed_seconds": 21.2291454160586,
+          "host_load_at_start": [
+            4.70751953125,
+            6.267578125,
+            7.53076171875
+          ],
+          "original_fixture_child_timeout_seconds": 10
+        },
+        {
+          "round": 2,
+          "exit_code": 0,
+          "elapsed_seconds": 13.222722250036895,
+          "host_load_at_start": [
+            5.80029296875,
+            6.390625,
+            7.53759765625
+          ],
+          "original_fixture_child_timeout_seconds": 10
+        },
+        {
+          "round": 3,
+          "exit_code": 0,
+          "elapsed_seconds": 14.28133533289656,
+          "host_load_at_start": [
+            6.33642578125,
+            6.47802734375,
+            7.55419921875
+          ],
+          "original_fixture_child_timeout_seconds": 10
+        }
+      ],
+      "root_cause": "not confirmed; not reproduced in three original-deadline sequential rounds",
+      "clean_full_suite_followup": "not verified; focused matrices do not erase original failures"
+    }
+  },
+  "runtime_only_and_sdist": {
+    "commands": 10,
+    "passed": true,
+    "runtime_only": true,
+    "rebuilt_products_equal": 455
+  },
+  "cross_version": {
+    "cases": 8,
+    "processes": 26,
+    "actual_business_requests": 4,
+    "old_sdk_rejects_new_node_without_advancing_run": true,
+    "original_databases_used": false
+  },
+  "installed_example": {
+    "processes": 5,
+    "same_run_action_effect_and_receipts": true,
+    "network_used": false
+  },
+  "independent_review": {
+    "important_findings": 1,
+    "fixed": 1,
+    "valid_red_cases": 9,
+    "scope": "private adapter owner, direct methods and code pins; dispatch boundary"
+  },
+  "integrity": {
+    "current_products_equal_candidate": true,
+    "original_artifacts_unchanged": 292,
+    "first_verification_wheel_and_sdist_preserved": true,
+    "user_review_sha256": "997fcb97bfc84d386a844d9afcb5a917f81a9858aa2ac4f8d2e238559570b91e",
+    "user_review_unchanged": true,
+    "original_log_and_failure_records_preserved": true
+  },
+  "supported": [
+    "Local serial graph",
+    "Local bounded parallel graph",
+    "Local Team/Dynamic nested graphs",
+    "original Tool v2/parallel v3 recovery",
+    "JSON/TOML factory configuration"
+  ],
+  "not_qualified": [
+    "Temporal executor graphs",
+    "new Linux or other Python matrix",
+    "real model or external service quality",
+    "general workflow streaming or cycles",
+    "independent adoption",
+    "new Alpha/public release"
+  ],
+  "delivery": {
+    "local_commit_only": true,
+    "push": false,
+    "remote_ci": false,
+    "public_release": false,
+    "original_recommended_pair_unchanged": true,
+    "single_command_hooks_override_authorized": true
+  },
+  "raw_evidence": "dist/managed-async-nodes-20261103/"
+}

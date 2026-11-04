@@ -113,6 +113,7 @@ class LocalEngine:
         execution_policy=None,
         admission_policy=None,
         stream_updates=None,
+        workflow_executors=None,
     ):
         # Python 3.12's Protocol isinstance check ignores proxy __getattr__.
         # Validate the declared public operations so delegating adapters work too.
@@ -198,6 +199,9 @@ class LocalEngine:
         self.conversation_resource = conversation_resource
         self.providers = dict(providers)
         self.tools = tools
+        from .local_workflow_nodes import configure as configure_nodes
+
+        configure_nodes(self, workflow_executors)
         self.harness = NativeHarness() if harness is None else harness
         self.verifier = verifier
         self.limits = limits
@@ -659,6 +663,10 @@ class LocalEngine:
         knowledge = self.knowledge if components is None else components.knowledge
         verifier = self.verifier if components is None else components.verifier
         names = sorted({name for step in steps for name in step["tools"]})
+        from .workflow_executors import is_alias
+
+        if any(is_alias(name) for name in names):
+            raise DefinitionMismatch("Workflow node executors cannot be used as Agent tools")
         providers = {}
         continuations = {}
         for step in steps:
@@ -2071,7 +2079,9 @@ class LocalEngine:
         return True
 
     def _tool_proposal(self, run_id, node, name, arguments, call_id=None):
-        tool = self.tools.get(name)
+        from .local_workflow_nodes import registered_tool
+
+        tool = registered_tool(self, self._authorized(run_id), node, name)
         arguments = tool.resolve_arguments(arguments)
         proposed_id = uuid.uuid4().hex
         operation = {
@@ -2687,7 +2697,9 @@ class LocalEngine:
         if action["status"] == "receipt_received":
             self._adopt_tool_observation(run_id, action_id)
             return True
-        tool = self.tools.get(action["tool"])
+        from .local_workflow_nodes import execution_component, registered_tool
+
+        tool = registered_tool(self, run, action["node"], action["tool"])
         self._check_release(run)
         tool.validate(action["arguments"])
         if self.policy is not None:
@@ -2761,7 +2773,7 @@ class LocalEngine:
             action["effect_key"],
             self.owner,
         )
-        executor = self.tool_executor
+        executor = execution_component(self, run, action)
         manifest = self._step_manifest(run)["tools"][action["tool"]]
         if action["status"] == "outcome_unknown":
             try:
@@ -2780,7 +2792,7 @@ class LocalEngine:
                     observation,
                     {"source": observation.source, "attempt_id": context.attempt_id},
                 )
-            self._check_executor_release(self._authorized(run_id), executor)
+            self._check_executor_release(self._authorized(run_id), executor, action)
             if observation is not None:
                 self._adopt_tool_observation(run_id, action_id)
                 return True
@@ -2828,7 +2840,7 @@ class LocalEngine:
         try:
             envelope = DispatchEnvelope(context, manifest, action["arguments"], action["digest"])
             current = self._authorized(run_id)
-            self._check_executor_release(current, executor)
+            self._check_executor_release(current, executor, action)
             self._checkpoint_deadline(run_id)
             current = self._authorized(run_id)
             if current["state"] in TERMINAL or current["state"] == "cancelling":
@@ -2847,7 +2859,7 @@ class LocalEngine:
                     observation,
                     {"source": observation.source, "attempt_id": attempt_id},
                 )
-            self._check_executor_release(self._authorized(run_id), executor)
+            self._check_executor_release(self._authorized(run_id), executor, action)
             self._adopt_tool_observation(run_id, action_id)
             return True
         except Exception as exc:
@@ -2884,8 +2896,17 @@ class LocalEngine:
                 self._commit(run, "effect_unknown", {"action_id": action_id})
             return False
 
-    def _check_executor_release(self, run, executor):
+    def _check_executor_release(self, run, executor, action=None):
         self._check_release(run)
+        from .workflow_executors import is_alias
+
+        if action is not None and is_alias(action["tool"]):
+            from .local_workflow_nodes import execution_component
+
+            current = execution_component(self, run, action)
+            if executor is not current:
+                raise DefinitionMismatch("The executing Workflow node adapter changed")
+            return
         if digest(
             self._component_identity(executor, ("execute", "reconcile"), False, "Executor")
         ) != digest(self._step_manifest(run)["tool_executor"]):

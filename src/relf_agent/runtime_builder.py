@@ -645,6 +645,10 @@ class ComponentRegistry:
 
         register_stream_updates(self)
 
+        from .workflow_node_factories import register_workflow_nodes
+
+        register_workflow_nodes(self)
+
     def register(self, kind, name, factory, *, validator=None):
         self._register(kind, name, factory, validator, asynchronous=False)
 

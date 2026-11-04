@@ -2,6 +2,8 @@
 
 ## 当前交付摘要
 
+2026-11-04：Local Workflow 增加通用受管理异步节点：结构化 `NodeExecutor`／可选 `NodeReconciler`、独立 Registry、`GraphNode(executor=...)`、默认 identity 组件及 JSON／TOML 工厂装配。编译复用原 Tool v2／并行 v3，审批、预算、未知效果、取消和恢复继续由原 LocalEngine 负责；不向 Agent 开放私有节点工具。已覆盖真实进程崩溃窗口与取消后关闭重试，最终源码／准确安装各1003项通过；首次全库失败保留，两项旧10秒超时的整轮时序仍待验证。范围及准确验证包见[本批验收](../architecture/reviews/2026-11-04-managed-async-nodes.md)与[使用指南](managed-async-nodes.md)。Temporal 仍拒绝此类节点及其 Local 配置；不新增分布式、流式数据流或循环能力。原推荐制品与历史记录保留，本批仅本地交付。
+
 2026-11-03：本地源码补齐固定HTTP GET／参数映射与`stream_updates/bounded`声明，相关源码／准确安装各440项通过；原推荐制品保持，新代码、测试与文档已本地提交，未推送；验证包仍仅本地保存。见[本批验收](../architecture/reviews/2026-11-03-foundation-gaps.md)，真实Service／模型／新平台资格独立。
 
 2026-11-01：本批Callable边界、安全审批呈现和交付链接／状态修复已冻结新SDK／应用候选，源码／准确安装各1407项回归通过。此前e94c57c已推送；本批仅本地提交，准确版本与后置资格以[当前交付](current-delivery.md)为准。

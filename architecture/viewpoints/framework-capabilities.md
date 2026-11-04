@@ -1,5 +1,7 @@
 # RALF 通用框架能力与扩展验收
 
+**Local 通用受管理异步节点（2026-11-04）：** 本地源码新增 `GraphNode(executor=...)`、版本化 `NodeExecutorRegistry` 与结构化异步端口，组件无需继承内置类。R04 的可选 `workflow_executors` 组件沿原 Profile／JSON／TOML、同步／异步工厂和资源台账装配；R08 将公开声明纯 lower 到原串行 v2／有界并行 v3 Tool 计划，覆盖 Local 图及原 Team／Dynamic 嵌套图。原 Run 继续拥有 Action、审批、额度、核验、回执采纳与恢复，不增加状态机或执行权威。Temporal 继续拒绝 executor 节点（含嵌套）与该 Local 装配组件；完整 R04／R08、专用节点族、循环和流式 Workflow 保持开放。使用及边界见[节点指南](../../docs/managed-async-nodes.md)，最终验证与制品范围见[本批记录](../reviews/2026-11-04-managed-async-nodes.md)。下方旧矩阵和日期记录保留各自历史语义。
+
 **本地基础增量（2026-11-03）：** 固定GET／查询映射和原增量策略的JSON／TOML声明复用ToolSource／组件工厂，源码／安装各440项有限验收。默认POST与缺省Manifest保持，Local／Temporal执行权威不变；推荐原包不含新能力，本批源码、测试与文档仅本地提交，详见[本批记录](../reviews/2026-11-03-foundation-gaps.md)。完整R04／R12／R22及其余长期目标保持独立。
 
 **真实任务追加（2026-10-29）：** 当前同包有限Single Agent／语义RAG／Plan／Team三次重复共78/78，引用、原业务写入和独立冷重连均按[本批证据](../reviews/2026-10-29-default-task-quality.md)核对。规则DAG与固定Supervisor不是自主规划质量；性能含计量开销，完整R项、外部采用与对等比较继续分开。
@@ -208,6 +210,8 @@ flowchart TB
 Pipeline 表达顺序结果传递；Graph 表达依赖、条件、扇出／合并和受限循环；Stream Workflow 表达逐条数据传递。它们通过编译与校验形成共同的类型化计划，保留节点、边、状态、端口、结束条件、资源和计划版本。数据流节点附加通道与检查点描述，不将数据流硬塞进“整步结束后传一个结果”的语义。
 
 节点类型目标包含 Agent、Tool、Transform、Retrieve、HumanInput／Approval、Subworkflow／ChildRun、Planner 和 Verifier。自定义执行节点通过版本化 NodeExecutor 注册；执行引擎沿用审批、Action、预算及结果采纳，纯 Transform 保持确定性。初期明确限制可用节点类型，逐项扩大能力；不能先开放任意可执行配置再补恢复语义。
+
+2026-11-04 的 Local 实现提供上述通用异步执行节点子集：公开图保留 executor 声明，纯 lowering 生成现有 ToolNode 的完整输入／config 包装，未选择时保留旧声明与 v1／v2／v3 计划形态。私有注册及固定适配器不进入 Agent.tools 或 tool_set；原计划、Manifest 和注册身份共同决定派发。已保存回执与 ResultCommit 的恢复不重新执行业务；取消观察、业务取消和真实结束分别处理，活跃调用结束前保留原资源归属。`workflow_executors` 工厂的纯配置预检先于构造 I/O，客户端继续通过原 BuildContext 管理 owned／borrowed 生命周期。该能力不授予 Temporal 新节点资格，不替代完整 R04／R08 验收，详见[节点指南](../../docs/managed-async-nodes.md)及[本批记录](../reviews/2026-11-04-managed-async-nodes.md)。
 
 WorkflowCompiler 负责声明转换，Validator 负责引用、Schema、依赖、循环上限和能力检查，Interpreter 只根据计划及已采纳结果判断可执行节点。调度／持久提交由 Engine 完成；不同执行后端复用纯判断逻辑和行为契约，不共享第二套执行权威。旧顺序 Workflow 使用兼容编译入口；计划及执行 Schema 升级必须有显式版本处理，不能直接让新解释器推进旧 Run。
 

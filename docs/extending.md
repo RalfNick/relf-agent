@@ -10,13 +10,13 @@
 
 默认 starter 现在提供可编辑的 `agent_app/journey.py`／`customize.py`：先从三个应用注入位置替换 Provider、异步工具表、同步／异步记忆，不必先实现下方全部端口。运行方式、借用资源及临时记忆限制见[连续示例](support-journey.md#继续定制与恢复)。这些函数属于用户应用，不增加 SDK 抽象、动态模块加载或新的执行权威。
 
-只需串接异步业务接口时，可先用现有 `GraphNode(tool=...)`，在[graph 模板的纯工具应用](managed-tools.md#安装后配置异步-tool-流程)编辑函数与配置。Local 显式空 Provider 不制造模型调用；Tool／Transform 与 Agent 的职责、预算、审批和版本恢复仍按原契约，不能把 I/O 写进同步纯 Transform。
+串接异步业务接口可使用 `GraphNode(tool=...)`，在[graph 模板的纯工具应用](managed-tools.md#安装后配置异步-tool-流程)编辑函数与配置。需要接收完整 JSON 输入和独立 config 的结构化执行端口时，使用 `GraphNode(executor=...)` 与 NodeExecutorRegistry，见[受管理异步节点](managed-async-nodes.md)和[离线业务示例](../examples/managed_async_nodes.py)。Local 显式空 Provider 不制造模型调用；预算、审批和版本恢复仍按原契约，不能把 I/O 写进同步纯 Transform。
 
 从[连续工单示例](support-journey.md)开始即可完成基础定制，不需要实现所有端口。
 
 | 方式 | 当前适用范围 | 开发者需要承担什么 |
 | --- | --- | --- |
-| 结构化端口替换 | Provider、纯 Harness／Context、工具执行器、Session／Facts／Knowledge／Embedding／Vector 等明确端口 | 实现对应方法、身份、Scope／CAS／来源与生命周期；使用现有注入或注册工厂 |
+| 结构化端口替换 | Provider、纯 Harness／Context、NodeExecutor、工具执行器、Session／Facts／Knowledge／Embedding／Vector 等明确端口 | 实现对应方法、身份、Scope／CAS／来源与生命周期；使用现有注入或注册工厂 |
 | 继承扩展 | 受管理记忆 `ManagedMemoryPolicy`、受管理上下文 `ManagedContextPipeline` 及其已声明钩子 | 保留阶段证据、来源准入、预算和恢复约束；不是仅实现同名方法即可替换 |
 | 当前受限 | Local／Temporal Facade 的具体 Engine、Artifact 绑定后的 managed Context、其余未支持的受管理阶段 | 使用已有支持入口；不能靠适配数据库或删除类型检查获得新执行后端／组合 |
 
@@ -43,6 +43,7 @@ CLI 的 `--factory`／底层 ExecutionEngine 可按公共端口替换；高层 L
 | Harness | `harness=`，默认 NativeHarness | 非空有限 JSON identity；同步纯 prepare／propose 返回 ModelRequest／DecisionProposal；不执行工具或提交状态 |
 | WorkflowCompiler／WorkflowInterpreter | `workflow_compiler=`／`workflow_interpreter=`；默认 static | Graph 首次编译后固定 ExecutionPlan；解释器只选择合格节点，公共边界检查输入、跳过和完成；同步纯端口 |
 | NodeTransform | `workflow_transforms={name: component}`；默认 identity | transform(input, config) 返回已完成有限 JSON；版本固定、同步纯计算，不执行外部 I/O |
+| NodeExecutor／NodeReconciler | `workflow_executors=NodeExecutorRegistry()`；Profile 默认 adapter 为 identity | 非空 JSON identity；async execute(input, config, context) 返回有限 JSON；可选 async reconcile 返回 EffectObservation 或未知 None，queryable_write 必须提供；显式效果、审批、预算及原 Action 恢复 |
 | ToolExecutor | `tool_executor=`，默认 PythonToolExecutor | 非空有限 JSON identity；async execute／reconcile 接收固定 DispatchEnvelope，返回 EffectObservation 或核验未知 None |
 | 工具与核验 | `tools=ToolRegistry()` | 参数 Schema、效果类别、version/config、稳定幂等键；单次调用不隐藏业务重试 |
 | SessionStore／AsyncSessionStore | `session_store=` | `backend_id`、read、append；CAS 与 message_id 去重同时成立 |
@@ -170,6 +171,10 @@ dev8 保留 dev6/dev7 的 `local-4`、默认 Manifest、SQLite Schema v1 与调�
 ## Tool sources and managed graph operations
 
 [Managed tools](managed-tools.md) exposes borrowed async ToolSource and MCPTransport ports, immutable descriptors and host policies. Register a selected source into ToolRegistry and use the names from AgentSpec or GraphNode(tool=...). The default POSIX stdio transport manages one operation/process group at a time; custom persistent clients need explicit host shutdown. Pure transforms retain their no-I/O contract.
+
+[受管理异步节点](managed-async-nodes.md)提供 NodeExecutorSpec／NodeExecutorRegistry 和不要求继承的 async execute(input, config, context) 端口。纯编译器将公开 executor 声明转换为原 Tool v2／并行 v3 节点，私有适配器执行调用，审批、预算、effect_observation 和 ResultCommit 仍由原 Engine 管理。精确匹配原计划／Manifest／注册的编译 alias ToolNode 可执行并可经 from_plan 往返；Agent.tools 与 tool_set binding 不获得这些私有名称。Spec 与节点输出 Schema 在原回执结果保存后校验，失败不抹去效果或重跑写操作。
+
+Registry 借用组件；原 ComponentRegistry.register／register_async 工厂返回注册表，客户端继续使用 BuildContext.own／own_async 或应用负责的 borrowed 生命周期。当前支持 Local 串行、有界并行及 Team／Dynamic 中的嵌套图；Temporal 当前拒绝 executor 图与该 Local 组件。完整 JSON、审批、原 effect_key、重开及重复回执可运行[同一离线示例](../examples/managed_async_nodes.py)，不把离线结果视为真实模型或外部服务验收。
 
 ## DAG, nested execution and remote composition
 

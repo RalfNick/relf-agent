@@ -38,6 +38,7 @@ COMPONENT_KINDS = frozenset(
         "model_continuation",
         "model_history",
         "stream_updates",
+        "workflow_executors",
     }
 )
 

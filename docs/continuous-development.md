@@ -1,5 +1,7 @@
 # 持续能力开发与验收队列
 
+**2026-11-04 Local 通用受管理异步节点：** 本批沿既有架构补齐 R04／R08 的有限子集：可选 `workflow_executors` Profile 组件接入原 JSON／TOML、同步／异步工厂与资源台账；`GraphNode(executor=...)` 通过纯 lowering 复用现有 v2／v3 Tool 计划，支持 Local 串行、有界并行及原 Team／Dynamic 中的嵌套图。原 Action／审批／预算／效果核验／回执采纳与恢复继续由 Local 原 Run 推进，不新增状态机或执行权威。Temporal 仍拒绝 executor 节点（含嵌套）和该 Local 装配组件；完整 R04／R08、其余 R 项、专用节点族、循环与流式 Workflow 保持开放。用法见[节点指南](managed-async-nodes.md)，最终回归、隔离安装、兼容与制品核对以[本批记录](../architecture/reviews/2026-11-04-managed-async-nodes.md)为准；本批不自动进入推送或公开发布。下方 2026-11-03 及更早段落保留当时授权、范围和原制品资格。
+
 **2026-11-03 最新授权与范围：** 用户恢复基础能力补齐，本批固定HTTP GET及现有增量策略Profile配置已完成有限本地验收；源码、测试与文档已按追加授权本地提交，准确验证包仍仅本地保存，见[本批记录](../architecture/reviews/2026-11-03-foundation-gaps.md)。保持原执行权威／架构，不自动扩大至流式Workflow或通用节点，不推送或公开发布。下面2026-11-01及更早段落保留当时目标与制品。
 
 > 2026-11-01 本地资料助手首版已冻结，准确状态见[应用交付](local-documents-assistant.md)。本批不自动追加开发；独立采用与长期清单继续后续。

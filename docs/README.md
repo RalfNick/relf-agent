@@ -53,6 +53,7 @@
 ## 工作流与多 Agent
 
 - [静态 Workflow](static-workflows.md)：顺序步骤、依赖、分支与输入映射。
+- [受管理异步节点](managed-async-nodes.md)：完整 JSON／config、版本化 NodeExecutor、原审批／预算／恢复及 JSON／TOML 装配；可运行[离线审批与重开示例](../examples/managed_async_nodes.py)。
 - [有界并行 Workflow](parallel-workflows.md)：并行节点、共享预算与分支恢复。
 - [动态规划与团队](orchestration.md)：Plan／Team 入口及可替换策略。
 - [动态 DAG 与嵌套编排](dynamic-dag.md)：计划补丁、依赖图及复合成员。

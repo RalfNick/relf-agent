@@ -1,6 +1,6 @@
 # Relf-Agent
 
-当前源码已包含事件／展示流、安装后连续教程、组件替换和 Local 无模型 Tool 图。推荐安装包、精确来源、哈希、支持矩阵及验收状态集中在[当前交付入口](docs/current-delivery.md)；原 Alpha 与历史私有包保持原资格。
+当前源码已包含事件／展示流、安装后连续教程、组件替换和 Local 无模型 Tool 图。推荐安装包、精确来源、哈希、支持矩阵及验收状态集中在[当前交付入口](https://github.com/RalfNick/relf-agent/blob/main/docs/current-delivery.md)；原 Alpha 与历史私有包保持原资格。
 
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://github.com/RalfNick/relf-agent/blob/main/LICENSE)
 
@@ -14,9 +14,9 @@ Relf-Agent 把模型决策、工具调用、人工审批和业务结果保存为
 
 [官网](https://relfagent.com/) · [快速开始](#快速开始) · [文档目录](https://github.com/RalfNick/relf-agent/blob/main/docs/README.md) · [示例](https://github.com/RalfNick/relf-agent/blob/main/examples/README.md) · [贡献指南](https://github.com/RalfNick/relf-agent/blob/main/CONTRIBUTING.md) · [更新记录](https://github.com/RalfNick/relf-agent/blob/main/CHANGELOG.md)
 
-> 源码基版本仍为 `0.1.0a8`，已包含此后的维护能力与 Runtime 秒数校验修复；它不是原 a8 归档的能力说明。安装请使用[当前交付入口](docs/current-delivery.md)指定的唯一私有候选。发行名 `relf-agent`、导入 `relf_agent`、CLI `relf` 保持，本地基础应用无需模型密钥、Redis、Temporal 或 Docker。
+> 源码基版本仍为 `0.1.0a8`，已包含此后的维护能力与 Runtime 秒数校验修复；它不是原 a8 归档的能力说明。安装请使用[当前交付入口](https://github.com/RalfNick/relf-agent/blob/main/docs/current-delivery.md)指定的唯一私有候选。发行名 `relf-agent`、导入 `relf_agent`、CLI `relf` 保持，本地基础应用无需模型密钥、Redis、Temporal 或 Docker。
 
-> 默认分支为 `main`。源码 `e94c57c` 已于 2026-11-01 使用 RalfNick 合入并推送，核对所选提交 CI 运行数为 0；安装包仍按精确私有制品交付，未创建新 Release。当前 Callable／审批预览维护仅本地提交，不推送、触发远端 CI、部署或公开发布。历史公开 a2、原 a8 与官网固定教程按各自记录保留，安装方式见[安装指南](docs/installation.md)。
+> 默认分支为 `main`。源码 `e94c57c` 已于 2026-11-01 使用 RalfNick 合入并推送，核对所选提交 CI 运行数为 0；安装包仍按精确私有制品交付，未创建新 Release。当前 Callable／审批预览维护仅本地提交，不推送、触发远端 CI、部署或公开发布。历史公开 a2、原 a8 与官网固定教程按各自记录保留，安装方式见[安装指南](https://github.com/RalfNick/relf-agent/blob/main/docs/installation.md)。
 
 ## 为什么使用 Relf-Agent
 
@@ -28,7 +28,7 @@ Relf-Agent 把模型决策、工具调用、人工审批和业务结果保存为
 
 ## 快速开始
 
-需要 Python 3.11+；本轮候选的实际验收环境见[当前交付入口](docs/current-delivery.md)。先按该页的精确文件安装命令创建独立环境，再运行：
+需要 Python 3.11+；本轮候选的实际验收环境见[当前交付入口](https://github.com/RalfNick/relf-agent/blob/main/docs/current-delivery.md)。先按该页的精确文件安装命令创建独立环境，再运行：
 
 ```bash
 relf --version

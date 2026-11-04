@@ -406,6 +406,13 @@ from .workflow import (
     WorkflowInterpreter,
     WorkflowSelection,
 )
+from .workflow_executors import (
+    IdentityNodeExecutor,
+    NodeExecutor,
+    NodeExecutorRegistry,
+    NodeExecutorSpec,
+    NodeReconciler,
+)
 
 __version__ = "0.1.0a8"
 from .binding_artifacts import ArtifactBindingResource, ArtifactView
@@ -945,3 +952,11 @@ __all__ += [
 
 __all__ += ["InventoryMemberCompletionVerifier"]
 __all__ += ["AgentStreamEvent", "StreamUpdatePolicy", "StreamedModelProvider", "emit_tool_delta"]
+
+__all__ += [
+    "IdentityNodeExecutor",
+    "NodeExecutor",
+    "NodeExecutorRegistry",
+    "NodeExecutorSpec",
+    "NodeReconciler",
+]

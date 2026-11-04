@@ -136,13 +136,19 @@ class StaticWorkflowRuntime:
         tool_names = sorted(
             {node["tool"] for node in value["nodes"] if node.get("tool") is not None}
         )
-        base["tools"].update(engine.tools.manifests(tool_names))
+        from .local_workflow_nodes import manifests as node_manifests
+
+        selected_tools, selected_nodes, public_names = node_manifests(engine, tool_names)
+        base["tools"].update(selected_tools)
         from .local_delegated_coding import manifest_tools as coding_tools
 
-        merge_coding_manifests(base, [{"delegated_coding_tools": coding_tools(engine, tool_names)}])
+        merge_coding_manifests(
+            base, [{"delegated_coding_tools": coding_tools(engine, public_names)}]
+        )
         from .local_user_input import manifest_tools
+        from .workflow_executors import is_alias
 
-        input_tools = manifest_tools(engine, list(base["tools"]))
+        input_tools = manifest_tools(engine, [name for name in base["tools"] if not is_alias(name)])
         if input_tools:
             base.update(kernel="local-9", user_input_protocol=1, user_input_tools=input_tools)
         manifest = {
@@ -156,6 +162,7 @@ class StaticWorkflowRuntime:
                     engine.workflow_interpreter, ("select",), True, "Workflow interpreter"
                 ),
                 "transforms": transforms,
+                **({"node_executors": selected_nodes} if selected_nodes is not None else {}),
                 **(
                     {
                         "scheduler": engine._component_identity(
@@ -274,6 +281,9 @@ class StaticWorkflowRuntime:
         state = run["workflow"]["nodes"][node["id"]]
         if state["state"] != "running" or run["workflow"]["current"] != node["id"]:
             raise ValidationError("Cannot complete an inactive Workflow node")
+        from .local_workflow_nodes import validate_output as validate_node_output
+
+        validate_node_output(self.engine, node, result)
         value = validate_output(result, node["output_schema"])
         state.update(state="completed", result=value)
         index = run["node"]
