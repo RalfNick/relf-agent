@@ -1,0 +1,691 @@
+{
+  "status": "scoped implementation and verification complete; original full-round fixture failure retained, corrected module reverified; local commit prepared",
+  "base": "8244e38642913596fbdeff8059407194466d063a",
+  "scope": "Temporal stateless managed executor graphs using original parent/native History and Tool Action protocol",
+  "supported_compositions": [
+    "serial",
+    "bounded-parallel",
+    "explicit Agent mixed graph",
+    "original Team/Dynamic nested executor graphs"
+  ],
+  "unsupported_compositions": [
+    "actual Session/Turn/cross-Turn native history",
+    "Coding composition",
+    "deployment admission",
+    "parent completion",
+    "ordinary Tool/Transform graph",
+    "loop/reducer/streaming dataflow"
+  ],
+  "version": "0.1.0a8+tnodes.3675891f64d0664f",
+  "product_files": 459,
+  "product_digest": "2c79f1bb86cd9501dd9bf5fca56f7b03c22e09648304fb3305fb59015db6db90",
+  "build_digest": "3675891f64d0664fd1842db5325b4cc7cd8211ff22d0e6ba944e445b6268525a",
+  "wheel": {
+    "path": "dist/temporal-managed-nodes-20261105/sdk-artifacts/relf_agent-0.1.0a8+tnodes.3675891f64d0664f-py3-none-any.whl",
+    "sha256": "c0018a3359be99a285f326307bc5a50a03dd26a48e762edf43a7ad5620061242"
+  },
+  "sdist": {
+    "path": "dist/temporal-managed-nodes-20261105/sdk-artifacts/relf_agent-0.1.0a8+tnodes.3675891f64d0664f.tar.gz",
+    "sha256": "9b71de40ac48cfdc85547409d278f4f93d5d8816ea07562793fd14ec35ed38f4"
+  },
+  "source_affected": {
+    "path": "dist/temporal-managed-nodes-20261105/source-targeted.xml",
+    "sha256": "20abbf3ea9a5291d6e84b0b5e16ad733bf666f4df68a3d94722009a3ecc2fbdd",
+    "passed": 690,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": 690,
+    "elapsed_seconds": 47.958
+  },
+  "installed_affected": {
+    "path": "dist/temporal-managed-nodes-20261105/installed-targeted.xml",
+    "sha256": "1d8f57975768c48879360d5625bdb7e787c0400dff1bcc661d44fe0f1701a97c",
+    "passed": 690,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": 690,
+    "elapsed_seconds": 46.523
+  },
+  "same_affected_test_ids": true,
+  "actual_service": {
+    "source": {
+      "path": "dist/temporal-workflow-nodes-20261105/service/source-acceptance-summary.json",
+      "sha256": "4dcf15107c73187df63601570869d4e56431d6715655d48fd1d7f592ede16208",
+      "phases": [
+        {
+          "label": "source-first-fixture-final",
+          "exit_code": 0,
+          "elapsed_seconds": 9.967323166783899,
+          "cases": 1,
+          "replayed_histories": 4,
+          "explicit_cleanup_error_count": 0
+        },
+        {
+          "label": "source-rest-fixture-final",
+          "exit_code": 0,
+          "elapsed_seconds": 104.06387641606852,
+          "cases": 12,
+          "replayed_histories": 49,
+          "explicit_cleanup_error_count": 0
+        }
+      ],
+      "cases": 13,
+      "test_case_names": [
+        "test_actual_node_graphs_are_model_free_except_explicit_agent[serial]",
+        "test_actual_node_graphs_are_model_free_except_explicit_agent[serial-null]",
+        "test_actual_node_graphs_are_model_free_except_explicit_agent[parallel]",
+        "test_actual_node_graphs_are_model_free_except_explicit_agent[team]",
+        "test_actual_node_graphs_are_model_free_except_explicit_agent[dynamic]",
+        "test_actual_node_graphs_are_model_free_except_explicit_agent[mixed]",
+        "test_actual_node_approval_survives_process_restart",
+        "test_actual_node_write_receipts_remain_original_without_reexecution[unknown]",
+        "test_actual_node_write_receipts_remain_original_without_reexecution[invalid-write]",
+        "test_actual_node_cancel_retains_live_handler_and_close_retries",
+        "test_actual_node_worker_crash_preserves_real_end_and_receipt_boundaries[commit-crash]",
+        "test_actual_node_worker_crash_preserves_real_end_and_receipt_boundaries[receipt-crash]",
+        "test_actual_installed_default_example_repeats_original_submission"
+      ],
+      "actual_service": true,
+      "time_skipping": false,
+      "actual_postgresql": true,
+      "external_models": false
+    },
+    "installed": {
+      "path": "dist/temporal-workflow-nodes-20261105/service/installed-acceptance-summary.json",
+      "sha256": "b4964a9991f7ee4704921dd0a33ad5049af71a986854dce8c26f546e9d1c8331",
+      "phases": [
+        {
+          "label": "installed-first-final",
+          "exit_code": 0,
+          "elapsed_seconds": 10.925989083014429,
+          "cases": 1,
+          "replayed_histories": 4,
+          "explicit_cleanup_error_count": 0
+        },
+        {
+          "label": "installed-rest-final",
+          "exit_code": 0,
+          "elapsed_seconds": 103.56962920818478,
+          "cases": 12,
+          "replayed_histories": 49,
+          "explicit_cleanup_error_count": 0
+        }
+      ],
+      "cases": 13,
+      "test_case_names": [
+        "test_actual_node_graphs_are_model_free_except_explicit_agent[serial]",
+        "test_actual_node_graphs_are_model_free_except_explicit_agent[serial-null]",
+        "test_actual_node_graphs_are_model_free_except_explicit_agent[parallel]",
+        "test_actual_node_graphs_are_model_free_except_explicit_agent[team]",
+        "test_actual_node_graphs_are_model_free_except_explicit_agent[dynamic]",
+        "test_actual_node_graphs_are_model_free_except_explicit_agent[mixed]",
+        "test_actual_node_approval_survives_process_restart",
+        "test_actual_node_write_receipts_remain_original_without_reexecution[unknown]",
+        "test_actual_node_write_receipts_remain_original_without_reexecution[invalid-write]",
+        "test_actual_node_cancel_retains_live_handler_and_close_retries",
+        "test_actual_node_worker_crash_preserves_real_end_and_receipt_boundaries[commit-crash]",
+        "test_actual_node_worker_crash_preserves_real_end_and_receipt_boundaries[receipt-crash]",
+        "test_actual_installed_default_example_repeats_original_submission"
+      ],
+      "actual_service": true,
+      "time_skipping": false,
+      "actual_postgresql": true,
+      "external_models": false
+    }
+  },
+  "production": {
+    "commands": [
+      {
+        "command": [
+          "/Users/bytedance/Codex-Projects/ralf-agent/.venv/bin/python",
+          "-m",
+          "venv",
+          "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/production/venv"
+        ],
+        "cwd": "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/production",
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/production/venv/bin/python",
+          "-m",
+          "pip",
+          "install",
+          "--no-index",
+          "--find-links",
+          "/Users/bytedance/Codex-Projects/ralf-agent/dist/release-gate-20261019/wheelhouse",
+          "/Users/bytedance/Codex-Projects/ralf-agent/dist/temporal-managed-nodes-20261105/sdk-artifacts/relf_agent-0.1.0a8+tnodes.3675891f64d0664f-py3-none-any.whl"
+        ],
+        "cwd": "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/production",
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/production/venv/bin/python",
+          "-m",
+          "pip",
+          "check"
+        ],
+        "cwd": "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/production",
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/production/venv/bin/relf",
+          "--version"
+        ],
+        "cwd": "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/production",
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/production/venv/bin/relf",
+          "--help"
+        ],
+        "cwd": "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/production",
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/production/venv/bin/relf",
+          "init",
+          "starter"
+        ],
+        "cwd": "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/production",
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/production/venv/bin/python",
+          "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/production/smoke.py",
+          "0.1.0a8+tnodes.3675891f64d0664f"
+        ],
+        "cwd": "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/production",
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "/Users/bytedance/Codex-Projects/ralf-agent/.venv/bin/python",
+          "-m",
+          "build",
+          "--wheel",
+          "--no-isolation",
+          "--outdir",
+          "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/production/rebuilt"
+        ],
+        "cwd": "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/production/sdist/relf_agent-0.1.0a8+tnodes.3675891f64d0664f",
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/production/venv/bin/python",
+          "-m",
+          "pip",
+          "install",
+          "--no-index",
+          "--no-deps",
+          "--force-reinstall",
+          "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/production/rebuilt/relf_agent-0.1.0a8+tnodes.3675891f64d0664f-py3-none-any.whl"
+        ],
+        "cwd": "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/production",
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/production/venv/bin/python",
+          "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/production/smoke.py",
+          "0.1.0a8+tnodes.3675891f64d0664f"
+        ],
+        "cwd": "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/production",
+        "exit_code": 0
+      }
+    ],
+    "command_count": 10,
+    "runtime_dependencies_only": true,
+    "sdist_rebuilt_products_equal": 459,
+    "network_used": false,
+    "version": "0.1.0a8+tnodes.3675891f64d0664f",
+    "workspace": "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/production",
+    "rebuilt_wheel_sha256": "2bb969cf31752be058747066d468945ffae9c14914fb1e81620bdeb274454d20"
+  },
+  "legacy_history_replay": {
+    "source": {
+      "package": "/Users/bytedance/Codex-Projects/ralf-agent/src/relf_agent/__init__.py",
+      "version": "0.1.0a8",
+      "cases": [
+        {
+          "history": "dist/temporal-stream-service-20261029/source-final-repeat/pytest-temp/test_actual_approval_survives_0/history.json",
+          "sha256": "9475016cd654c6d5a51700d3d66e36320ecd8b714690a5265b8eb5a541068a6c",
+          "namespace": "default",
+          "events": 84,
+          "elapsed_seconds": 2.708703000098467,
+          "replayed": true
+        },
+        {
+          "history": "dist/temporal-stream-service-20261029/source-final-repeat/pytest-temp/test_actual_prefix_observer_ca0/history.json",
+          "sha256": "1fbd8704579f0a018eb180f92321c4d5ce16dc8bec4dcf28b6b69bef9a1d2573",
+          "namespace": "default",
+          "events": 84,
+          "elapsed_seconds": 0.45521970884874463,
+          "replayed": true
+        },
+        {
+          "history": "dist/temporal-stream-service-20261029/source-final-repeat/pytest-temp/test_actual_prefix_observer_ca1/history.json",
+          "sha256": "aca35c42de211f374586697874f4b8a61154b454347b689caa4a2d805b029840",
+          "namespace": "default",
+          "events": 60,
+          "elapsed_seconds": 0.3978269579820335,
+          "replayed": true
+        }
+      ],
+      "actual_activities_executed": 0,
+      "compatibility_scope": "selected original non-Coding, no-node native Agent streaming histories only"
+    },
+    "installed": {
+      "package": "/private/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/venv/lib/python3.12/site-packages/relf_agent/__init__.py",
+      "version": "0.1.0a8+tnodes.3675891f64d0664f",
+      "cases": [
+        {
+          "history": "dist/temporal-stream-service-20261029/source-final-repeat/pytest-temp/test_actual_approval_survives_0/history.json",
+          "sha256": "9475016cd654c6d5a51700d3d66e36320ecd8b714690a5265b8eb5a541068a6c",
+          "namespace": "default",
+          "events": 84,
+          "elapsed_seconds": 1.443609541747719,
+          "replayed": true
+        },
+        {
+          "history": "dist/temporal-stream-service-20261029/source-final-repeat/pytest-temp/test_actual_prefix_observer_ca0/history.json",
+          "sha256": "1fbd8704579f0a018eb180f92321c4d5ce16dc8bec4dcf28b6b69bef9a1d2573",
+          "namespace": "default",
+          "events": 84,
+          "elapsed_seconds": 0.44411304220557213,
+          "replayed": true
+        },
+        {
+          "history": "dist/temporal-stream-service-20261029/source-final-repeat/pytest-temp/test_actual_prefix_observer_ca1/history.json",
+          "sha256": "aca35c42de211f374586697874f4b8a61154b454347b689caa4a2d805b029840",
+          "namespace": "default",
+          "events": 60,
+          "elapsed_seconds": 0.40970195923000574,
+          "replayed": true
+        }
+      ],
+      "actual_activities_executed": 0,
+      "compatibility_scope": "selected original non-Coding, no-node native Agent streaming histories only"
+    }
+  },
+  "old_worker_new_release_refusal": {
+    "version": "0.1.0a8+boundaries.78b549d7aed371da",
+    "package": "/private/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-framework-boundaries-20261105-teh349no/venv/lib/python3.12/site-packages/relf_agent/__init__.py",
+    "rejected_before_worker_registration": true,
+    "service_client_calls": 0,
+    "business_calls": 0,
+    "scope": "old Worker release preflight, not running new Histories"
+  },
+  "legacy_prefix_ordinary_tool": {
+    "old_package": "0.1.0a8+boundaries.78b549d7aed371da",
+    "cases": [
+      {
+        "mode": "old-installed",
+        "python": "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-framework-boundaries-20261105-teh349no/venv/bin/python",
+        "exit_code": 0,
+        "result": {
+          "ordinary_tool": "__relf_node__:legacy",
+          "kernel": "temporal-1",
+          "node_marker": false,
+          "state": "accepted_as_ordinary_tool"
+        }
+      },
+      {
+        "mode": "new-source",
+        "python": "/Users/bytedance/Codex-Projects/ralf-agent/.venv/bin/python",
+        "exit_code": 0,
+        "result": {
+          "ordinary_tool": "__relf_node__:legacy",
+          "kernel": "temporal-1",
+          "node_marker": false,
+          "state": "accepted_as_ordinary_tool"
+        }
+      }
+    ],
+    "new_or_old_model_calls": 0
+  },
+  "original_artifacts": {
+    "count": 300,
+    "changed": [],
+    "manifest": "dist/temporal-managed-nodes-20261105/baseline.json"
+  },
+  "preserved_failures": {
+    "actual_service": [
+      "source-red",
+      "source-first",
+      "source-first-fixed",
+      "source-first-final",
+      "source-rest-wire-final"
+    ],
+    "unit_probes": "Original REDs and fixture/controller/importer diagnostic failures retained, not merged into acceptance scores",
+    "legacy_replay_controller": "First probe double-counted pytest current symlinks; all stored histories retained",
+    "record_controller": "First summarizer assumed an explicit cleanup field on the example fixture; corrected to optional field, no product failure"
+  },
+  "resource_verification": {
+    "path": "dist/temporal-workflow-nodes-20261105/service/owned-resource-verification.json",
+    "sha256": "ecac3aff177a7da17eda7dacebee510ac3fa31d12bee5720b2f07ca67e8280bb",
+    "note": "Original cleanup stdout equality false retained; read-only missing-object/PID verification is separate"
+  },
+  "qualification": {
+    "platform": "macOS ARM64 Python3.12",
+    "temporal_cli": "1.9.1",
+    "temporal_server": "1.32.0",
+    "temporal_sdk": "1.34.0",
+    "real_model_quality": false,
+    "external_adoption": false,
+    "r04_r08_r19_complete": false,
+    "old_coding_requires_original_fingerprint_worker": true,
+    "commit_crash_case_pass_means_retained_unknown_obligation_not_business_success": true,
+    "public_release": false,
+    "push": false,
+    "remote_ci": false
+  },
+  "documentation_snapshot": "Wheel contains no topic docs; sdist docs are construction snapshot; final record/current guide include subsequent textual corrections without overwriting artifacts",
+  "full_offline": {
+    "result": {
+      "wall_start": 1793864996.892425,
+      "wall_end": 1793867791.67603,
+      "wall_monotonic_difference": 0.10239727329462767,
+      "session_guard_only": true,
+      "label": "final",
+      "base": "8244e38642913596fbdeff8059407194466d063a",
+      "exit_code": 1,
+      "elapsed_seconds": 2794.691403874662,
+      "child_deadline_seconds": 10,
+      "manual_remote_ci": false,
+      "models_or_external_services_configured": false,
+      "observer_does_not_modify_child_commands": true
+    },
+    "xml": {
+      "path": "dist/temporal-managed-nodes-20261105/final/full.xml",
+      "sha256": "cb2bd4aa111ab172b84825055a0b120d8db10f83287e17065572b7e9be4feb85"
+    },
+    "passed": 15479,
+    "skipped": 908,
+    "failed": 1,
+    "errors": 0,
+    "collected": 16388,
+    "original_node_ids": 16292,
+    "removed_original_node_ids": 0,
+    "added_node_ids": 96,
+    "affected_690_all_pass_in_whole_round": true,
+    "orchestration_crash_cases": [
+      {
+        "name": "test_real_process_durability_windows_resume_without_replanning_or_duplicate_child[plan_proposal_received]",
+        "elapsed_seconds": 2.193,
+        "passed": true
+      },
+      {
+        "name": "test_real_process_durability_windows_resume_without_replanning_or_duplicate_child[plan_revision_adopted]",
+        "elapsed_seconds": 2.562,
+        "passed": true
+      },
+      {
+        "name": "test_real_process_durability_windows_resume_without_replanning_or_duplicate_child[child_submitted]",
+        "elapsed_seconds": 2.303,
+        "passed": true
+      },
+      {
+        "name": "test_real_process_durability_windows_resume_without_replanning_or_duplicate_child[run_succeeded]",
+        "elapsed_seconds": 2.321,
+        "passed": true
+      },
+      {
+        "name": "test_real_process_durability_windows_resume_without_replanning_or_duplicate_child[plan_verified]",
+        "elapsed_seconds": 2.527,
+        "passed": true
+      }
+    ],
+    "fixed_input_count": 1557,
+    "changed_inputs_after_round": [
+      "tests/test_temporal_session_deployment_evidence_maintenance.py"
+    ],
+    "original_round_frozen_inputs_unchanged": {
+      "runner_result": {
+        "wall_start": 1793864996.892425,
+        "wall_end": 1793867791.67603,
+        "wall_monotonic_difference": 0.10239727329462767,
+        "session_guard_only": true,
+        "label": "final",
+        "base": "8244e38642913596fbdeff8059407194466d063a",
+        "exit_code": 1,
+        "elapsed_seconds": 2794.691403874662,
+        "child_deadline_seconds": 10,
+        "manual_remote_ci": false,
+        "models_or_external_services_configured": false,
+        "observer_does_not_modify_child_commands": true
+      },
+      "xml_counts": {
+        "passed": 15479,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 908
+      },
+      "collected": 16388,
+      "old_collected": 16292,
+      "old_ids_deleted": [],
+      "added_ids": [
+        "tests/test_temporal_node_activities.py::test_direct_registry_method_drift_is_refused_even_if_it_returns_original_data[manifest]",
+        "tests/test_temporal_node_activities.py::test_direct_registry_method_drift_is_refused_even_if_it_returns_original_data[tool]",
+        "tests/test_temporal_node_activities.py::test_foreign_node_envelope_cannot_dispatch_query_or_acknowledge[acknowledge-action]",
+        "tests/test_temporal_node_activities.py::test_foreign_node_envelope_cannot_dispatch_query_or_acknowledge[acknowledge-arguments]",
+        "tests/test_temporal_node_activities.py::test_foreign_node_envelope_cannot_dispatch_query_or_acknowledge[acknowledge-missing]",
+        "tests/test_temporal_node_activities.py::test_foreign_node_envelope_cannot_dispatch_query_or_acknowledge[acknowledge-orchestration]",
+        "tests/test_temporal_node_activities.py::test_foreign_node_envelope_cannot_dispatch_query_or_acknowledge[acknowledge-parent]",
+        "tests/test_temporal_node_activities.py::test_foreign_node_envelope_cannot_dispatch_query_or_acknowledge[acknowledge-release]",
+        "tests/test_temporal_node_activities.py::test_foreign_node_envelope_cannot_dispatch_query_or_acknowledge[acknowledge-scope]",
+        "tests/test_temporal_node_activities.py::test_foreign_node_envelope_cannot_dispatch_query_or_acknowledge[execute-action]",
+        "tests/test_temporal_node_activities.py::test_foreign_node_envelope_cannot_dispatch_query_or_acknowledge[execute-arguments]",
+        "tests/test_temporal_node_activities.py::test_foreign_node_envelope_cannot_dispatch_query_or_acknowledge[execute-missing]",
+        "tests/test_temporal_node_activities.py::test_foreign_node_envelope_cannot_dispatch_query_or_acknowledge[execute-orchestration]",
+        "tests/test_temporal_node_activities.py::test_foreign_node_envelope_cannot_dispatch_query_or_acknowledge[execute-parent]",
+        "tests/test_temporal_node_activities.py::test_foreign_node_envelope_cannot_dispatch_query_or_acknowledge[execute-release]",
+        "tests/test_temporal_node_activities.py::test_foreign_node_envelope_cannot_dispatch_query_or_acknowledge[execute-scope]",
+        "tests/test_temporal_node_activities.py::test_foreign_node_envelope_cannot_dispatch_query_or_acknowledge[reconcile-action]",
+        "tests/test_temporal_node_activities.py::test_foreign_node_envelope_cannot_dispatch_query_or_acknowledge[reconcile-arguments]",
+        "tests/test_temporal_node_activities.py::test_foreign_node_envelope_cannot_dispatch_query_or_acknowledge[reconcile-missing]",
+        "tests/test_temporal_node_activities.py::test_foreign_node_envelope_cannot_dispatch_query_or_acknowledge[reconcile-orchestration]",
+        "tests/test_temporal_node_activities.py::test_foreign_node_envelope_cannot_dispatch_query_or_acknowledge[reconcile-parent]",
+        "tests/test_temporal_node_activities.py::test_foreign_node_envelope_cannot_dispatch_query_or_acknowledge[reconcile-release]",
+        "tests/test_temporal_node_activities.py::test_foreign_node_envelope_cannot_dispatch_query_or_acknowledge[reconcile-scope]",
+        "tests/test_temporal_node_activities.py::test_node_execute_uses_original_tool_owner_and_preserves_raw_journal_observation[False]",
+        "tests/test_temporal_node_activities.py::test_node_execute_uses_original_tool_owner_and_preserves_raw_journal_observation[True]",
+        "tests/test_temporal_node_activities.py::test_node_journal_recovery_never_reexecutes_original_handler[False]",
+        "tests/test_temporal_node_activities.py::test_node_journal_recovery_never_reexecutes_original_handler[True]",
+        "tests/test_temporal_node_activities.py::test_node_publication_composes_with_original_context_execution_owner",
+        "tests/test_temporal_node_activities.py::test_node_registration_rejects_non_registry_objects[False]",
+        "tests/test_temporal_node_activities.py::test_node_registration_rejects_non_registry_objects[value1]",
+        "tests/test_temporal_node_activities.py::test_node_registration_rejects_non_registry_objects[value2]",
+        "tests/test_temporal_node_activities.py::test_node_release_drift_is_refused_without_any_business_call[adapter]",
+        "tests/test_temporal_node_activities.py::test_node_release_drift_is_refused_without_any_business_call[identity]",
+        "tests/test_temporal_node_activities.py::test_node_release_drift_is_refused_without_any_business_call[method]",
+        "tests/test_temporal_node_activities.py::test_node_release_drift_is_refused_without_any_business_call[registration]",
+        "tests/test_temporal_node_activities.py::test_node_release_drift_is_refused_without_any_business_call[registry]",
+        "tests/test_temporal_node_activities.py::test_observer_cancel_keeps_actual_node_owned_until_handler_and_end_ack_finish",
+        "tests/test_temporal_node_activities.py::test_omitted_node_selection_preserves_original_release",
+        "tests/test_temporal_node_activities.py::test_private_node_applies_host_authorization_before_journal_or_handler",
+        "tests/test_temporal_node_activities.py::test_private_node_writes_require_the_original_durable_journal",
+        "tests/test_temporal_node_activities.py::test_provider_free_node_release_pins_private_tools_without_publishing_them_to_agents",
+        "tests/test_temporal_node_activities.py::test_public_tools_cannot_collide_with_private_node_namespace",
+        "tests/test_temporal_node_activities.py::test_public_tools_in_node_release_keep_the_original_executor",
+        "tests/test_temporal_node_activities.py::test_unknown_node_effect_is_queried_without_dispatching_original_handler",
+        "tests/test_temporal_workflow_nodes_configuration.py::test_async_node_factory_client_is_closed_by_original_assembly_owner",
+        "tests/test_temporal_workflow_nodes_configuration.py::test_empty_provider_profile_still_requires_explicit_node_component",
+        "tests/test_temporal_workflow_nodes_configuration.py::test_invalid_node_adapter_is_preflighted_before_any_factory_io",
+        "tests/test_temporal_workflow_nodes_configuration.py::test_pure_node_profile_builds_without_provider_or_local_execution_store",
+        "tests/test_temporal_workflow_nodes_configuration.py::test_temporal_node_catalog_json_and_toml_have_same_fixed_profile",
+        "tests/test_temporal_workflow_nodes_sandbox.py::test_original_sdk_activation_loads_node_rules_without_dynamic_import_warning[relf_agent.temporal_parent_workflow]",
+        "tests/test_temporal_workflow_nodes_sandbox.py::test_original_sdk_activation_loads_node_rules_without_dynamic_import_warning[relf_agent.temporal_session_workflow]",
+        "tests/test_temporal_workflow_nodes_sandbox.py::test_original_sdk_activation_loads_node_rules_without_dynamic_import_warning[relf_agent.temporal_workflow]",
+        "tests/test_temporal_workflow_nodes_service.py::test_actual_installed_default_example_repeats_original_submission",
+        "tests/test_temporal_workflow_nodes_service.py::test_actual_node_approval_survives_process_restart",
+        "tests/test_temporal_workflow_nodes_service.py::test_actual_node_cancel_retains_live_handler_and_close_retries",
+        "tests/test_temporal_workflow_nodes_service.py::test_actual_node_graphs_are_model_free_except_explicit_agent[dynamic]",
+        "tests/test_temporal_workflow_nodes_service.py::test_actual_node_graphs_are_model_free_except_explicit_agent[mixed]",
+        "tests/test_temporal_workflow_nodes_service.py::test_actual_node_graphs_are_model_free_except_explicit_agent[parallel]",
+        "tests/test_temporal_workflow_nodes_service.py::test_actual_node_graphs_are_model_free_except_explicit_agent[serial-null]",
+        "tests/test_temporal_workflow_nodes_service.py::test_actual_node_graphs_are_model_free_except_explicit_agent[serial]",
+        "tests/test_temporal_workflow_nodes_service.py::test_actual_node_graphs_are_model_free_except_explicit_agent[team]",
+        "tests/test_temporal_workflow_nodes_service.py::test_actual_node_worker_crash_preserves_real_end_and_receipt_boundaries[commit-crash]",
+        "tests/test_temporal_workflow_nodes_service.py::test_actual_node_worker_crash_preserves_real_end_and_receipt_boundaries[receipt-crash]",
+        "tests/test_temporal_workflow_nodes_service.py::test_actual_node_write_receipts_remain_original_without_reexecution[invalid-write]",
+        "tests/test_temporal_workflow_nodes_service.py::test_actual_node_write_receipts_remain_original_without_reexecution[unknown]",
+        "tests/test_temporal_workflow_nodes_state.py::test_activity_envelope_requires_original_node_identity[arguments]",
+        "tests/test_temporal_workflow_nodes_state.py::test_activity_envelope_requires_original_node_identity[command]",
+        "tests/test_temporal_workflow_nodes_state.py::test_activity_envelope_requires_original_node_identity[effect]",
+        "tests/test_temporal_workflow_nodes_state.py::test_activity_envelope_requires_original_node_identity[parent]",
+        "tests/test_temporal_workflow_nodes_state.py::test_activity_envelope_requires_original_node_identity[release]",
+        "tests/test_temporal_workflow_nodes_state.py::test_activity_envelope_requires_original_node_identity[run]",
+        "tests/test_temporal_workflow_nodes_state.py::test_activity_envelope_requires_original_node_identity[scope]",
+        "tests/test_temporal_workflow_nodes_state.py::test_activity_envelope_requires_original_node_identity[tool]",
+        "tests/test_temporal_workflow_nodes_state.py::test_actual_workflow_parent_accepts_one_original_node_child",
+        "tests/test_temporal_workflow_nodes_state.py::test_actual_workflow_parent_must_match_original_node_origin[None]",
+        "tests/test_temporal_workflow_nodes_state.py::test_actual_workflow_parent_must_match_original_node_origin[parent1]",
+        "tests/test_temporal_workflow_nodes_state.py::test_actual_workflow_parent_must_match_original_node_origin[parent2]",
+        "tests/test_temporal_workflow_nodes_state.py::test_approval_replay_keeps_one_action_and_original_effect_key",
+        "tests/test_temporal_workflow_nodes_state.py::test_cancelled_node_does_not_become_successful_after_late_receipt",
+        "tests/test_temporal_workflow_nodes_state.py::test_deferred_node_ack_blocks_success_until_original_ack_retry",
+        "tests/test_temporal_workflow_nodes_state.py::test_graph_host_tool_allowlist_refuses_node_before_child_admission[False]",
+        "tests/test_temporal_workflow_nodes_state.py::test_graph_host_tool_allowlist_refuses_node_before_child_admission[True]",
+        "tests/test_temporal_workflow_nodes_state.py::test_graph_projects_private_child_and_keeps_original_parent_capacity",
+        "tests/test_temporal_workflow_nodes_state.py::test_insufficient_node_budget_never_creates_child_intent",
+        "tests/test_temporal_workflow_nodes_state.py::test_output_schema_failure_keeps_confirmed_receipt_and_never_repeats_tool",
+        "tests/test_temporal_workflow_nodes_state.py::test_parent_reserves_exact_node_cost_in_original_child_escrow[0]",
+        "tests/test_temporal_workflow_nodes_state.py::test_parent_reserves_exact_node_cost_in_original_child_escrow[1]",
+        "tests/test_temporal_workflow_nodes_state.py::test_parent_reserves_exact_node_cost_in_original_child_escrow[9]",
+        "tests/test_temporal_workflow_nodes_state.py::test_pure_node_result_waits_for_actual_end_and_ack_without_model[0]",
+        "tests/test_temporal_workflow_nodes_state.py::test_pure_node_result_waits_for_actual_end_and_ack_without_model[False]",
+        "tests/test_temporal_workflow_nodes_state.py::test_pure_node_result_waits_for_actual_end_and_ack_without_model[None]",
+        "tests/test_temporal_workflow_nodes_state.py::test_pure_node_result_waits_for_actual_end_and_ack_without_model[]",
+        "tests/test_temporal_workflow_nodes_state.py::test_pure_node_result_waits_for_actual_end_and_ack_without_model[value4]",
+        "tests/test_temporal_workflow_nodes_state.py::test_pure_node_result_waits_for_actual_end_and_ack_without_model[value5]",
+        "tests/test_temporal_workflow_nodes_state.py::test_unknown_receipt_never_redispatches_after_manual_effect_confirmation",
+        "tests/test_temporal_workflow_nodes_state.py::test_unmarked_legacy_release_keeps_same_prefix_ordinary_tool_behavior"
+      ],
+      "duplicate_new_ids": 0,
+      "source_snapshot_count": 1557,
+      "source_snapshot_sha256": "07d435718ca7984124a598ce8e6f1d0b7b8c65fa6b50784a5e2bfdb2a626add1",
+      "changed_input_paths": [],
+      "original_orchestration_windows": [
+        {
+          "name": "test_real_process_durability_windows_resume_without_replanning_or_duplicate_child[plan_proposal_received]",
+          "seconds": 2.193,
+          "passed": true,
+          "original_child_limit_seconds": 10
+        },
+        {
+          "name": "test_real_process_durability_windows_resume_without_replanning_or_duplicate_child[plan_revision_adopted]",
+          "seconds": 2.562,
+          "passed": true,
+          "original_child_limit_seconds": 10
+        },
+        {
+          "name": "test_real_process_durability_windows_resume_without_replanning_or_duplicate_child[child_submitted]",
+          "seconds": 2.303,
+          "passed": true,
+          "original_child_limit_seconds": 10
+        },
+        {
+          "name": "test_real_process_durability_windows_resume_without_replanning_or_duplicate_child[run_succeeded]",
+          "seconds": 2.321,
+          "passed": true,
+          "original_child_limit_seconds": 10
+        },
+        {
+          "name": "test_real_process_durability_windows_resume_without_replanning_or_duplicate_child[plan_verified]",
+          "seconds": 2.527,
+          "passed": true,
+          "original_child_limit_seconds": 10
+        }
+      ],
+      "orchestration_maxrss_bytes": 646135808,
+      "orchestration_fd_count_range": [
+        44,
+        44
+      ],
+      "host_loadavg_max": [
+        7.9208984375,
+        5.86669921875,
+        5.39453125
+      ],
+      "session_guard": {
+        "pytest_pid": 3809,
+        "guard_pid": 4136,
+        "elapsed": 11.538984290789813
+      },
+      "guard_handoff": {
+        "session_guard_pid": 4136,
+        "elapsed": 15.010434957686812,
+        "outer_guard_reaped": true
+      },
+      "failure_ids": [
+        "tests.test_temporal_session_deployment_evidence_maintenance::test_original_evidence_ack_remains_owned_and_sdk_guarded_after_close"
+      ],
+      "services_skipped_not_claimed_as_service_evidence": true
+    },
+    "fresh_whole_round_after_fixture_correction": false
+  },
+  "fixture_resolution": {
+    "classification": "test-only missing real Runtime fixed manifest field; no Journal dispatch and no product changes",
+    "probe": {
+      "response": {
+        "ok": false,
+        "code": "effect_journal_error"
+      },
+      "caught_errors": [
+        {
+          "type": "AttributeError",
+          "message": "'Runtime' object has no attribute '_manifest'",
+          "traceback": "Traceback (most recent call last):\n  File \"/Users/bytedance/Codex-Projects/ralf-agent/src/relf_agent/temporal_activities.py\", line 1993, in acknowledge_evidence\n    validate_acknowledgement(self, request)\n  File \"/Users/bytedance/Codex-Projects/ralf-agent/src/relf_agent/temporal_node_registration.py\", line 111, in validate_acknowledgement\n    runtime._manifest.get(\"workflow_node_protocol\") == 1 and is_alias(request.get(\"tool\"))\n    ^^^^^^^^^^^^^^^^^\nAttributeError: 'Runtime' object has no attribute '_manifest'. Did you mean: 'manifest'?\n"
+        }
+      ],
+      "fake_runtime_class": "tests.test_temporal_session_deployment_control.Runtime",
+      "fake_has_manifest": true,
+      "fake_has_private_manifest": false,
+      "journal_calls": 0
+    },
+    "correction": {
+      "test_file": "tests/test_temporal_session_deployment_evidence_maintenance.py",
+      "original_sha256": "eacbf8ca53b06446d125239d82110e1864c2687d22bc97126346df67d4e920b2",
+      "corrected_sha256": "15996153f329dd35b917afbde1432a38077e4fce2b7cfa1d99c83866b281991c",
+      "installed_checks": "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-temporal-managed-nodes-20261105-xkl18rt_/checks/tests/test_temporal_session_deployment_evidence_maintenance.py",
+      "reason": "Fake Runtime binds real ACK method but omitted the real Runtime fixed _manifest field",
+      "sdk_product_changes": [],
+      "bundled_sdist_tests_remain_original": true,
+      "source_and_installed_test_ids_unchanged": true
+    },
+    "source": {
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0,
+      "path": "dist/temporal-managed-nodes-20261105/legacy-ack-fixture-source-green.xml",
+      "sha256": "df0becae47e878c8ecb67de58aed759cceb34f2b7f0cca7c3b4f1d06ed67eb6e"
+    },
+    "installed": {
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0,
+      "path": "dist/temporal-managed-nodes-20261105/legacy-ack-fixture-installed-green.xml",
+      "sha256": "5826fd61ecae7fd04286d14cd3193db34820edaacca9c03ff7e862a5d3e479e7"
+    },
+    "same_test_ids": true,
+    "original_full_round_still_contains_one_failure": true
+  },
+  "final_integrity": {
+    "original_artifacts": 300,
+    "changed_artifacts": [],
+    "source_product_files": 459,
+    "changed_products": [],
+    "protected_review_sha256": "997fcb97bfc84d386a844d9afcb5a917f81a9858aa2ac4f8d2e238559570b91e",
+    "persistent_hooks_unchanged": true,
+    "remote_and_main_refs_unchanged": true
+  }
+}

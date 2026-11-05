@@ -178,7 +178,7 @@ dev8 保留 dev6/dev7 的 `local-4`、默认 Manifest、SQLite Schema v1 与调�
 
 [受管理异步节点](managed-async-nodes.md)提供 NodeExecutorSpec／NodeExecutorRegistry 和不要求继承的 async execute(input, config, context) 端口。纯编译器将公开 executor 声明转换为原 Tool v2／并行 v3 节点，私有适配器执行调用，审批、预算、effect_observation 和 ResultCommit 仍由原 Engine 管理。精确匹配原计划／Manifest／注册的编译 alias ToolNode 可执行并可经 from_plan 往返；Agent.tools 与 tool_set binding 不获得这些私有名称。Spec 与节点输出 Schema 在原回执结果保存后校验，失败不抹去效果或重跑写操作。
 
-Registry 借用组件；原 ComponentRegistry.register／register_async 工厂返回注册表，客户端继续使用 BuildContext.own／own_async 或应用负责的 borrowed 生命周期。当前支持 Local 串行、有界并行及 Team／Dynamic 中的嵌套图；Temporal 当前拒绝 executor 图与该 Local 组件。完整 JSON、审批、原 effect_key、重开及重复回执可运行[同一离线示例](../examples/managed_async_nodes.py)，不把离线结果视为真实模型或外部服务验收。
+Registry 借用组件；原 ComponentRegistry.register／register_async 工厂返回注册表，客户端继续使用 BuildContext.own／own_async 或应用负责的 borrowed 生命周期。Local 已支持串行、有界并行及 Team／Dynamic 中的嵌套图；2026-11-05 当前源码另支持由 TemporalRuntime／TemporalProfile 显式配置同一 Registry，沿原 Parent History 调度原 Native 单 Tool 子 Run，范围、组合拒绝及独立验收见 [Temporal 节点指南](temporal-managed-nodes.md)。原 Local 验证包不含此增量。完整 JSON、审批、原 effect_key、重开及重复回执可运行[同一离线示例](../examples/managed_async_nodes.py)，不把离线结果视为真实模型或外部服务验收。
 
 ## DAG, nested execution and remote composition
 

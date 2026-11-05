@@ -43,6 +43,10 @@ class TemporalParentState(TemporalRunState):
         text(command_id, "Command ID")
         credits(request["budget"])
         validate_manifest(manifest)
+        if manifest.get("workflow_node_protocol") == 1:
+            from .temporal_state import validate_request
+
+            validate_request(request, manifest)
         from .temporal_session_state import validate_history
 
         validate_history(request, manifest, scope)
@@ -107,8 +111,9 @@ class TemporalParentState(TemporalRunState):
         initialize(self)
         if self.kind == "graph":
             graph = GraphWorkflowSpec.from_dict(self.definition)
-            if any(node.agent is None for node in graph.nodes):
-                raise ValidationError("Temporal graph supports Agent nodes only")
+            from .temporal_node_protocol import validate_graph
+
+            validate_graph(graph, request, manifest)
             self._adopt_graph(graph)
 
     def _emit(self, kind, data=None, *, bump=True):
@@ -565,6 +570,12 @@ class TemporalParentState(TemporalRunState):
                 for node in [GraphNode.from_dict(n) for n in self.dag["plan"]["nodes"]]
                 if node.id == call.member
             )
+            from .workflow_executors import is_alias
+
+            if is_alias(node.tool) and self.manifest.get("workflow_node_protocol") == 1:
+                from .temporal_node_protocol import child_request
+
+                return child_request(self, node, call.input, cap)
             member = node.agent
         else:
             member = decode_spec(self._member(call.member))
@@ -625,6 +636,16 @@ class TemporalParentState(TemporalRunState):
             if verifier
             else self.child_cap
         )
+        if (
+            not verifier
+            and self.kind == "graph"
+            and self.manifest.get("workflow_node_protocol") == 1
+        ):
+            from .workflow_executors import is_alias
+
+            node = next(n for n in self.dag["plan"]["nodes"] if n["id"] == call.member)
+            if is_alias(node.get("tool")):
+                cap = self.manifest["tools"][node["tool"]]["cost"]
         if cap > self.budget["remaining"]:
             raise ValidationError("Parent budget cannot reserve child cap")
         identity = (

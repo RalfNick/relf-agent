@@ -1,6 +1,14 @@
 # 当前本地交付
 
-更新：2026-11-05。本页是当前 SDK／资料助手私有候选的唯一入口。下方推荐组合保持 2026-11-01 的准确候选，后续 Local 能力按日期小节独立验证，原推荐包不含这些增量。此前源码 `e94c57c` 已使用 RalfNick 合入并推送 main，当时两个所选提交 CI 运行数核对为 0；包仍按本地文件交付，没有创建 Release。其后 `1c5bd47` 及必要祖先已按授权推送至 `codex/callable-preview-fixes`，保留 `[skip ci]`，当时核验 CI 运行数为0；未合入 main 或上传制品。其后 `e317a48` 已按授权推送同一开发分支并保留 `[skip ci]`，核验 CI 运行数为0；main、官网及原制品保持。本轮 2026-11-05 接入边界维护仍仅本地，未推送或公开发布。
+更新：2026-11-05。本页是当前 SDK／资料助手私有候选的唯一入口。下方推荐组合保持 2026-11-01 的准确候选，后续维护与能力增量按日期小节独立验证，原推荐包不含这些增量。此前源码 `e94c57c` 已使用 RalfNick 合入并推送 main，当时两个所选提交 CI 运行数核对为 0；包仍按本地文件交付，没有创建 Release。其后 `1c5bd47` 及必要祖先已按授权推送至 `codex/callable-preview-fixes`，保留 `[skip ci]`，当时核验 CI 运行数为0；未合入 main 或上传制品。其后 `e317a48` 已按授权推送同一开发分支并保留 `[skip ci]`，核验 CI 运行数为0；main、官网及原制品保持。接入边界维护源码其后已随 `8244e38` 按授权推送同一开发分支，保留 `[skip ci]`，未触发远端 CI；该维护验证包仍仅本地。其后的 Temporal 节点增量尚未推送或公开发布。
+
+## 2026-11-05 Temporal 受管理节点
+
+基于 `8244e38` 的当前源码增加无会话的 Temporal `GraphNode(executor=...)`，复用原 NodeExecutorRegistry、Parent History 和 Native 单 Tool 子 Run；支持静态串行／有界并行、显式 Agent 混合图及原 Team／Dynamic 嵌套。默认 identity 与 SDK／Temporal Profile 的工厂装配沿原生命周期；不增加执行权威，完整边界和显式 Service 示例见[使用指南](temporal-managed-nodes.md)。
+
+源码与准确隔离 wheel 的真实 Service／恢复矩阵各13项、同组离线回归各690项通过；原完整轮15479通过／1项旧夹具失败／908条件跳过；该夹具修复后原模块源码／安装各8项通过，459产品未改，未重新执行整轮。验证 SDK 为 `0.1.0a8+tnodes.3675891f64d0664f`，459个产品文件；准确制品、历史失败和所选旧 History 兼容见[本批验收](../architecture/reviews/2026-11-05-temporal-managed-nodes.md)。这些不授予新的平台／模型质量资格。Session／Turn／native history、Coding composition、部署准入及 parent completion 组合继续拒绝。旧 Coding History 固定纯实现指纹，须保留原包／匹配 Worker，不保证使用新 Worker 透明回放。
+
+下方原推荐 SDK／应用、Local 节点验证包、接入边界验证包及原 a8 全部保持原字节和原验收范围，均不包含本批节点能力。新的 Temporal 增量尚未推送、上传制品或公开发布；本包仅为本能力本地验证，不替换原推荐组合；不使用之前15397项或旧 Service成绩代签。
 
 ## 2026-11-05 接入边界维护
 

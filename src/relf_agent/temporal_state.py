@@ -248,7 +248,10 @@ def validate_manifest(manifest):
     for key in ("tools", "providers", "harness", "context_builder", "tool_executor", "policy"):
         if not isinstance(manifest.get(key), dict):
             raise ValidationError(f"Temporal runtime release requires {key}")
-    if not manifest["providers"]:
+    from .temporal_node_protocol import validate_protocol as validate_nodes
+
+    validate_nodes(manifest)
+    if not manifest["providers"] and manifest.get("workflow_node_protocol") != 1:
         raise ValidationError("Temporal runtime requires explicit providers")
     for name, identity in manifest["providers"].items():
         text(name, "Provider name")
@@ -288,6 +291,21 @@ def validate_request(request, manifest):
     if request.get("session_id") is not None:
         raise ValidationError("Temporal shared sessions are not supported")
     definition = request["definition"]
+    from .temporal_node_protocol import MARKER, is_node_request, validate_node_request
+
+    if is_node_request(request):
+        validate_node_request(request, manifest)
+        policy = (
+            TemporalExecutionPolicy.from_identity(manifest["execution_policy"])
+            if "execution_policy" in manifest
+            else TemporalExecutionPolicy()
+        )
+        alias = definition["steps"][0]["tool"]
+        if policy.allowed_tools is not None and alias not in policy.allowed_tools:
+            raise ValidationError("Tool forbidden by execution policy")
+        return
+    if MARKER in request:
+        raise ValidationError("Ordinary Agent cannot import a private node origin")
     policy = (
         TemporalExecutionPolicy.from_identity(manifest["execution_policy"])
         if "execution_policy" in manifest
@@ -314,8 +332,9 @@ def validate_request(request, manifest):
             kind = current.get("kind", "agent")
             if kind == "graph":
                 graph = GraphWorkflowSpec.from_dict(current)
-                if any(node.agent is None for node in graph.nodes):
-                    raise ValidationError("Temporal graph supports Agent nodes only")
+                from .temporal_node_protocol import validate_graph
+
+                validate_graph(graph, request, manifest)
                 for node in graph.nodes:
                     validate_schema_references(node.output_schema)
                 validate_schema_references(graph.to_dict()["output_schema"])
@@ -408,6 +427,11 @@ def validate_request(request, manifest):
         raise DefinitionMismatch("Temporal Coding requires original Agent or sequence topology")
     for value in steps:
         spec = AgentSpec(**value)
+        if manifest.get("workflow_node_protocol") == 1:
+            from .workflow_executors import is_alias
+
+            if any(is_alias(name) for name in spec.tools):
+                raise ValidationError("Agent cannot select private Workflow node tools")
         validate_coding_selection(manifest, spec.tools)
         validate_schema_references(spec.output_schema)
         if spec.provider not in manifest["providers"]:
@@ -440,8 +464,12 @@ class TemporalRunState:
         self.request, self.manifest = detached(request), manifest
         validate_session_history(request, manifest, scope)
         from .temporal_bindings import request_release_digest, validate_bindings
+        from .temporal_node_protocol import is_node_request, validate_node_identity
 
-        validate_bindings(request, manifest, scope)
+        if is_node_request(request):
+            validate_node_identity(request, scope, run_id, command_id)
+        else:
+            validate_bindings(request, manifest, scope)
         self.release_digest = request_release_digest(request, manifest)
         from .temporal_user_input import initialize as initialize_inputs
 
@@ -464,7 +492,9 @@ class TemporalRunState:
         self.current_task = detached(request["input"])
         self.native_history_episodes = []
         self.native_history_snapshots = {}
-        self.messages = self._turn_messages(self.step, request["input"])
+        self.messages = (
+            [] if is_node_request(request) else self._turn_messages(self.step, request["input"])
+        )
         self.receipts, self.command_digests, self.event_log = {}, {}, []
         self.reservations, self.pending_acks = {}, []
         self.active_action, self.remote_uncertain = None, False
@@ -493,6 +523,10 @@ class TemporalRunState:
 
     @property
     def step(self):
+        from .temporal_node_protocol import is_node_request
+
+        if is_node_request(self.request):
+            return self.request["definition"]["steps"][0]
         from .temporal_bindings import effective_step
 
         step = effective_step(
@@ -504,12 +538,20 @@ class TemporalRunState:
 
     @property
     def step_bindings(self):
+        from .temporal_node_protocol import is_node_request
+
+        if is_node_request(self.request):
+            return {}
         from .temporal_bindings import step_descriptor
 
         return step_descriptor(self.request, self.node)
 
     @property
     def step_manifest(self):
+        from .temporal_node_protocol import is_node_request
+
+        if is_node_request(self.request):
+            return self.manifest
         from .temporal_bindings import effective_manifest
 
         return effective_manifest(self.manifest, self.step_bindings)
@@ -794,7 +836,12 @@ class TemporalRunState:
                 "reconciliation_pending": bool(
                     self.reconcile_requests or self.active_reconciliation
                 ),
-                "evidence_ack_pending": bool(self.pending_acks or self.active_evidence_ack),
+                "evidence_ack_pending": bool(
+                    self.pending_acks
+                    or self.active_evidence_ack
+                    or self.request["definition"]["kind"] == "executor"
+                    and self.deferred_acks
+                ),
                 "deferred_evidence_acks": len(self.deferred_acks),
                 **(
                     {"tool_executions": detached(list(self.tool_executions.values()))}
@@ -854,6 +901,11 @@ class TemporalRunState:
             "arguments": detached(action["arguments"]),
             "operation_digest": action["digest"],
             **(
+                {"node_request": detached(self.request)}
+                if self.request["definition"]["kind"] == "executor"
+                else {}
+            ),
+            **(
                 {"release_digest": self.release_digest}
                 if "tool_execution_protocol" in self.manifest or "stream_updates" in self.manifest
                 else {}
@@ -892,6 +944,10 @@ class TemporalRunState:
             return None
         if any(not value["execution_stopped"] for value in self.tool_executions.values()):
             return None
+        if self.request["definition"]["kind"] == "executor":
+            from .temporal_node_state import next_operation
+
+            return next_operation(self)
         if str(self.node) in self.session_stages:
             # An accepted completion already owns this node. A held save may
             # only resume through its original recovery phases, never a model.
@@ -1666,6 +1722,8 @@ class TemporalRunState:
         )
         if self.state not in TERMINAL and self.state != "cancelling":
             self.state, self.error = "running", None
+            if self.request["definition"]["kind"] == "executor":
+                return
             message = {
                 "role": "tool",
                 "tool_call_id": action["call_id"],

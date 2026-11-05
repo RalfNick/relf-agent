@@ -31,6 +31,8 @@ with workflow.unsafe.imports_passed_through():
         temporal_deployment_session_updates,  # noqa: F401 -- Registry-owned SDK commit path
         temporal_execution_end_transport,  # noqa: F401 -- original physical end observations
         temporal_manual_recovery,  # noqa: F401 -- original Action recovery proof
+        temporal_node_protocol,  # noqa: F401 -- fixed pure node admission
+        temporal_node_state,  # noqa: F401 -- original ToolAction node proposal
         temporal_parent_completion_state,  # noqa: F401 -- preload pure parent release gates
         temporal_parent_state,  # noqa: F401 -- fixed original child addressing
         temporal_public_manual_transport,  # noqa: F401 -- original public Action verification
@@ -88,6 +90,7 @@ class TemporalRunWorkflow:
             info.run_id,
         )
         self.wake_revision = 0
+        self._check_node_parent(info)
         self._check_session_parent(info)
         if self.state.manifest.get("deployment_admission_protocol", {}).get("version") == 4:
             self._initialize_deployment(accepted, info)
@@ -118,6 +121,24 @@ class TemporalRunWorkflow:
         self._deployment_parent_notification_retry = False
         self._deployment_parent_notification_attempts = 0
         self._deployment_notification_revisions = 0
+
+    def _check_node_parent(self, info):
+        from .temporal_node_protocol import MARKER, is_node_request
+
+        if not is_node_request(self.state.request):
+            return
+        origin = self.state.request[MARKER]
+        parent = getattr(info, "parent", None)
+        if (
+            parent is None
+            or getattr(parent, "workflow_id", None) != origin["parent_run_id"]
+            or getattr(parent, "run_id", None) != origin["parent_execution_epoch"]
+        ):
+            raise ApplicationError(
+                "Node Workflow requires its original actual parent execution",
+                type="definition_mismatch",
+                non_retryable=True,
+            )
 
     def _deployment_notifications_selected(self):
         return deployment_coding_state.selected(self.state.manifest) and hasattr(

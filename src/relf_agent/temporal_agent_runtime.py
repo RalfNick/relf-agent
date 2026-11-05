@@ -143,6 +143,11 @@ class TemporalClientRuntime(Runtime):
         )
         return {
             "schema_version": 1,
+            **(
+                {"managed_workflow_nodes": True, "workflow_node_sessions": False}
+                if self.engine.release.get("workflow_node_protocol") == 1
+                else {}
+            ),
             "local_hosting": False,
             "observation_only_wait": True,
             "shared_sessions": sessions,

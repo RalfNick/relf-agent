@@ -17,7 +17,6 @@ LOCAL_COMPONENTS = frozenset(
         "workflow_interpreter",
         "workflow_scheduler",
         "workflow_transforms",
-        "workflow_executors",
     }
 )
 EXECUTION_FLAGS = frozenset(
@@ -61,8 +60,6 @@ class TemporalProfile:
         binding_components=None,
         execution=None,
     ):
-        if isinstance(providers, dict) and not providers:
-            raise ValidationError("A Temporal profile requires at least one provider")
         temporal_components = {}
         if type(components) is dict:
             temporal_components = {
@@ -74,6 +71,10 @@ class TemporalProfile:
                 key: value for key, value in components.items() if key not in temporal_components
             }
         original = RuntimeProfile(name, version, providers, components, binding_components)
+        if not original.providers and "workflow_executors" not in original.components:
+            raise ValidationError(
+                "A Temporal profile requires a provider or explicit Workflow nodes"
+            )
         if set(original.components) & LOCAL_COMPONENTS:
             raise ValidationError("Local execution components cannot configure Temporal authority")
         execution = {} if execution is None else execution

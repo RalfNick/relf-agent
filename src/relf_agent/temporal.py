@@ -869,6 +869,8 @@ def _workflow_runner():
             "httpx",
             "jsonschema",
             "relf_agent.temporal_bindings",
+            "relf_agent.temporal_node_protocol",
+            "relf_agent.temporal_node_state",
             "relf_agent.temporal_context",
             "relf_agent.model_history",
             "relf_agent.user_input",

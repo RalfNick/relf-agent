@@ -2,7 +2,7 @@
 
 `GraphNode(executor=...)` 将完整 JSON 输入、独立 config 和原 `InvocationContext` 交给显式注册的异步组件。节点复用原 Action、审批、预算、效果核验和恢复日志，不需要模型，也不要求组件继承框架类。需要使用包含本能力的开发源码或验证安装包；原发行包的资格不能自动转用于本批能力；准确版本、安装验证及范围见[本批记录](../architecture/reviews/2026-11-04-managed-async-nodes.md)。
 
-当前范围是 Local 单 Coordinator 的串行图、有界并行图，以及原 Team／Dynamic 中的嵌套图。Temporal 当前拒绝 executor 节点及 `workflow_executors` Local Profile 组件，包括嵌套定义。本页的离线 SQLite 示例不代表真实模型、业务服务或 Temporal Service 已验收。
+本页介绍 Local 单 Coordinator 的串行图、有界并行图，以及原 Team／Dynamic 中的嵌套图。2026-11-05 维护源码另增加显式启用的 [Temporal 受管理节点](temporal-managed-nodes.md)：复用同一 Registry，沿原 Parent History 和 Native 单 Tool 子 Run 执行，限于无会话组合。源码／准确隔离 wheel 各13项真实 Service 测试及各690项同组回归已通过，原完整源码回归为15479通过／1失败／908跳过；唯一失败确认为旧 ACK 测试夹具缺少 `_manifest`，仅补夹具后源码／准确安装原模块各8项通过，产品459文件未变，未重跑整轮，见[独立验收](../architecture/reviews/2026-11-05-temporal-managed-nodes.md)。原 Local 节点验证包不含此增量；本页的离线 SQLite 示例不授予真实模型、外部业务服务或 Temporal 资格。
 
 ## 运行同一份离线业务示例
 
@@ -84,7 +84,7 @@ flow = GraphWorkflowSpec(
 
 ## Schema 引用与恢复
 
-维护源码支持 input/config 各自的 `$defs`、本地 `$ref`／`$dynamicRef` 和固定嵌入资源；编译包装保持独立引用根，不自动读取外部文件或 URL。冲突资源 ID 在注册前拒绝。原 Spec 不变，普通无引用 Manifest 保持；含引用的修复会改变对应包装身份，原任务需原版本恢复。详见[Schema 指南](schema-validation.md)与[本批验收](../architecture/reviews/2026-11-05-framework-boundaries.md)。原 nodes2 验证包不含此修复。
+Local 维护源码支持 input/config 各自的 `$defs`、本地 `$ref`／`$dynamicRef` 和固定嵌入资源；编译包装保持独立引用根，不自动读取外部文件或 URL。Temporal 保留原 `#` 引用子集，不继承全部 Local 引用支持。冲突资源 ID 在注册前拒绝。原 Spec 不变，普通无引用 Manifest 保持；含引用的修复会改变对应包装身份，原任务需原版本恢复。详见[Schema 指南](schema-validation.md)与[本批验收](../architecture/reviews/2026-11-05-framework-boundaries.md)。原 nodes2 验证包不含此修复。
 
 ## 默认 identity 的 JSON／TOML 装配
 

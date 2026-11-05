@@ -21,6 +21,8 @@ def environment(monkeypatch):
 
     proof, client = positive_observation()
     runtime = proof.runtime
+    # This fake binds the real ACK method, including its fixed Runtime manifest.
+    runtime._manifest = runtime.manifest
     runtime.orchestration_release = runtime.manifest
     runtime.model_continuation = runtime.coding_execution = False
     runtime.acknowledge_evidence = MethodType(TemporalRuntime.acknowledge_evidence, runtime)

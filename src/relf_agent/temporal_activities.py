@@ -135,6 +135,7 @@ class TemporalRuntime:
         harness=None,
         context_builder=None,
         tool_executor=None,
+        workflow_executors=None,
         journal=None,
         team_strategies=None,
         planners=None,
@@ -317,7 +318,14 @@ class TemporalRuntime:
         )
         self._context_read_closing = False
         from .binding_sandbox import has_sandbox_tools
+        from .temporal_node_registration import configure as configure_nodes
         from .temporal_tool_execution import ToolExecutionRegistration
+
+        configure_nodes(self, workflow_executors, tools)
+        if workflow_executors is not None and tool_execution is None:
+            from .tool_execution import ToolExecutionOwner
+
+            tool_execution = ToolExecutionOwner(version="workflow-node-default-1", max_calls=16)
 
         if tool_execution is None and (
             coding_execution or has_sandbox_tools(tools.manifests(tuple(tools._tools)))
@@ -379,7 +387,7 @@ class TemporalRuntime:
             if session_store is not None
             else []
         )
-        if not isinstance(providers, dict) or not providers:
+        if not isinstance(providers, dict) or (not providers and workflow_executors is None):
             raise ValidationError("Temporal requires explicit model providers")
         if not isinstance(tools, ToolRegistry):
             raise ValidationError("Temporal requires an explicit ToolRegistry")
@@ -624,9 +632,12 @@ class TemporalRuntime:
             tool = self.tools.get(name)
             if tool.spec.effect != "read_only" and self.journal is None:
                 raise ValidationError("Temporal writes require a durable EffectJournal")
+        from .temporal_node_registration import publication as node_publication
+
+        node_tools, node_metadata = node_publication(self)
         result = {
             "kernel": "temporal-1",
-            "tools": self.tools.manifests(names),
+            "tools": {**self.tools.manifests(names), **node_tools},
             "providers": {
                 name: component_identity(p, ("complete",))
                 for name, p in sorted(self.providers.items())
@@ -641,6 +652,7 @@ class TemporalRuntime:
                 self.journal, ("begin", "received", "observation", "acknowledge")
             ),
         }
+        result.update(node_metadata)
         if self.stream_updates is not None:
             from .stream_updates import policy_identity
 
@@ -773,7 +785,9 @@ class TemporalRuntime:
             from .temporal_context_read_protocol import propose, publish
 
             result = (
-                propose if owned_proposal or sandbox_enabled or artifact_enabled else publish
+                propose
+                if owned_proposal or sandbox_enabled or artifact_enabled or node_metadata
+                else publish
             )(result, self._context_execution_pin)
             bridges = {
                 digest(pin.physical): pin.dataset_bridge_fixed.identity
@@ -788,7 +802,7 @@ class TemporalRuntime:
 
             result = (
                 propose_tool_execution
-                if owned_proposal or sandbox_enabled or artifact_enabled
+                if owned_proposal or sandbox_enabled or artifact_enabled or node_metadata
                 else publish_tool_execution
             )(result, self._tool_execution_pin)
 
@@ -1201,6 +1215,10 @@ class TemporalRuntime:
         # without evaluating those identity getters again.
         result = self.manifest
         check_capability_bindings()
+        if self._workflow_nodes_pin is not None:
+            from .temporal_node_registration import registered as registered_nodes
+
+            registered_nodes(self)
         for component, name, (raw, functions) in port_pins:
             current, live_functions = static_port(component, name)
             if (
@@ -1855,7 +1873,9 @@ class TemporalRuntime:
         envelope = DispatchEnvelope(
             context, request["tool_manifest"], request["arguments"], request["operation_digest"]
         )
-        tool = self.tools.get(request["tool"])
+        from .temporal_node_registration import resolve as resolve_node_tool
+
+        tool = resolve_node_tool(self, request)
         if envelope.tool_name != request["tool"] or digest(tool.manifest) != digest(
             envelope.tool_manifest
         ):
@@ -1914,8 +1934,10 @@ class TemporalRuntime:
                     return {"ok": False, "code": "effect_outcome_unknown", "dispatched": True}
             self.validate_release(request["runtime_manifest"])
             dispatched = True
+            from .temporal_node_registration import executor as node_executor
+
             observation = _observation(
-                await self.executor.execute(envelope), "ToolExecutor.execute"
+                await node_executor(self, request).execute(envelope), "ToolExecutor.execute"
             )
             if not isinstance(observation, EffectObservation):
                 raise ValidationError("ToolExecutor.execute must return EffectObservation")
@@ -1941,10 +1963,12 @@ class TemporalRuntime:
                 )
             )
             if observation is None:
+                from .temporal_node_registration import executor as node_executor
+
                 # Query only. Never execute the original handler for an unknown
                 # read/write, including tools advertised as idempotent.
                 observation = _observation(
-                    await self.executor.reconcile(envelope), "ToolExecutor.reconcile"
+                    await node_executor(self, request).reconcile(envelope), "ToolExecutor.reconcile"
                 )
             if observation is None:
                 return {"ok": False, "code": "effect_unverified", "dispatched": False}
@@ -1964,6 +1988,9 @@ class TemporalRuntime:
         try:
             # Manual evidence does not run Policy, model, or original handler.
             self.validate_release(request["runtime_manifest"])
+            from .temporal_node_registration import validate_acknowledgement
+
+            validate_acknowledgement(self, request)
             if self.journal is not None:
                 context = InvocationContext(
                     Scope(**request["scope"]),

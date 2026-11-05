@@ -141,7 +141,9 @@ def test_temporal_profile_rejects_local_executor_component_before_factory():
             "nodes",
             "1",
             {"default": {"adapter": "offline-echo"}},
-            {"workflow_executors": {"adapter": "identity"}},
+            # Node executors are shared now; selecting a Local compiler still
+            # cannot change Temporal's execution authority.
+            {"workflow_compiler": {"adapter": "static"}},
         )
 
 

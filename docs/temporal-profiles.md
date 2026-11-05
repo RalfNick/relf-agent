@@ -7,6 +7,8 @@ dev70 增加多版本 `TemporalProfileHost`，保留原队列并按原 Run／Ses
 最终证据见[dev70 验收](../architecture/reviews/2026-10-11-temporal-profile-host.md)，
 单版本历史证据见[dev69 验收](../architecture/reviews/2026-10-11-temporal-profile-assembly.md)。
 
+2026-11-05 维护源码新增可选 `workflow_executors` 组件，复用原同步／异步工厂和 owned／borrowed 资源台账；默认 adapter=`identity`、空 config。仅显式配置该组件时允许 `providers={}`，实际 Agent 仍需有效 Provider。图限于无会话的受管理 executor 组合；源码／准确隔离 wheel 各13项真实 Service 和各690项同组回归已通过，原完整源码回归为15479通过／1失败／908跳过；唯一失败确认为旧 ACK 测试夹具缺少 `_manifest`，仅补夹具后源码／准确安装原模块各8项通过，产品459文件未变，未重跑整轮，见[本批验收](../architecture/reviews/2026-11-05-temporal-managed-nodes.md)。原包不含此增量；完整配置及限制见 [Temporal 节点](temporal-managed-nodes.md)。
+
 ## 安装与最小示例
 
 ```sh
@@ -104,7 +106,7 @@ Catalog 必须显式使用 `kind="temporal-profiles"`、`schema_version=1`、
 明确提供；配置远程连接只引用环境变量名称，不写密钥。
 
 支持的组件包括 tools、session_store、memory_store、context_assembler、harness、effect_journal、
-tool_executor、recall_policy、recall_planner、knowledge、team_strategies、planners、
+tool_executor、workflow_executors（当前源码）、recall_policy、recall_planner、knowledge、team_strategies、planners、
 plan_verifiers、verifier、limits、stage_policy；`memory_store` 接到 Facts，
 `context_assembler` 接到纯 ContextBuilder。十一类 `binding_components` 使用原 BindingCatalog，
 包括 Provider、决策、上下文、Session、Facts、Knowledge、工具集合、Verifier、Limits、Stage、只读 Workspace。Workspace 复用已注册 tools，声明方式与 protocol1 opt-in 见[Workspace 指南](workspace.md)。

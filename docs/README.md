@@ -91,6 +91,7 @@
 ### Temporal
 
 - **起步与装配：** [独立执行](temporal-execution.md)、[分布式编排](temporal-composition.md)、[Agent API](temporal-agent-api.md)、[Profile／Host](temporal-profiles.md)、[执行期限与策略](temporal-execution-policy.md)。
+- **受管理异步节点：** [Temporal executor 图](temporal-managed-nodes.md)，原 Parent History／单 Tool 子 Run、stateless 限制及显式 [Service 示例](../examples/temporal_managed_nodes.py)；当前源码／准确隔离 wheel 的有限真实 Service、恢复与安装范围见[独立验收](../architecture/reviews/2026-11-05-temporal-managed-nodes.md)。
 - **策略与生命周期：** [执行限制](temporal-agent-limits.md)、[完成验证](temporal-completion-verification.md)、[DecisionPolicy](temporal-decision-policy.md)、[工具真实执行生命周期](temporal-tool-execution.md)。
 - **记忆与知识：** [自动记忆绑定](temporal-memory-bindings.md)、[Facts 召回](temporal-facts.md)、[Knowledge namespace](temporal-knowledge-bindings.md)。
 - **会话：** [Session／Turn](temporal-sessions.md)、[固定会话读取](temporal-session-data-reads.md)、[外置会话保存](temporal-session-data-writes.md)、[根／成员会话树](temporal-session-trees.md)。

@@ -1,6 +1,6 @@
 # 可替换端口与版本化配置装配
 
-**2026-11-04 Local 节点装配：** 当前维护源码及[本批验证包](../architecture/reviews/2026-11-04-managed-async-nodes.md)支持可选 `workflow_executors`，默认 identity 注册表和第三方同步／异步工厂沿原资源台账装配，见[节点指南](managed-async-nodes.md)。Temporal 仍拒绝此 Local 组件；下方原 a8 准备状态保留其历史范围。
+**2026-11-05 节点装配：** Local 已验证可选 `workflow_executors`，见[节点指南](managed-async-nodes.md)及[原验证包](../architecture/reviews/2026-11-04-managed-async-nodes.md)。当前源码另支持由 `TemporalProfile`／`TemporalRuntimeBuilder.abuild` 显式装配同一 Registry，默认 identity 和同步／异步工厂复用原资源台账，见[Temporal 节点](temporal-managed-nodes.md)。后者限于无会话组合，源码／准确隔离 wheel 各13项真实 Service 与各690项同组回归已通过，原完整源码回归为15479通过／1失败／908跳过；唯一失败确认为旧 ACK 测试夹具缺少 `_manifest`，仅补夹具后源码／准确安装原模块各8项通过，产品459文件未变，未重跑整轮，见[本批验收](../architecture/reviews/2026-11-05-temporal-managed-nodes.md)；原包和下方 a8 历史范围保持。
 
 **当前a8准备（2026-10-26）：** 纳入`ac92006`／`7e9fac1`的既有扩展失败清理修复，不增加或关闭长期R项。新制品、安装／平台资格与外部待办见[a8清单](alpha8-validation-status.md)及[唯一交付摘要](implementation-status.md#当前交付摘要)。原a7、私有维护验证包与下方各历史批次的成绩不授予a8。本轮仅本地提交，不推送、触发远端CI或公开发布。
 
@@ -57,7 +57,7 @@ max_pages = 1
 
 JSON 使用同样的 schema_version/default/profiles 结构。本节 schema_version=1 的基础 Profile 包含 name、version、providers、components；每个组件包含 adapter 和可选 config。每 Agent 的 binding_components 使用已有 schema_version=2 声明，不能直接放入版本1目录。配置是有限 JSON；重复 JSON 键、未知字段和未注册适配器被拒绝。配置文件上限 1 MB，不执行 Python、不动态导入插件，也不使用 eval。
 
-本批维护 SDK 允许 Local Profile 显式声明 `providers = {}`，用于仅由 Tool／Transform／NodeExecutor 构成的有限流程，见[安装后异步工具示例](managed-tools.md#安装后配置异步-tool-流程)和[受管理异步节点装配](managed-async-nodes.md)。providers 字段仍必填；实际 Agent 节点必须能解析出有效 Provider，缺失时在 Run 接受前拒绝。空映射没有隐式模型，也不改变非空 Profile 的规范化或身份。TemporalProfile 保留非空 Provider 要求；旧 SDK 不支持此新声明，不能用旧包恢复它。
+本批维护 SDK 允许 Local Profile 显式声明 `providers = {}`，用于仅由 Tool／Transform／NodeExecutor 构成的有限流程，见[安装后异步工具示例](managed-tools.md#安装后配置异步-tool-流程)和[受管理异步节点装配](managed-async-nodes.md)。providers 字段仍必填；实际 Agent 节点必须能解析出有效 Provider，缺失时在 Run 接受前拒绝。空映射没有隐式模型，也不改变非空 Profile 的规范化或身份。2026-11-05 源码的 TemporalProfile 仅在显式声明 `workflow_executors` 时允许空 Provider 映射；不开放普通 Tool／Transform 图。旧 SDK 不支持这些新声明，不能用旧包恢复它们。
 
 `RuntimeProfile` 保存独立配置快照，读取 providers/components 返回副本。`RuntimeCatalog.register` 不允许相同 name/version 对应不同内容；`set_default` 只改变新任务选择。原 Run 保存 profile 身份摘要，`resolve` 必须精确匹配。应保留原声明、原适配器代码版本与原数据；Catalog 不归档 Python 代码、外部服务或数据库，也不自动迁移它们。
 
@@ -70,7 +70,7 @@ JSON 使用同样的 schema_version/default/profiles 结构。本节 schema_vers
 | components.context_assembler | default | ContextAssembler，当前不接受配置参数 |
 | components.harness | native | NativeHarness |
 | components.tool_executor | python | PythonToolExecutor，使用已构造的工具注册表 |
-| components.workflow_executors | identity | 构造含 identity 异步节点的 NodeExecutorRegistry；仅空工厂 config，完整 JSON 输入复制；Local 图选中注册后固定身份 |
+| components.workflow_executors | identity | 构造含 identity 异步节点的 NodeExecutorRegistry；仅空工厂 config，完整 JSON 输入复制；Local 选中注册固定身份，Temporal 显式发布固定全部注册，当前源码／准确节点验证包的有限范围见[验收](../architecture/reviews/2026-11-05-temporal-managed-nodes.md) |
 | components.conversation_resource | colocated-session | 宿主复合根会话；仅 namespaces/default_namespace，同执行连接；构造不升级数据 schema |
 | components.session_store / memory_store | sqlite / in-memory | 默认省略时共享执行库；显式 sqlite 可指定 path |
 | components.recall_policy | bounded-recall | facts/session 的 RecallQuery 与 max_pages |
@@ -153,9 +153,9 @@ Profile 的 components 可配置 `workflow_compiler`（adapter=`static`）、`wo
 
 异步执行节点通过 `workflow_executors` 组件选择注册表，图使用 `GraphNode(executor="name", input=..., config=...)`。默认 adapter=`identity` 只接受空工厂 config；替换工厂沿原 `ComponentRegistry.register`／`register_async` 返回 NodeExecutorRegistry。Registry 借用实际组件，客户端由应用关闭，或在创建时通过原 BuildContext.own／own_async 登记；异步 owned 客户端使用 abuild 与 aclose。完整 JSON／TOML 默认配置和同一离线业务工厂见[异步节点指南](managed-async-nodes.md)与[示例](../examples/managed_async_nodes.py)。
 
-executor 声明纯转换为原 Tool v2／并行 v3 计划，沿原 Action、审批、预算与接收采纳执行；普通 ToolExecutor 不接管私有节点适配器。精确匹配计划／Manifest／注册的编译 ToolNode alias 可以运行及 from_plan 往返，Agent.tools 与 tool_set binding 不开放私有 alias。Local 串行、有界并行及嵌套图支持此组件；TemporalProfile 和 Temporal executor 图入口当前拒绝。
+Local executor 声明纯转换为原 Tool v2／并行 v3 计划，沿原 Action、审批、预算与接收采纳执行；普通 ToolExecutor 不接管私有节点适配器。精确匹配计划／Manifest／注册的编译 ToolNode alias 可以运行及 from_plan 往返，Agent.tools 与 tool_set binding 不开放私有 alias。Local 串行、有界并行及嵌套图支持此组件。Temporal 当前源码通过自己的 Profile／Assembly 装配 Registry，沿原 Parent History 调度 Native 单 Tool 子 Run；无模型、无 LocalEngine，且保留 [stateless 组合限制与独立验收](temporal-managed-nodes.md)。
 
-计划只在首次接受命令时编译；恢复固定原计划、组件身份与 profile。Python 自定义组件、分支合并、串行边界与[静态 Workflow 教程](static-workflows.md)一致。未被图使用的变换／executor 注册不进入其执行 Manifest；已启用的 profile 声明仍须完整保留。
+Local 计划只在首次接受命令时编译；恢复固定原计划、组件身份与 profile。Python 自定义组件、分支合并、串行边界与[静态 Workflow 教程](static-workflows.md)一致。Local 未被图使用的变换／executor 注册不进入其执行 Manifest；已启用的 profile 声明仍须完整保留。Temporal 节点发布固定全部注册，恢复必须保留其原发布与 Worker，不沿用 Local 的按图选取规则。
 
 有界并行图可配置 `workflow_scheduler`，默认 adapter=`static-ready`，接受空配置。显式工厂返回纯同步 WorkflowScheduler；身份只加入 v3 图 Manifest，见[并行指南](parallel-workflows.md)。
 

@@ -635,6 +635,11 @@ def capabilities(manifest):
         r["configuration"] for r in manifest.get("binding_catalog", {}).get("records", {}).values()
     ]
     return {
+        **(
+            {"managed_workflow_nodes": True, "workflow_node_sessions": False}
+            if manifest.get("workflow_node_protocol") == 1
+            else {}
+        ),
         "context_read_lifetime": "context_read_protocol" in manifest,
         "per_agent_bindings": manifest["kernel"] == "temporal-3",
         "automatic_memory": any("managed_memory" in c for c in configurations),
