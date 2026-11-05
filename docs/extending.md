@@ -6,6 +6,10 @@
 
 完整目标要求每层交付公共契约、默认实现、替换示例和共同验收，见[通用框架能力矩阵](../architecture/viewpoints/framework-capabilities.md)。静态图／并行、动态规划／团队和远程数据已有实现，分别见[静态 Workflow](static-workflows.md)、[编排](orchestration.md)与[远程数据](remote-data.md)。默认实现不一定默认启用；每 Agent 能力绑定、推荐组合与 Local/Temporal 契约差异见[整体审查](../architecture/reviews/2026-10-08-agent-framework-alignment.md)。下表以本地装配契约为主，Temporal 支持范围单独声明。
 
+## 固定 Schema 与升级
+
+公共动态参数／输出校验不自动下载外部 Schema，允许声明内固定资源。受管理节点 input/config 的独立引用根、资源 ID 冲突拒绝，以及 typed 工具代码升级的原 Run 恢复限制，见[Schema 指南](schema-validation.md)。这不会将 Schema 验证变成网络权限或自动迁移。
+
 ## 先选择扩展方式
 
 默认 starter 现在提供可编辑的 `agent_app/journey.py`／`customize.py`：先从三个应用注入位置替换 Provider、异步工具表、同步／异步记忆，不必先实现下方全部端口。运行方式、借用资源及临时记忆限制见[连续示例](support-journey.md#继续定制与恢复)。这些函数属于用户应用，不增加 SDK 抽象、动态模块加载或新的执行权威。

@@ -11,6 +11,7 @@ from jsonschema.exceptions import SchemaError
 from .component_fingerprint import _code
 from .errors import DefinitionMismatch, ValidationError
 from .responses_format import LOCAL_SCHEMA_REGISTRY
+from .schema_validation import is_valid
 from .tool_schema import default_values, function_signature, infer_tool_schema
 from .types import canonical, digest
 
@@ -82,13 +83,11 @@ class TypedFunctionHandler:
             raise DefinitionMismatch("Typed tool implementation changed")
         if not isinstance(arguments, dict) or self.context_parameter in arguments:
             raise ValidationError("Typed arguments cannot replace host context")
-        validator = Draft202012Validator(
-            json.loads(self._schema_json), registry=LOCAL_SCHEMA_REGISTRY
-        )
-        if not validator.is_valid(arguments):
+        schema = json.loads(self._schema_json)
+        if not is_valid(arguments, schema):
             raise ValidationError("Typed arguments do not match Schema")
         values = {**json.loads(self._defaults_json), **copy.deepcopy(arguments)}
-        if not validator.is_valid(values):
+        if not is_valid(values, schema):
             raise ValidationError("Effective typed arguments do not match Schema")
         return values
 

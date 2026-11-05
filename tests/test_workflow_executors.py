@@ -317,6 +317,141 @@ def test_falsey_async_callable_reconciler_still_reports_confirmed_null():
     assert observed.result is None and observed.source == "confirmed-null"
 
 
+@pytest.mark.parametrize("location", ["input_schema", "config_schema"])
+@pytest.mark.parametrize("schema_id", [None, "", "#"])
+def test_independent_local_reference_schemas_keep_their_own_resource_root(location, schema_id):
+    value = 7 if location == "input_schema" else {"warehouse": "local"}
+    schema = {
+        "$defs": {"value": {"const": value}},
+        "$ref": "#/$defs/value",
+    }
+    if schema_id is not None:
+        schema["$id"] = schema_id
+    registry = registry_with(**{location: schema})
+    request = envelope(
+        registry,
+        value if location == "input_schema" else 7,
+        value if location == "config_schema" else {},
+    )
+    observed = asyncio.run(registry.executor.execute(request))
+    assert observed.result == request.arguments
+    assert getattr(registry.get("business").spec, location) == schema
+    invalid = envelope(registry, "wrong", {"warehouse": "wrong"})
+    with pytest.raises(ValidationError):
+        asyncio.run(registry.executor.execute(invalid))
+
+
+@pytest.mark.parametrize(
+    ("reference", "anchor"),
+    [("$ref", "$anchor"), ("$ref", "$dynamicAnchor"), ("$dynamicRef", "$dynamicAnchor")],
+)
+def test_embedded_recursive_anchor_schema_preserves_validation(reference, anchor):
+    schema = {
+        anchor: "node",
+        "type": "object",
+        "properties": {
+            "value": {"type": "integer"},
+            "next": {"anyOf": [{"type": "null"}, {reference: "#node"}]},
+        },
+        "required": ["value", "next"],
+        "additionalProperties": False,
+    }
+    registry = registry_with(input_schema=schema)
+    value = {"value": 1, "next": {"value": 2, "next": None}}
+    observed = asyncio.run(registry.executor.execute(envelope(registry, value)))
+    assert observed.result["input"] == value
+    with pytest.raises(ValidationError):
+        asyncio.run(
+            registry.executor.execute(
+                envelope(registry, {"value": 1, "next": {"value": "wrong", "next": None}})
+            )
+        )
+
+
+def test_schemas_without_actual_references_keep_the_original_tool_manifest():
+    schema = {
+        "type": "object",
+        "properties": {"literal": {"const": {"$ref": "business-data"}}},
+        "default": {"$dynamicRef": "business-data"},
+        "examples": [{"$ref": "business-data"}],
+    }
+    registry = registry_with(input_schema=schema)
+    assert registry.tool("__relf_node__:business").spec.input_schema == {
+        "type": "object",
+        "properties": {
+            "input": schema,
+            "config": {"allOf": [{"type": "object"}, {"type": "object"}]},
+        },
+        "required": ["input", "config"],
+        "additionalProperties": False,
+    }
+
+
+@pytest.mark.parametrize("schema_id", ["component", "urn:example:component"])
+def test_existing_effective_schema_resource_identifier_is_preserved(schema_id):
+    schema = {
+        "$id": schema_id,
+        "$defs": {"value": {"type": "integer"}},
+        "$ref": "#/$defs/value",
+    }
+    registry = registry_with(input_schema=schema)
+    assert (
+        registry.tool("__relf_node__:business").spec.input_schema["properties"]["input"] == schema
+    )
+    assert asyncio.run(registry.executor.execute(envelope(registry, 7))).result["input"] == 7
+
+
+@pytest.mark.parametrize("nested", [False, True])
+def test_conflicting_explicit_resource_ids_are_rejected_before_registration(nested):
+    input_schema = {
+        "$id": "https://example.invalid/part",
+        "$defs": {"value": {"type": "integer"}},
+        "$ref": "#/$defs/value",
+    }
+    if nested:
+        input_schema = {
+            "$id": "https://example.invalid/root",
+            "$defs": {"part": {**input_schema, "$id": "part"}},
+            "$ref": "part",
+        }
+    config_schema = {
+        "$id": "https://example.invalid/part",
+        "$defs": {"value": {"type": "object"}},
+        "$ref": "#/$defs/value",
+    }
+    with pytest.raises(ValidationError, match="conflicting.*resource"):
+        registry_with(input_schema=input_schema, config_schema=config_schema)
+
+
+def test_identical_explicit_resources_may_be_shared_by_input_and_config():
+    schema = {
+        "$id": "urn:example:shared",
+        "$defs": {"value": {"type": "object"}},
+        "$ref": "#/$defs/value",
+    }
+    registry = registry_with(input_schema=schema, config_schema=schema)
+    assert asyncio.run(registry.executor.execute(envelope(registry, {}))).result == {
+        "input": {},
+        "config": {},
+    }
+
+
+def test_independent_relative_subresources_do_not_collide_between_input_and_config():
+    input_schema = {
+        "$defs": {"part": {"$id": "part", "type": "integer"}},
+        "$ref": "part",
+    }
+    config_schema = {
+        "$defs": {"part": {"$id": "part", "type": "object"}},
+        "$ref": "part",
+    }
+    registry = registry_with(input_schema=input_schema, config_schema=config_schema)
+    assert asyncio.run(registry.executor.execute(envelope(registry, 7))).result == {
+        "input": 7,
+        "config": {},
+    }
+
+
 def test_persisted_fingerprint_tracks_async_callable_code(monkeypatch):
     class Method:
         async def __call__(self, input, config, context):

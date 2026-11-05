@@ -7,10 +7,10 @@ import unicodedata
 from urllib.parse import urlencode, urlsplit
 
 import httpx
-from jsonschema import Draft202012Validator
 
 from . import http_tool_transport
 from .errors import DefinitionMismatch, ValidationError
+from .schema_validation import is_valid
 from .tool_sources import ToolDescriptor, ToolSourceError
 from .tools import ThreadExecutionTracker, current_thread_group, current_thread_tracker
 from .types import canonical, digest
@@ -208,9 +208,9 @@ class HTTPToolSource:
                     method="GET",
                     query=payload,
                 )
-            if self._descriptor.output_schema is not None and not Draft202012Validator(
-                self._descriptor.output_schema
-            ).is_valid(result):
+            if self._descriptor.output_schema is not None and not is_valid(
+                result, self._descriptor.output_schema
+            ):
                 raise ToolSourceError("HTTP output differs from the pinned Schema")
             return result
         finally:
@@ -223,9 +223,9 @@ class HTTPToolSource:
             or descriptor.to_dict() != self._descriptor.to_dict()
         ):
             raise DefinitionMismatch("HTTP invocation differs from its pinned descriptor")
-        if not isinstance(arguments, dict) or not Draft202012Validator(
-            self._descriptor.input_schema
-        ).is_valid(arguments):
+        if not isinstance(arguments, dict) or not is_valid(
+            arguments, self._descriptor.input_schema
+        ):
             raise ValidationError("HTTP arguments differ from the pinned Schema")
         try:
             values = copy.deepcopy(arguments)

@@ -12,10 +12,12 @@ import re
 from dataclasses import asdict, dataclass, field
 from types import CodeType
 from typing import Any, Protocol, runtime_checkable
+from urllib.parse import urljoin
 
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import SchemaError
-from jsonschema.exceptions import ValidationError as SchemaValidationError
+from referencing import Resource
+from referencing.jsonschema import DRAFT202012
 
 from .component_fingerprint import _code
 from .errors import DefinitionMismatch, ValidationError
@@ -57,6 +59,54 @@ def _schema(value, label):
     except SchemaError as exc:
         raise ValidationError(f"Invalid {label} Schema") from exc
     return copy.deepcopy(value)
+
+
+def _schema_resources(schema):
+    """Visit actual Schema positions, never default/const/example JSON values."""
+    try:
+        resource = Resource.from_contents(schema, default_specification=DRAFT202012)
+
+        def visit(current, base):
+            identifier = current.id()
+            base = urljoin(base, identifier) if identifier else base
+            yield current, base, identifier
+            for child in current.subresources():
+                yield from visit(child, base)
+
+        yield from visit(resource, "")
+    except Exception as exc:
+        raise ValidationError("Cannot resolve node executor Schema resources") from exc
+
+
+def _embedded_schema(schema):
+    """Preserve independent local references inside the original Tool envelope."""
+    result = copy.deepcopy(schema)
+    resources = list(_schema_resources(result))
+    if (
+        isinstance(result, dict)
+        and not resources[0][2]
+        and any(
+            isinstance(resource.contents, dict)
+            and any(name in resource.contents for name in ("$ref", "$dynamicRef"))
+            for resource, _, _ in resources
+        )
+    ):
+        # Hierarchical local-only IDs also isolate relative child resources.
+        # The shared validator never retrieves this URI from the network.
+        result["$id"] = "https://schemas.relf.invalid/node/" + digest(schema) + "/"
+    return result
+
+
+def _check_schema_resource_ids(*schemas):
+    resources = {}
+    for schema in schemas:
+        for resource, base, identifier in _schema_resources(schema):
+            if not identifier:
+                continue
+            encoded = canonical(resource.contents)
+            previous = resources.setdefault(base, encoded)
+            if previous != encoded:
+                raise ValidationError("Node executor has conflicting Schema resource identifiers")
 
 
 @runtime_checkable
@@ -254,6 +304,9 @@ class NodeExecutorRegistry:
         except Exception as exc:
             raise ValidationError("Cannot register node executor") from exc
         entry = _Registration(spec, component, methods, pins, manifest_json)
+        input_schema = _embedded_schema(spec.input_schema)
+        config_schema = _embedded_schema(spec.config_schema)
+        _check_schema_resource_ids(input_schema, config_schema)
 
         async def handler(arguments, context):
             entry.check()
@@ -273,8 +326,8 @@ class NodeExecutorRegistry:
             {
                 "type": "object",
                 "properties": {
-                    "input": spec.input_schema,
-                    "config": {"allOf": [{"type": "object"}, spec.config_schema]},
+                    "input": input_schema,
+                    "config": {"allOf": [{"type": "object"}, config_schema]},
                 },
                 "required": ["input", "config"],
                 "additionalProperties": False,
@@ -331,10 +384,10 @@ class NodeExecutorRegistry:
         value = json.loads(canonical(result))
         schema = registered.spec.output_schema
         if schema is not None:
-            try:
-                Draft202012Validator(schema).validate(value)
-            except SchemaValidationError as exc:
-                raise ValidationError("Node executor output does not match its Schema") from exc
+            from .schema_validation import is_valid
+
+            if not is_valid(value, schema):
+                raise ValidationError("Node executor output does not match its Schema")
         self._registration(alias)
         return value
 

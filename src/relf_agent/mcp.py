@@ -3,10 +3,9 @@
 import copy
 from typing import Protocol
 
-from jsonschema import Draft202012Validator
-
 from .errors import ValidationError
 from .ports import is_async_callable
+from .schema_validation import is_valid
 from .tool_sources import ToolDescriptor, ToolSourceError, _identity
 from .types import canonical
 
@@ -70,7 +69,7 @@ class MCPToolSource:
         if not isinstance(descriptor, ToolDescriptor) or not isinstance(arguments, dict):
             raise ValidationError("MCP call requires a pinned descriptor and JSON arguments")
         canonical(arguments)
-        if not Draft202012Validator(descriptor.input_schema).is_valid(arguments):
+        if not is_valid(arguments, descriptor.input_schema):
             raise ValidationError("MCP arguments differ from the pinned Schema")
         result = await self.transport.request(
             "tools/call",
@@ -89,8 +88,7 @@ class MCPToolSource:
                 raise ToolSourceError("MCP text block is invalid")
         structured = result.get("structuredContent")
         if descriptor.output_schema is not None and (
-            not isinstance(structured, dict)
-            or not Draft202012Validator(descriptor.output_schema).is_valid(structured)
+            not isinstance(structured, dict) or not is_valid(structured, descriptor.output_schema)
         ):
             raise ToolSourceError("MCP structured output differs from the pinned Schema")
         return copy.deepcopy(result)

@@ -10,9 +10,9 @@ from typing import Any, Protocol
 
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import SchemaError
-from jsonschema.exceptions import ValidationError as SchemaValidationError
 
 from .errors import ValidationError
+from .schema_validation import is_valid
 from .types import AgentSpec, WorkflowSpec, _require_text, canonical, digest
 
 
@@ -29,10 +29,8 @@ def _schema(schema):
 def validate_output(value, schema):
     canonical(value)
     if schema is not None:
-        try:
-            Draft202012Validator(schema).validate(value)
-        except SchemaValidationError as exc:
-            raise ValidationError("Workflow output does not match its Schema") from exc
+        if not is_valid(value, schema):
+            raise ValidationError("Workflow output does not match its Schema")
     return copy.deepcopy(value)
 
 

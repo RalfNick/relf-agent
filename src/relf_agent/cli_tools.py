@@ -5,10 +5,9 @@ import os
 import threading
 from pathlib import Path
 
-from jsonschema import Draft202012Validator
-
 from . import cli_process
 from .errors import DefinitionMismatch, ValidationError
+from .schema_validation import is_valid
 from .tool_sources import ToolDescriptor, ToolSourceError
 from .tools import ThreadExecutionTracker, current_thread_group, current_thread_tracker
 from .types import canonical, digest
@@ -115,9 +114,9 @@ class CLIToolSource:
                 self._output_limit,
                 stopped,
             )
-            if self._descriptor.output_schema is not None and not Draft202012Validator(
-                self._descriptor.output_schema
-            ).is_valid(result):
+            if self._descriptor.output_schema is not None and not is_valid(
+                result, self._descriptor.output_schema
+            ):
                 raise ToolSourceError("CLI output differs from the pinned Schema")
             return result
         finally:
@@ -130,9 +129,9 @@ class CLIToolSource:
             or descriptor.to_dict() != self._descriptor.to_dict()
         ):
             raise DefinitionMismatch("CLI invocation differs from its pinned descriptor")
-        if not isinstance(arguments, dict) or not Draft202012Validator(
-            self._descriptor.input_schema
-        ).is_valid(arguments):
+        if not isinstance(arguments, dict) or not is_valid(
+            arguments, self._descriptor.input_schema
+        ):
             raise ValidationError("CLI arguments differ from the pinned Schema")
         try:
             payload = (canonical(copy.deepcopy(arguments)) + "\n").encode("utf-8")

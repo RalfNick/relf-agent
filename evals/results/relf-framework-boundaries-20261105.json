@@ -1,0 +1,202 @@
+{
+  "date": "2026-11-05",
+  "base": "e317a485d716f7c05242d0c0468a212da5b6ae68",
+  "scope": "existing framework admission and presentation boundaries; no new execution features",
+  "source": {
+    "product_files": 456,
+    "product_digest": "175d9b8d5fccf5aafb288348835f3b436b09faad2459d5fc88857f7d6d5ec697",
+    "original_source_version": "0.1.0a8",
+    "fixed_inputs_unchanged": true
+  },
+  "candidate": {
+    "version": "0.1.0a8+boundaries.78b549d7aed371da",
+    "wheel": "dist/competitor-gap-review-20261105/sdk-artifacts/relf_agent-0.1.0a8+boundaries.78b549d7aed371da-py3-none-any.whl",
+    "wheel_sha256": "a62deac382b25bf86474be8977752fa5646c6299991f35683663618668bd1f78",
+    "sdist": "dist/competitor-gap-review-20261105/sdk-artifacts/relf_agent-0.1.0a8+boundaries.78b549d7aed371da.tar.gz",
+    "sdist_sha256": "10497124280f8f7c6c644bd86581f49cc1e3263d935fe71641b3f22e1160887b",
+    "application_version": "0.1.0+boundaries.4e3760eff46012dd",
+    "application_wheel": "dist/competitor-gap-review-20261105/application-artifacts/relf_local_documents_example-0.1.0+boundaries.4e3760eff46012dd-py3-none-any.whl",
+    "application_wheel_sha256": "e689cf79dbfd0c47ecc3f3f9c6f553103bdd696add7d4082fca22f4081b8023c",
+    "application_sdist": "dist/competitor-gap-review-20261105/application-artifacts/relf_local_documents_example-0.1.0+boundaries.4e3760eff46012dd.tar.gz",
+    "application_sdist_sha256": "69083ed55c742f7d12c6238b8e6cf72b7229a27b5f2ebbf3137b79f1c8759a04"
+  },
+  "full_source": {
+    "total": 16292,
+    "passed": 15397,
+    "failure": 0,
+    "error": 0,
+    "skipped": 895,
+    "wall_start": 1793849394.513123,
+    "wall_end": 1793852188.5509892,
+    "wall_monotonic_difference": -0.042225176468491554,
+    "session_guard_only": true,
+    "label": "full-source",
+    "base": "e317a485d716f7c05242d0c0468a212da5b6ae68",
+    "exit_code": 0,
+    "elapsed_seconds": 2794.090717874933,
+    "child_deadline_seconds": 10,
+    "manual_remote_ci": false,
+    "models_or_external_services_configured": false,
+    "observer_does_not_modify_child_commands": true,
+    "collection_added": 78,
+    "collection_removed": 0,
+    "host_verification": {
+      "input_hashes": {
+        "products_tests_tools": {
+          "count": 1529,
+          "missing": [],
+          "changed": []
+        },
+        "application": {
+          "count": 8,
+          "missing": [],
+          "changed": []
+        }
+      },
+      "guard_processes_after": {
+        "pytest_pid": {
+          "pid": 95308,
+          "alive": false
+        },
+        "guard_pid": {
+          "pid": 95603,
+          "alive": false
+        }
+      },
+      "matching_assertions_after": [],
+      "orchestration_cases": [
+        {
+          "nodeid": "tests/test_orchestration_crash.py::test_real_process_durability_windows_resume_without_replanning_or_duplicate_child[plan_proposal_received]",
+          "outcome": "passed",
+          "duration": 2.60901058325544,
+          "fd_count": 44
+        },
+        {
+          "nodeid": "tests/test_orchestration_crash.py::test_real_process_durability_windows_resume_without_replanning_or_duplicate_child[plan_revision_adopted]",
+          "outcome": "passed",
+          "duration": 2.7253599166870117,
+          "fd_count": 44
+        },
+        {
+          "nodeid": "tests/test_orchestration_crash.py::test_real_process_durability_windows_resume_without_replanning_or_duplicate_child[child_submitted]",
+          "outcome": "passed",
+          "duration": 2.5321771670132875,
+          "fd_count": 44
+        },
+        {
+          "nodeid": "tests/test_orchestration_crash.py::test_real_process_durability_windows_resume_without_replanning_or_duplicate_child[run_succeeded]",
+          "outcome": "passed",
+          "duration": 2.595376250334084,
+          "fd_count": 44
+        },
+        {
+          "nodeid": "tests/test_orchestration_crash.py::test_real_process_durability_windows_resume_without_replanning_or_duplicate_child[plan_verified]",
+          "outcome": "passed",
+          "duration": 2.6394574590958655,
+          "fd_count": 44
+        },
+        {
+          "nodeid": "tests/test_orchestration_crash.py::test_evidence_connections_are_explicitly_closed_even_when_a_query_fails[False]",
+          "outcome": "passed",
+          "duration": 2.7063002083450556,
+          "fd_count": 44
+        },
+        {
+          "nodeid": "tests/test_orchestration_crash.py::test_evidence_connections_are_explicitly_closed_even_when_a_query_fails[True]",
+          "outcome": "passed",
+          "duration": 2.7283582501113415,
+          "fd_count": 44
+        }
+      ]
+    }
+  },
+  "exact_installed": {
+    "total": 1344,
+    "passed": 1344,
+    "failure": 0,
+    "error": 0,
+    "skipped": 0,
+    "elapsed_seconds": 219.84947574976832,
+    "same_ids_as_source": true,
+    "identity": {
+      "sdk": "/private/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-framework-boundaries-20261105-teh349no/venv/lib/python3.12/site-packages/relf_agent/__init__.py",
+      "sdk_version": "0.1.0a8+boundaries.78b549d7aed371da",
+      "sdk_metadata": "0.1.0a8+boundaries.78b549d7aed371da",
+      "application": "/private/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-framework-boundaries-20261105-teh349no/venv/lib/python3.12/site-packages/local_documents/__init__.py",
+      "application_version": "0.1.0+boundaries.4e3760eff46012dd",
+      "application_metadata": "0.1.0+boundaries.4e3760eff46012dd",
+      "sys_path": [
+        "",
+        "/opt/homebrew/Cellar/python@3.12/3.12.7/Frameworks/Python.framework/Versions/3.12/lib/python312.zip",
+        "/opt/homebrew/Cellar/python@3.12/3.12.7/Frameworks/Python.framework/Versions/3.12/lib/python3.12",
+        "/opt/homebrew/Cellar/python@3.12/3.12.7/Frameworks/Python.framework/Versions/3.12/lib/python3.12/lib-dynload",
+        "/private/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-framework-boundaries-20261105-teh349no/venv/lib/python3.12/site-packages"
+      ]
+    },
+    "no_checkout_sdk_or_app_source": true
+  },
+  "runtime_only": {
+    "commands": 14,
+    "all_passed": true,
+    "sdk_sdist_products_equal": 456,
+    "application_sdist_bytes_equal": true,
+    "pytest_or_temporal_installed": false
+  },
+  "regressions": {
+    "schema": {
+      "red_failed": 20,
+      "final_passed": 55
+    },
+    "node": {
+      "local_root_red_failed": 7,
+      "resource_conflict_red_failed": 2,
+      "final_related_passed": 170,
+      "original_process_crash_windows_preserved": true
+    },
+    "embedding_and_chat": {
+      "red_failed": 5,
+      "final_related_passed": 46
+    }
+  },
+  "compatibility": {
+    "ordinary_no_ref_node_manifests": "old/new equality for 3 cases",
+    "typed_tool_bridge": "implementation identity intentionally changes; original package required for old Run",
+    "referenced_node_envelope": "manifest changes; no automatic migration",
+    "local_and_temporal_authority": "unchanged"
+  },
+  "independent_review": {
+    "new_p1_p2": 0,
+    "focused_passed": 143,
+    "documentation_links": 256,
+    "sandbox_loopback_setup_failures": 9,
+    "sandbox_failures_retained": "review messages; same CLI cases passed in exact installed/full host-permitted suites"
+  },
+  "integrity": {
+    "original_artifacts_unchanged": 296,
+    "original_failure_xml_unchanged": true,
+    "protected_user_review_unchanged": true,
+    "original_versions_not_modified": true
+  },
+  "delivery": {
+    "local_only": true,
+    "push": false,
+    "manual_ci_dispatch": false,
+    "public_release": false,
+    "recommended_original_pair_unchanged": true,
+    "verification_candidate_not_new_alpha": true
+  },
+  "not_accepted": [
+    "Temporal executor support",
+    "loops/reducers/record streaming",
+    "multimodal",
+    "real model or remote service quality",
+    "new platform qualification",
+    "independent external adoption",
+    "matched cross-framework benchmark",
+    "complete R01-R26 or M1"
+  ],
+  "source_junit_sha256": "fd2419f49f027543f254f03c67cf792d1ec89b50424a3b5a2ac1304b0a7e521e",
+  "installed_junit_sha256": "74bf9af210940645a357744c78d26b9fa22122530eca4d4b31bc1b3a8ff175f5",
+  "source_log_sha256": "8faf238b1296c70f9d9b21927a9a629015350600cd22c4b832d2512ec0bf7fd3",
+  "installed_log_sha256": "76073a915e7e9cd87fce869b400c27c80bcf70fbbdb6458a8b6b637687614894"
+}

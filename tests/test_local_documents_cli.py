@@ -13,6 +13,8 @@ from contextlib import contextmanager
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+import pytest
+
 from tests.test_local_documents_files import APP, api
 from tests.test_local_documents_runtime import DocumentModel, make_config
 
@@ -186,6 +188,48 @@ def test_cli_restart_session_and_interactive_stdin(tmp_path):
         assert chat.returncode == 0, chat.stderr
         assert "rules.md" in chat.stdout and "15分钟" in chat.stdout
         assert len(invoke(path, "history", key=False)["turns"]) == 3
+
+
+@pytest.mark.parametrize("malformed", ['/report "unclosed', "/report 'unclosed", "/report \\"])
+def test_chat_rejects_bad_command_quotes_then_accepts_query_and_quit(tmp_path, malformed):
+    with model_server() as (port, requests, _, _):
+        config, path = configured(tmp_path, port)
+        result = subprocess.run(
+            command(path, "chat"),
+            input=malformed + "\n解释告警规则\n/quit\n",
+            cwd=path.parent,
+            env=cli_environment(),
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        assert result.returncode == 0, (result.stdout, result.stderr)
+        error, answer, closed = [json.loads(line) for line in result.stdout.splitlines()]
+        assert error["error"] == "validation_error" and "/help" in error["message"]
+        assert "unclosed" not in error["message"]
+        assert answer["state"] == "succeeded" and "15分钟" in answer["answer"]
+        assert closed == {"session_id": "main", "closed": True}
+        assert len(requests) == 2
+        (turn,) = invoke(path, "history", key=False)["turns"]
+        assert turn["question"] == "解释告警规则" and turn["state"] == "succeeded"
+        assert not list(config.output.glob("*.md"))
+
+
+def test_chat_does_not_hide_business_value_error(monkeypatch, capsys):
+    cli = api("cli")
+
+    async def input_line(*args):
+        return "解释告警规则"
+
+    async def perform(*args):
+        raise ValueError("business failure")
+
+    monkeypatch.setattr(cli, "input_line", input_line)
+    monkeypatch.setattr(cli, "perform", perform)
+    args = cli.parser().parse_args(["--json", "chat"])
+    with pytest.raises(ValueError, match="business failure"):
+        asyncio.run(cli.chat(object(), args, asyncio.Event()))
+    assert not capsys.readouterr().out
 
 
 def test_cli_ctrl_c_waits_inflight_request_then_closes_without_tool_effect(tmp_path):

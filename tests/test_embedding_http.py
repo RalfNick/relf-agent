@@ -201,6 +201,47 @@ def test_response_size_redirect_transport_failures_and_missing_usage():
     asyncio.run(run())
 
 
+def test_deep_json_response_is_typed_and_next_request_can_complete():
+    async def run():
+        replies = iter(
+            [
+                b"[" * 10000 + b'"private response"' + b"]" * 10000,
+                json.dumps(payload(1)).encode(),
+            ]
+        )
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(lambda r: httpx.Response(200, content=next(replies)))
+        ) as client:
+            p = provider(client=client)
+            try:
+                with pytest.raises(ProviderError) as error:
+                    await p.embed(["a"])
+                assert "private response" not in str(error.value)
+                assert await p.embed(["a"]) == [[1, 1]]
+            finally:
+                await p.aclose()
+            assert not client.is_closed
+
+    asyncio.run(run())
+
+
+def test_closed_borrowed_client_failure_is_typed_and_close_is_retryable():
+    async def run():
+        client = httpx.AsyncClient()
+        p = provider(client=client)
+        await client.aclose()
+        try:
+            with pytest.raises(ProviderError) as error:
+                await p.embed(["a"])
+            assert "Cannot send a request" not in str(error.value)
+        finally:
+            await p.aclose()
+        await p.aclose()
+        assert client.is_closed
+
+    asyncio.run(run())
+
+
 def test_cancel_releases_actual_http_operation_before_owned_close():
     async def run():
         started = asyncio.Event()

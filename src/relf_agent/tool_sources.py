@@ -11,6 +11,7 @@ from jsonschema.exceptions import SchemaError
 
 from .errors import DefinitionMismatch, RalfError, ValidationError
 from .ports import _complete_sync_none, is_async_callable, is_sync_callable
+from .schema_validation import is_valid
 from .tools import ToolRegistry, ToolSpec
 from .types import InvocationContext, canonical, credits, digest
 
@@ -160,16 +161,14 @@ class _SourceBinding:
     async def call(self, arguments, context):
         self._check()
         values = copy.deepcopy(arguments)
-        if not isinstance(values, dict) or not Draft202012Validator(
-            json.loads(self._schema_json)
-        ).is_valid(values):
+        if not isinstance(values, dict) or not is_valid(values, json.loads(self._schema_json)):
             raise ValidationError("Tool source arguments do not match caller Schema")
         key = self.policy.effect_key_argument
         if key is not None:
             if key in values:
                 raise ValidationError("Caller cannot supply the reserved effect key")
             values[key] = context.effect_key
-        if not Draft202012Validator(self.descriptor.input_schema).is_valid(values):
+        if not is_valid(values, self.descriptor.input_schema):
             raise ValidationError("Tool source arguments do not match remote Schema")
         result = await self.source.call_tool(self.descriptor, values, context)
         if inspect.iscoroutine(result) or inspect.isgenerator(result):

@@ -82,6 +82,10 @@ flow = GraphWorkflowSpec(
 
 注册要求非空 JSON identity 和真正的 async execute；可选 reconcile 也必须是真正异步方法。async callable 对象同样支持。同步函数返回 coroutine、generator 或上下文管理器不能充当此端口。直接方法、代码入口和声明身份在派发及结果接收边界复核；组件内部客户端、闭包和外部依赖仍需要集成方通过版本／identity 固定，不能把这些检查理解为任意 Python 沙箱。
 
+## Schema 引用与恢复
+
+维护源码支持 input/config 各自的 `$defs`、本地 `$ref`／`$dynamicRef` 和固定嵌入资源；编译包装保持独立引用根，不自动读取外部文件或 URL。冲突资源 ID 在注册前拒绝。原 Spec 不变，普通无引用 Manifest 保持；含引用的修复会改变对应包装身份，原任务需原版本恢复。详见[Schema 指南](schema-validation.md)与[本批验收](../architecture/reviews/2026-11-05-framework-boundaries.md)。原 nodes2 验证包不含此修复。
+
 ## 默认 identity 的 JSON／TOML 装配
 
 默认 adapter 只复制完整输入，不访问业务服务；该装配工厂只接受空 config。以下两个文件等价，选择一个保存。

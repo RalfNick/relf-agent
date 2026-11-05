@@ -1,5 +1,7 @@
 # 能力范围与剩余验收清单
 
+**2026-11-05 复核：** Local 通用节点已交付；主要剩余差距是 Temporal 同契约、循环／状态合并、完整增量／多模态、现成生态、应用运维及对等质量，见[新对比](../architecture/reviews/2026-11-05-framework-alignment.md)。本轮只修复已有 Schema／Embedding／聊天边界，见[维护验收](../architecture/reviews/2026-11-05-framework-boundaries.md)，不新增或关闭完整 R 项。原 a8／私有推荐包和历史资格保持，源码推送事实以[当前交付](current-delivery.md)为准。
+
 **Local 通用受管理异步节点（2026-11-04）：** 本地源码新增 `GraphNode(executor=...)` 与版本化 `NodeExecutorRegistry`，覆盖 Local 串行／有界并行图及原 Team／Dynamic 中的嵌套图。R04 增加可选 `workflow_executors` Profile 组件，沿原 JSON／TOML、同步／异步工厂与资源台账装配；R08 通过纯编译 lower 到现有 v2／v3 Tool 计划，继续复用原 Action、审批、预算、效果核验、回执采纳及恢复，不增加状态机或执行权威。用法见[节点指南](managed-async-nodes.md)，本批最终验证与制品范围见[本批记录](../architecture/reviews/2026-11-04-managed-async-nodes.md)。完整 R04／R08 及其余 R 项仍开放；Temporal 继续拒绝 executor 节点（含嵌套）及该 Local 装配组件，循环、专用节点族与流式 Workflow 保持后续。以下带日期段落保留当时范围。
 
 2026-11-03 本地源码已补[固定GET查询与增量策略声明](../architecture/reviews/2026-11-03-foundation-gaps.md)，相关源码／安装各440项通过；原推荐包不变，源码、测试与文档已本地提交，未推送。只关闭R04／R12／R22的两个有限缺口，不关闭完整R项。

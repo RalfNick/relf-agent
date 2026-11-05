@@ -280,7 +280,10 @@ async def chat(app, args, interrupted):
             if not text.startswith("/"):
                 command.command, command.question = "ask", text
             else:
-                parts = shlex.split(text)
+                try:
+                    parts = shlex.split(text)
+                except ValueError:
+                    raise ValidationError("命令引号或转义不完整；/help 查看用法") from None
                 name = parts[0][1:]
                 if name == "report" and len(parts) >= 3:
                     command.command, command.output, command.question = (

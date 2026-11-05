@@ -24,6 +24,7 @@ from jsonschema import Draft202012Validator
 from jsonschema.exceptions import SchemaError
 
 from .errors import DefinitionMismatch, ValidationError
+from .schema_validation import is_valid
 from .types import canonical, credits, digest
 
 
@@ -198,9 +199,7 @@ class RegisteredTool:
 
     def validate(self, arguments):
         self.check()
-        if not isinstance(arguments, dict) or not Draft202012Validator(
-            self.spec.input_schema
-        ).is_valid(arguments):
+        if not isinstance(arguments, dict) or not is_valid(arguments, self.spec.input_schema):
             raise ValidationError(f"Arguments do not match Schema for tool {self.spec.name}")
 
     def resolve_arguments(self, arguments):

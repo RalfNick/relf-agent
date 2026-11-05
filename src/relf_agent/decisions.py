@@ -2,10 +2,9 @@
 
 import json
 
-from jsonschema import Draft202012Validator
-
 from .errors import AuthorizationDenied, ValidationError
 from .harness import DecisionProposal
+from .schema_validation import is_valid
 from .types import canonical
 
 
@@ -21,7 +20,7 @@ def final_output(output, schema):
                 raise ValidationError("Model output is not valid JSON") from exc
     if isinstance(output, str) and not output.strip():
         raise ValidationError("A final model decision requires non-empty output")
-    if schema is not None and not Draft202012Validator(schema).is_valid(output):
+    if schema is not None and not is_valid(output, schema):
         raise ValidationError("Model output does not match the required Schema")
     canonical(output)
     return output
@@ -50,9 +49,7 @@ def validate_decision(spec, proposal, tool_manifests):
         if call.name not in spec.tools:
             raise AuthorizationDenied("Harness requested a tool outside AgentSpec")
         manifest = tool_manifests.get(call.name)
-        if manifest is None or not Draft202012Validator(manifest["input_schema"]).is_valid(
-            call.arguments
-        ):
+        if manifest is None or not is_valid(call.arguments, manifest["input_schema"]):
             raise ValidationError("Model tool arguments do not match Schema")
     if not proposal.tool_calls:
         final_output(proposal.output, spec.output_schema)

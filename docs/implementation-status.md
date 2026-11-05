@@ -2,6 +2,8 @@
 
 ## 当前交付摘要
 
+2026-11-05：基线 `e317a48` 已按授权推送开发分支、保留 `[skip ci]` 且核验 CI 为0。本轮按[框架对比](../architecture/reviews/2026-11-05-framework-alignment.md)先修复节点引用根、公共 Schema 隐式检索、Embedding 异常与聊天解析边界；[实际验收](../architecture/reviews/2026-11-05-framework-boundaries.md)：源码整轮15397通过／895配置跳过、准确安装1344项及运行依赖14条检查通过；原10秒窗口全过。原包／历史失败保留，未增加执行后端或关闭完整 R 项；本轮不推送或公开发布。
+
 2026-11-04 旧编排10秒专项：基线 `1c5bd47` 已按此前授权推送开发分支，本次后续修复仅本地提交。测试会话防空闲睡眠、独立阶段／8秒栈诊断和 SQLite 显式关闭已补齐；源码／准确安装相关集合各33项，旧新夹具双向20个进程及修复后完整离线回归 **15319 passed、895 skipped，零失败／错误** 通过。原窗口、期限和恢复断言保持，SDK产品455文件未改；历史具体停点与唯一原因未确认，原失败／制品保留。见[本批验收](../architecture/reviews/2026-11-04-orchestration-crash-timeouts.md)，不新增外部服务／平台或公开发行资格。
 
 2026-11-04：Local Workflow 增加通用受管理异步节点：结构化 `NodeExecutor`／可选 `NodeReconciler`、独立 Registry、`GraphNode(executor=...)`、默认 identity 组件及 JSON／TOML 工厂装配。编译复用原 Tool v2／并行 v3，审批、预算、未知效果、取消和恢复继续由原 LocalEngine 负责；不向 Agent 开放私有节点工具。已覆盖真实进程崩溃窗口与取消后关闭重试，最终源码／准确安装各1003项通过；首次全库失败保留，其后旧10秒专项的整轮复验见上条记录，首轮失败保持。范围及准确验证包见[本批验收](../architecture/reviews/2026-11-04-managed-async-nodes.md)与[使用指南](managed-async-nodes.md)。Temporal 仍拒绝此类节点及其 Local 配置；不新增分布式、流式数据流或循环能力。原推荐制品与历史记录保留，本批仅本地交付。

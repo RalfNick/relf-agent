@@ -167,7 +167,7 @@ class OpenAIEmbeddingProvider:
                     raise ValueError("Invalid embedding index")
                 vectors[index] = list(_vector(entry["embedding"], config["dimensions"]))
             return vectors, embedding_usage(value.get("usage"))
-        except (httpx.HTTPError, ValueError, TypeError, KeyError, OverflowError):
+        except (httpx.HTTPError, ValueError, TypeError, KeyError, OverflowError, RuntimeError):
             raise ProviderError(
                 "Embedding request failed or returned invalid bounded data"
             ) from None
