@@ -1,0 +1,27 @@
+{
+  "evidence_kind": "cloudflare-live-gate-summary",
+  "source_commit": "4fb811af9ff8c2b45b2afea851abb3753f697faa",
+  "checked_at": "2026-11-09T08:28:12.465Z",
+  "cloudflare_build_id": "5d918017-a477-4638-b4e5-28d97f5a3ce2",
+  "worker": "ralf-agent-website",
+  "worker_version_id": "be82d9dc-f8f6-49a4-9a32-f1f3089667aa",
+  "assets": 86,
+  "redirects": 9,
+  "custom_404": true,
+  "trailing_slash": true,
+  "total_checks": 97,
+  "failures": 0,
+  "asset_integrity": "SHA-256 compared with the same deployed dist",
+  "tls": "Default fetch certificate and hostname validation; no bypass",
+  "provenance": "Cloudflare build UI and CLI LIVE_ACCEPTANCE_META / final summary; full per-URL output is retained in the Cloudflare build log.",
+  "browser_search": {
+    "zh_first_query": "failed",
+    "zh_retry": "failed",
+    "en_first_query": "failed",
+    "queries": [
+      "节点",
+      "node-executor"
+    ],
+    "followup": "Investigate current network connection timeouts and Worker startup; see the deployment review."
+  }
+}

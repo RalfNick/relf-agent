@@ -4,6 +4,8 @@
 
 Relf-Agent 的仓库为 [RalfNick/relf-agent](https://github.com/RalfNick/relf-agent)。官网中英文文档、可执行教程和首页安装演示固定 SDK **0.1.0a8 维护源码**，统一使用 `relf-agent`、`relf_agent` 与 `relf`／`relf-*`。固定提交可检出不等于 SDK 包已公开发行；私有候选制品、平台及发行资格独立核验。旧版任务保留原 SDK、配置和数据环境，Cloudflare 资源名和历史记录保持实际身份。
 
+2026-11-09 的[独立发布与上线验收](reviews/2026-11-09-framework-docs-deployment.md)记录最新双语文档、main 提交、Cloudflare 版本和公网门禁。文档／HTTPS／跳转已验证；当前网络下浏览器首次搜索仍失败，调查证据与待办一并保留。
+
 2026-10-31 的[框架文档同步验收](reviews/2026-10-31-framework-docs-sync.md)记录维护源码教程、Agent／事件／展示流、生成应用与 Local Tool 图的双语本地验证。该记录对应本地同步阶段；用户随后授权的推送、Cloudflare 自动部署及线上复验另见[本次上线记录](reviews/2026-10-31-framework-docs-deployment.md)。
 
 首次手工上线的现场证据见[上线验收记录](reviews/2026-10-23-cloudflare-launch.md)及其 HTTP 明细。自动构建入口、检查门禁和 Cloudflare 连接参数见下方“自动构建与发布”；连接状态与实际发布结果以 Cloudflare 构建记录为准。
