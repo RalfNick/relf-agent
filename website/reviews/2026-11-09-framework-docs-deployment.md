@@ -25,3 +25,9 @@
 ## 自动部署与上线验收
 
 待记录本次 main 提交、GitHub Website 工作流、Cloudflare 构建与 Worker 版本、同次产物公网检查，以及浏览器首次搜索、语言切换、HTTPS 和 www 跳转结果。
+
+## 首次推送的 CI 格式修正
+
+首个独立网站提交为 `b7bb4e71d3d1ef50fcfe225c4654864125b79871`，父版本为 e94c57c，37 个变更路径均属于网站及其计划。推送 main 后触发 Website 工作流与 Cloudflare 构建。
+
+同次 SDK CI `42584877291` 在 Ruff 格式检查失败，定位为本次 `website/scripts/check-tutorials.py`，并非 SDK 实现失败。随后使用 CI 相同的 Ruff 0.17.4 仅格式化该网站脚本；格式前后 Python AST 完全一致，隔离 main 的 `ruff check .` 与 `ruff format --check .` 均通过（1,508 个 Python 文件）。保留首次失败，修正以新的普通提交重新触发检查和部署，不改写已推送历史。

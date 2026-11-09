@@ -271,7 +271,8 @@ def verify_maintenance_recipes(locale, directory, sdk, env):
 
 def verify_development_recipes(locale, directory, sdk, env):
     recipe = next(
-        code for code in blocks(locale, "workflows", "bash")
+        code
+        for code in blocks(locale, "workflows", "bash")
         if ":examples/managed_async_nodes.py" in code
     )
     checkout = directory / "managed-nodes" / "sdk"
@@ -280,7 +281,8 @@ def verify_development_recipes(locale, directory, sdk, env):
         ["git", "rev-parse", "--absolute-git-dir"], cwd=ROOT, text=True
     ).strip()
     output = run(
-        ["bash", "-eu", "-c", recipe], checkout,
+        ["bash", "-eu", "-c", recipe],
+        checkout,
         {**env, "GIT_DIR": git_dir, "GIT_WORK_TREE": str(sdk)},
     )
     rows = [json.loads(line) for line in output.splitlines()]
@@ -299,9 +301,13 @@ def verify_development_recipes(locale, directory, sdk, env):
     copy_code = next(
         code for code in blocks(locale, "workflows") if "identity-nodes.sqlite" in code
     )
-    copied = [json_records(execute(copy_code, directory / "copy_node.py", env))[-1] for _ in range(2)]
+    copied = [
+        json_records(execute(copy_code, directory / "copy_node.py", env))[-1] for _ in range(2)
+    ]
     assert copied[0]["run_id"] == copied[1]["run_id"]
-    assert all(row["state"] == "succeeded" and row["result"] == [1, None, "hello"] for row in copied)
+    assert all(
+        row["state"] == "succeeded" and row["result"] == [1, None, "hello"] for row in copied
+    )
 
     contract_code = next(
         code for code in blocks(locale, "testing", "bash") if "--role node-executor" in code
@@ -327,7 +333,9 @@ def verify_development_recipes(locale, directory, sdk, env):
     http_code = next(
         code for code in blocks(locale, "integrations") if "async def build_search_tools" in code
     )
-    http_probe = http_code + '''
+    http_probe = (
+        http_code
+        + """
 import asyncio
 async def check_configuration():
     tools, source = await build_search_tools()
@@ -338,25 +346,29 @@ async def check_configuration():
         await source.aclose()
 asyncio.run(check_configuration())
 print("HTTP configuration PASS; no service request")
-'''
+"""
+    )
     assert "HTTP configuration PASS" in execute(http_probe, directory / "http_config.py", env)
 
     policy = next(
-        code for code in blocks(locale, "operations", "toml")
+        code
+        for code in blocks(locale, "operations", "toml")
         if "profiles.components.stream_updates" in code
     )
-    policy_probe = f'''
+    policy_probe = f"""
 import asyncio
 import tomllib
 from relf_agent import AgentSpec, RuntimeBuilder, RuntimeProfile
-component = tomllib.loads({('[[profiles]]' + chr(10) + policy)!r})["profiles"][0]["components"]
+component = tomllib.loads({("[[profiles]]" + chr(10) + policy)!r})["profiles"][0]["components"]
 profile = RuntimeProfile("stream-config", "1", {{"default": {{"adapter": "offline-echo"}}}}, component)
 with RuntimeBuilder().build(profile, ".ralf/stream-policy.sqlite") as runtime:
     run = runtime.submit(AgentSpec("configured", "Echo"), "hello", command_id="configured-1")
     assert asyncio.run(runtime.drive(run.run_id)).state == "succeeded"
 print("Stream policy configuration PASS")
-'''
-    assert "Stream policy configuration PASS" in execute(policy_probe, directory / "stream_config.py", env)
+"""
+    assert "Stream policy configuration PASS" in execute(
+        policy_probe, directory / "stream_config.py", env
+    )
     print(
         f"{locale}: managed-node approval/reopen/effect replay, identity Profile, N01-N10, "
         "HTTP GET registration and TOML stream policy passed; external services excluded"
