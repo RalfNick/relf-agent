@@ -23,4 +23,26 @@
 
 ## main 与生产复验
 
-待追加实际提交、Website CI、Cloudflare 构建／Worker 版本及生产浏览器首次查询、重复查询和跳转结果。故障重试的受控注入在本地完成，不能冒充在正式站执行过故障注入。
+- 已普通快进推送 main：[`f08104d39814ce1ab74716fc902b3ef4dad6a158`](https://github.com/RalfNick/relf-agent/commit/f08104d39814ce1ab74716fc902b3ef4dad6a158)，9 个路径全部属于 `website/**`。
+- [GitHub Website 42593376121](https://github.com/RalfNick/relf-agent/actions/runs/42593376121) success：Node 24 环境的 40/40 测试、双语教程、全文快照与完整产物门禁通过。
+- [Cloudflare 构建 9e7fc8f2-d720-483b-81fc-a06ec31422a7](https://dash.cloudflare.com/6fcab8530fe6ef0b32741fbf005326ce/workers/services/view/ralf-agent-website/production/builds/9e7fc8f2-d720-483b-81fc-a06ec31422a7) success，外部检查完成于 `2026-11-09T09:31:02Z`（17:31:02）。Worker `ralf-agent-website` 的实际版本为 `bdf2883a-7886-4c6f-bd34-5a496f379225`。
+- 同次部署门禁确认 86 个资源的正文 SHA-256、9 个 HTTP／www 保留路径和查询参数的跳转、自定义 404 与尾斜杠，共 97 项、0 失败。HTTPS 使用默认证书与主机名验证。逐 URL 日志保留在该 Cloudflare 构建。
+
+| 正式 Chrome 验收 | 结果 |
+| --- | --- |
+| 新中文快速开始页的首次查询“节点” | 9 条，261 ms |
+| 新英文快速开始页的首次查询 `node-executor` | 3 条，235 ms |
+| 中文 `subscribe_events` | 5 条；清空后查询、重复 Enter、关闭重开后重新输入均正常 |
+| 英文 `stream_updates` | 5 条 |
+| 英文运行文档切换到中文后查询 `stream_updates` | 5 条中文文档 |
+| 中文搜索结果导航 | 正常打开 `https://relfagent.com/zh/docs/api-reference/` |
+| 英文搜索结果导航 | 正常打开 `https://relfagent.com/en/docs/operations/` |
+| 浏览器日志 | 本轮正式中英文页面没有捕获到 error／warn，未再出现 Pagefind Worker 初始化超时 |
+
+以上查询耗时是填词到结果可见的工具壁钟，包含自动化开销，不包括网页导航及初始 JavaScript 下载；首次指新页面首次查询，没有修改用户网络或清空全局缓存。页面完成导航后再交互；旧页面需要刷新后加载新版本。
+
+故障重试的受控注入在本地完成：先失败、恢复同一构建快照、点击原重试按钮、保留关键词并成功。正式站没有注入损坏数据。生产页面实际引用的 `/_astro/Search.astro_astro_type_script_index_0_lang.qOTbaixb.js` 与本地故障验收的构建文件一致，正式重复查询及结果导航正常；不能把这些结果表述为在正式站执行过故障注入。
+
+[结构化验收结果](2026-11-09-search-acceptance.json)记录查询、耗时、重试范围、CI、Cloudflare 和工作区保护核对。本轮其他 SDK 未提交改动保持原样：收尾重新核对 35 个文件摘要全部一致，原分支和 HEAD 均未移动。SDK 工作流的全量结论不包含在网站 CI success 中。
+
+最终证据以独立 `[skip ci]` 提交回存 main；只更新 review／JSON，不改变已上线的网页和 Worker 版本。

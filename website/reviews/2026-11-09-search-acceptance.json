@@ -1,0 +1,93 @@
+{
+  "source_commit": "f08104d39814ce1ab74716fc902b3ef4dad6a158",
+  "checked_at": "2026-11-09T09:39:19.916Z",
+  "production": {
+    "zh_first": {
+      "url": "https://relfagent.com/zh/docs/quickstart/",
+      "query": "节点",
+      "results": 9,
+      "milliseconds": 261
+    },
+    "en_first": {
+      "url": "https://relfagent.com/en/docs/quickstart/",
+      "query": "node-executor",
+      "results": 3,
+      "milliseconds": 235
+    },
+    "additional_queries": [
+      {
+        "locale": "zh",
+        "query": "subscribe_events",
+        "results": 5
+      },
+      {
+        "locale": "en",
+        "query": "stream_updates",
+        "results": 5
+      },
+      {
+        "locale": "zh-after-switch",
+        "query": "stream_updates",
+        "results": 5
+      }
+    ],
+    "repeat_queries": "passed",
+    "navigation": {
+      "zh": "https://relfagent.com/zh/docs/api-reference/",
+      "en": "https://relfagent.com/en/docs/operations/"
+    },
+    "browser_errors": 0,
+    "client_scripts": [
+      "/_astro/Search.astro_astro_type_script_index_0_lang.qOTbaixb.js"
+    ]
+  },
+  "local": {
+    "pagefind_requests": 0,
+    "total_http_requests": 20,
+    "zh_first_ms": 248,
+    "en_first_ms": 239,
+    "controlled_retry": {
+      "zh": {
+        "query": "节点",
+        "results": 9
+      },
+      "en": {
+        "query": "node-executor",
+        "results": 3
+      },
+      "query_preserved": true,
+      "production_fault_injection": false
+    }
+  },
+  "timing_scope": "Fill-to-visible-results wall time including automation overhead; excludes navigation and initial page JavaScript download.",
+  "website_ci": {
+    "run_id": 42593376121,
+    "url": "https://github.com/RalfNick/relf-agent/actions/runs/42593376121",
+    "conclusion": "success",
+    "tests_passed": 40,
+    "tests_failed": 0
+  },
+  "cloudflare": {
+    "build_id": "9e7fc8f2-d720-483b-81fc-a06ec31422a7",
+    "worker": "ralf-agent-website",
+    "worker_version_id": "bdf2883a-7886-4c6f-bd34-5a496f379225",
+    "conclusion": "success",
+    "completed_at": "2026-11-09T09:31:02Z",
+    "http_gate": {
+      "assets": 86,
+      "redirects": 9,
+      "custom_404": true,
+      "trailing_slash": true,
+      "checks": 97,
+      "failures": 0,
+      "tls": "Default certificate and hostname verification, no bypass"
+    },
+    "evidence": "Cloudflare build UI final CLI summary and GitHub external check; per-URL logs retained in the build."
+  },
+  "original_workspace": {
+    "dirty_file_hashes_checked": 35,
+    "changed_since_start": 0,
+    "branch_unchanged": true,
+    "head_unchanged": true
+  }
+}
