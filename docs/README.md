@@ -74,7 +74,7 @@
 
 - **Schema：** [固定资源与引用校验](schema-validation.md)，无隐式外部检索、节点独立引用根与原任务升级边界。
 - **配置与扩展：** [JSON／TOML 运行装配](runtime-assembly.md)、[每 Agent 能力绑定](agent-bindings.md)、[扩展端口与生命周期](extending.md)。
-- **API：** [常用 SDK 与 CLI](api-reference.md)、[Session 适配契约](session-adapter-contracts.md)、[Facts 适配契约](facts-adapter-contracts.md)、[知识适配契约](adapter-contracts.md)、[模型替换契约](model-adapter-contracts.md)。
+- **API：** [常用 SDK 与 CLI](api-reference.md)、[Session 适配契约](session-adapter-contracts.md)、[Facts 适配契约](facts-adapter-contracts.md)、[知识适配契约](adapter-contracts.md)、[模型替换契约](model-adapter-contracts.md)、[节点扩展检查](node-adapter-contracts.md)。
 - **契约与设计：** [整体架构](../architecture/design.md)、[Run 命令](../architecture/specs/run-command-contract.md)、[Action 恢复](../architecture/specs/action-recovery-contract.md)、[Runner 能力](../architecture/specs/runner-capability-contract.md)。
 
 ## 部署、服务与 Coding

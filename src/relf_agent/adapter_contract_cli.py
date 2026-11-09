@@ -26,10 +26,16 @@ async def _execute(arguments):
             from .facts_adapter_contract_reference import offline_facts_fixture
 
             fixture = offline_facts_fixture()
-        else:
+        elif arguments.role == "model-provider":
             from .model_adapter_contract_reference import offline_model_fixture
 
             fixture = offline_model_fixture()
+        elif arguments.role == "node-executor":
+            from .node_adapter_contract_reference import offline_node_fixture
+
+            fixture = offline_node_fixture()
+        else:
+            raise ValidationError("Unknown adapter contract role")
     try:
         return await suite.run(fixture=fixture, evidence_dir=arguments.evidence_dir)
     finally:
@@ -45,7 +51,7 @@ def main(argv=None):
     parser.add_argument(
         "--profile",
         default="core",
-        help="core, session-store receipts, facts-store managed, or model-provider tools",
+        help="core (including node-executor), session-store receipts, facts-store managed, or model-provider tools",
     )
     parser.add_argument("--offline", action="store_true")
     parser.add_argument("--evidence-dir", help="New private directory for retained case evidence")

@@ -1,8 +1,8 @@
 """Frozen adapter requirements selected by role, contract version and profile.
 
 Catalogs supply metadata, never fixture capabilities or verdicts. Knowledge v1
-retains its original digest input; explicit Session, Facts and Model profiles have
-separate case requirements and include their profile in the suite digest.
+retains its original digest input; explicit Session, Facts, Model and Node profiles
+have separate case requirements and include their profile in the suite digest.
 """
 
 from dataclasses import dataclass, field
@@ -76,6 +76,18 @@ MODEL_CONTRACT_CASES = (
     ("P14", "followup-tool-evidence"),
     ("P15", "duplicate-submit-replay"),
     ("P16", "accepted-call-lost-response"),
+)
+NODE_CONTRACT_CASES = (
+    ("N01", "identity-and-port"),
+    ("N02", "finite-json-and-config"),
+    ("N03", "input-schema"),
+    ("N04", "config-schema"),
+    ("N05", "completed-output-schema"),
+    ("N06", "identity-drift"),
+    ("N07", "method-drift"),
+    ("N08", "handler-errors"),
+    ("N09", "approval-budget-and-reopen"),
+    ("N10", "cancellation-and-ownership"),
 )
 _BOOLEAN_OBSERVATIONS = frozenset(
     (
@@ -173,6 +185,20 @@ _MODEL_COUNTS = frozenset(
         "reservation_checks",
         "settlement_checks",
         "reopen_calls",
+    )
+)
+_NODE_COUNTS = frozenset(
+    (
+        "execute_calls",
+        "reconcile_calls",
+        "close_calls",
+        "tool_calls",
+        "model_calls",
+        "source_checks",
+        "rejection_checks",
+        "schema_checks",
+        "duplicate_checks",
+        "settlement_checks",
     )
 )
 STATUS_CODES = MappingProxyType(
@@ -291,6 +317,14 @@ _MODEL_TOOLS = AdapterContractCatalog(
     _BOOLEAN_OBSERVATIONS,
     _MODEL_COUNTS,
 )
+_NODE_CORE = AdapterContractCatalog(
+    "node-executor",
+    "1",
+    "core",
+    NODE_CONTRACT_CASES,
+    _BOOLEAN_OBSERVATIONS,
+    _NODE_COUNTS,
+)
 _CATALOGS = MappingProxyType(
     {
         (catalog.role, catalog.contract_version, catalog.profile): catalog
@@ -302,13 +336,14 @@ _CATALOGS = MappingProxyType(
             _FACTS_MANAGED,
             _MODEL_CORE,
             _MODEL_TOOLS,
+            _NODE_CORE,
         )
     }
 )
 _CASE_CATALOGS = MappingProxyType(
     {
         case_id: catalog
-        for catalog in (_KNOWLEDGE, _SESSION_RECEIPTS, _FACTS_MANAGED, _MODEL_TOOLS)
+        for catalog in (_KNOWLEDGE, _SESSION_RECEIPTS, _FACTS_MANAGED, _MODEL_TOOLS, _NODE_CORE)
         for case_id in catalog.case_ids
     }
 )

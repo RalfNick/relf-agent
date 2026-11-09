@@ -2,6 +2,8 @@
 
 ## 当前交付摘要
 
+2026-11-09 节点扩展检查源码：`node-executor/core` N01–N10 通过原 Registry／LocalEngine／Store 验证 fixture 配置下的结构端口、JSON／Schema、漂移、审批重开及取消清理。默认无 fixture 不执行；旧四角色摘要保持。独立 SQLite 参考与可编辑示例见[指南](node-adapter-contracts.md)。源码／准确安装各815项和仅运行依赖14条检查已通过，完整源码回归15582通过／908条件跳过、零失败／错误，见[验收记录](../architecture/reviews/2026-11-09-node-executor-contract.md)。不认证写效果、Temporal、真实质量或外部采用。
+
 2026-11-05 Temporal 节点源码增量：显式 `workflow_executors` 与 `GraphNode(executor=...)` 沿原 Parent History 调度原 Native 单 Tool 子 Run，复用原审批、真实 cost 额度、unknown、ACK 与真实停止／关闭协议；无模型和 LocalEngine。范围为无会话静态串行／有界并行、显式 Agent 混图及 Team／Dynamic 嵌套。SDK 与 Temporal Profile 装配已实现，源码／准确隔离 wheel 各13项真实 Service 恢复测试和各690项同组离线回归通过；原完整轮15479通过／1项旧夹具失败／908条件跳过；夹具修复后原模块源码／安装各8项通过，产品未改，未再次全库运行。准确验证包与所选兼容边界见[本批验收](../architecture/reviews/2026-11-05-temporal-managed-nodes.md)，不关闭完整 R04／R08／R19。Session／Turn／native history、Coding composition、部署准入和 parent completion 继续拒绝，旧 Coding 恢复需原指纹包／Worker。见[指南](temporal-managed-nodes.md)及[当前交付](current-delivery.md)；原 a8／推荐候选／公开发行状态保持，旧成绩不代签。
 
 2026-11-05：基线 `e317a48` 已按授权推送开发分支、保留 `[skip ci]` 且核验 CI 为0。本轮按[框架对比](../architecture/reviews/2026-11-05-framework-alignment.md)先修复节点引用根、公共 Schema 隐式检索、Embedding 异常与聊天解析边界；[实际验收](../architecture/reviews/2026-11-05-framework-boundaries.md)：源码整轮15397通过／895配置跳过、准确安装1344项及运行依赖14条检查通过；原10秒窗口全过。原包／历史失败保留，未增加执行后端或关闭完整 R 项；本轮不推送或公开发布。

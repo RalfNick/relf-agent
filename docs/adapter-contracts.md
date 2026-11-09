@@ -51,6 +51,11 @@ closing a changed source releases the original file handle without writing an
 audit to the replacement. This protects that explicitly managed source. It does
 not reflect arbitrary clients or certify remote-service/resource isolation.
 
+The separately selected `node-executor/core` suite verifies fixture-configured
+async components through original Local Graph and Tool Action records. See
+[Node adapter checks](node-adapter-contracts.md); it does not certify arbitrary
+business effects or Temporal execution.
+
 ## Interpret the result
 
 All K01–K12 cases are required for this role. Each reports `passed`, `failed` or

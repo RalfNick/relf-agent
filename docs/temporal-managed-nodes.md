@@ -82,6 +82,8 @@ JSON 使用同一结构。identity 工厂只接受空 config；自定义同步�
 
 Parent 使用原子 Run 额度托管，按所选节点真实 cost 预留，支持 cost=0、1 或大于8；普通 Agent 子额度仍遵循原规则。节点只消耗原 Tool 额度，不收模型决策额度。预算不足在 execute 前拒绝，不创建独立预算账本；未知效果保持原额度与工作责任。
 
+2026-11-09 已复现一项容量限制：默认节点 ToolExecutionOwner 为16槽，已被实际调用占用时，额外的未启动调用可能返回 `code=memory_backend_error`、`handler_not_started=true` 并使子 Run 失败。图的 max_concurrency 是调度上限，不保证单 Worker 或多个 Run 的执行槽可用；当前没有自动容量排队／恢复协议。显式增加 owner 上限只移动阈值，不能替代跨 Run 背压。不能根据进度缺失或一次拒绝自行重执行业务；这一限制列在[剩余能力](remaining-work.md)，本批节点扩展检查没有修改它。
+
 执行沿原 dispatch intent、效果观察／回执、History 采纳与 ACK 推进。已确认结果还需真实 handler 停止、ACK（含延后 ACK）排空，节点才能完成。ACK 失败应修复原 Journal／Worker 路径后驱动原 Run，不能重新 execute。`queryable_write` 需要原 reconcile 证据；`unqueryable_write` 的未知效果保留人工核验，框架不能替代下游幂等性。
 
 注册的 output_schema 与 GraphNode.output_schema 都验收；合法的 null、false、0、空字符串和数组不被 Agent 的非空回答规则拒绝。输出 Schema 不符时保留已确认的业务回执、效果与消耗，再使节点失败；不能用重新执行写操作修复结果。`EffectObservation(None)` 是确认 JSON null，reconcile 直接返回 None 则表示没有可采纳证据。

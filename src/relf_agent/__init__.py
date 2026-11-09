@@ -184,6 +184,13 @@ from .model_protocol import ModelCapabilities, ModelStreamEvent, StreamingModelP
 from .model_query import ModelQueryTransform
 from .model_responses import OpenAIResponsesProvider
 from .native_session_history import read_native_history
+from .node_adapter_contract import (
+    NodeAdapterFixture,
+    NodeContractPause,
+    NodeContractResource,
+    NodeContractSession,
+)
+from .node_adapter_contract_reference import offline_node_fixture
 from .orchestration_evaluation import (
     OfflineOrchestrationProvider,
     evaluate_orchestration,
@@ -948,6 +955,14 @@ __all__ += [
     "ModelContractResource",
     "ModelContractSession",
     "offline_model_fixture",
+]
+
+__all__ += [
+    "NodeAdapterFixture",
+    "NodeContractPause",
+    "NodeContractResource",
+    "NodeContractSession",
+    "offline_node_fixture",
 ]
 
 __all__ += ["InventoryMemberCompletionVerifier"]

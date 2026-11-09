@@ -37,9 +37,15 @@ async def _run_case(case_id, fixture, workspace):
         from .facts_adapter_contract import run_facts_case
 
         return await run_facts_case(case_id, fixture, workspace)
-    from .model_adapter_contract import run_model_case
+    if catalog.role == "model-provider":
+        from .model_adapter_contract import run_model_case
 
-    return await run_model_case(case_id, fixture, workspace)
+        return await run_model_case(case_id, fixture, workspace)
+    if catalog.role == "node-executor":
+        from .node_adapter_contract import run_node_case
+
+        return await run_node_case(case_id, fixture, workspace)
+    raise ValidationError("Unknown adapter contract role")
 
 
 async def _drain_cancelled(task):
