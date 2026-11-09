@@ -2,36 +2,43 @@
   "note": "Record only after reviewing both locales against the listed repository sources.",
   "repository": {
     "url": "https://github.com/RalfNick/relf-agent",
-    "ref": "300c62ce8dd417df6b471ce1c10a1b7a562d2c46",
+    "ref": "4bb46fe7a8935e6d13962a6c34e02519122c4c53",
     "sdkVersion": "0.1.0a8",
-    "verifiedAt": "2026-10-31"
+    "verifiedAt": "2026-11-09",
+    "publishedRef": "refs/heads/codex/callable-preview-fixes"
   },
   "guides": {
     "api-reference": {
       "translations": {
-        "zh": "29573c0ae46c73f668ff094dc3b669431f85fa946e44ff0307302366c68dd127",
-        "en": "eb66f7cef8bc69350b895fa46ac801ee2e5574c9fa889b37de3b1f4ef9bd33fd"
+        "zh": "acda66e2ca77ad48de0851e3721c193d624de3aa95c70963e04200d3359ed328",
+        "en": "80af3ffeb51a7931888b23806c267e65affb1337a652cbbdb203d35d0f03f027"
       },
       "sources": {
         "docs/agent-api.md": "be4af9af2bd3d40cae6f3332521771f675c1c64dac9bc6cd2ae82d517602f445",
-        "docs/agent-stream-updates.md": "88f16a174fb346359e09bf4f9216be37322c81dcd4c7274e090a5f0ff0ed95a4",
+        "docs/agent-stream-updates.md": "50faec93950ad8b440f92ddb0264a5eaf1ee16eb32a868d539e067828a055326",
         "docs/api-reference.md": "056c3fe4700acb563eb23485bc8b070d950acab4252ae4b22f4eb2a1a1276aed",
         "docs/getting-started.md": "5d41b268cfca9c8524ccdab4de3bee88fd6f647201d4121e899b89744aae02e3",
+        "docs/http-tools.md": "f279988099863be14e9fc4cfd63ad453f2a0a939fa3a6b98615246839403a516",
+        "docs/managed-async-nodes.md": "40cbe740b7ca8158568ef858be4778da922ded5e5c5c1b8ad7fd86403e2ee038",
+        "docs/node-adapter-contracts.md": "6da884b7b301b495efcd67245bf1210a04faf3d1fcf8e703932712de43a02fd5",
         "docs/recovery-guide.md": "c3d0360835e2a6fddc2ee88c8fefe38043aa6a319b190be7cb1af449a55f4a94",
-        "docs/runtime-assembly.md": "131f5f9b97da69c1e0fc5a7aa868306a32c9e13ce0cccb86b29ff6265304d289",
+        "docs/runtime-assembly.md": "bad72f6249633607eded593f260682ba8ce65c4ce415bd77d497f90d6a5e12a4",
         "docs/sdk-model-tools.md": "0a50f0ce22e30527657626367de512fb43a36ffdce7d128850328b1c014b8f0f",
         "docs/session-api.md": "e9c5995bd6ad9150391b1e7310d541f96f748081d8cba2df72c80dc0bd2f7e45",
+        "docs/temporal-managed-nodes.md": "71f2e4dbceb7e1a0b9c87d40bea08dc4cabc35e1f4b30ed247e6bf7b3fc52e27",
         "docs/user-input.md": "42cea73dcc429db441a2aedfd6d72f59b3317fa4375bcbdf2893a83a0834790c"
       }
     },
     "app-tutorial": {
       "translations": {
-        "zh": "43ac41d748e218e035622abc575d3e0222378fc3ae967b6bb2c7b11630a8a418",
-        "en": "78f1f34bb712039385792b20166b0dffb8d40e8bd380fcf27159c691dc19e1f7"
+        "zh": "8ff4e3e854dc88cf31fbaf08e9fc6aadb7a74ef2623d809bc4a1a352228cc0d8",
+        "en": "0460bf42cd58dd7917dfe4d48c6b84ece2d1e13214a82c646ccb2789e35be34d"
       },
       "sources": {
         "docs/agent-api.md": "be4af9af2bd3d40cae6f3332521771f675c1c64dac9bc6cd2ae82d517602f445",
+        "docs/current-delivery.md": "e9158b390daafb549e0ddf32845a1ce6f0262b648179ee6028493d2d42ba3b51",
         "docs/installation.md": "6510a19562538e16cd355d657672cc4495920d998c95f584df696f9062744ea0",
+        "docs/local-documents-assistant.md": "a161b8662c95b8d855fd7d6c5d05585c75095aeb402a8d40b91f684c5d39cb1f",
         "docs/managed-memory.md": "c0d80a31c782104c2ab01ba811b156a221137dbb05bf79b49d5e1465332999b9",
         "docs/orchestration.md": "58aacef85c1dac185992e0ef1aa92389313896a3be150d414909bb0bbbd719c8",
         "docs/recall-and-rag.md": "3b5069ce3e488164a86bf5b52485aa58bd5e77b7628ffff027db2d0d31e429a6",
@@ -47,7 +54,7 @@
       },
       "sources": {
         "docs/agent-api.md": "be4af9af2bd3d40cae6f3332521771f675c1c64dac9bc6cd2ae82d517602f445",
-        "docs/agent-stream-updates.md": "88f16a174fb346359e09bf4f9216be37322c81dcd4c7274e090a5f0ff0ed95a4",
+        "docs/agent-stream-updates.md": "50faec93950ad8b440f92ddb0264a5eaf1ee16eb32a868d539e067828a055326",
         "docs/completion-verification.md": "22c10c5277f9968d9070c425814f678d9e39c1e84babd2558c8c81fcd6e947f8",
         "docs/concepts.md": "ad1881ff612c4e4b15de63cf840dcbe3f93740b47de0164fd38e852e19802d48",
         "docs/recovery-guide.md": "c3d0360835e2a6fddc2ee88c8fefe38043aa6a319b190be7cb1af449a55f4a94"
@@ -55,10 +62,11 @@
     },
     "installation": {
       "translations": {
-        "zh": "5f9253d65795d0caec8135f07ce72f1a7fdd24c07d7aab9d25725a070267eab6",
-        "en": "5741b4b8a89514e94bf68204d6f8f6e126109f1623876222ff8f4e8d98a19c0f"
+        "zh": "668296ec83d230830a8705ea681976700f05065402e7a46dc553d18c3eb787ba",
+        "en": "464471e3cf0e146702205597131a6fdb71035f0e1fea41cf9021dea9fa8d9f39"
       },
       "sources": {
+        "docs/current-delivery.md": "e9158b390daafb549e0ddf32845a1ce6f0262b648179ee6028493d2d42ba3b51",
         "docs/getting-started.md": "5d41b268cfca9c8524ccdab4de3bee88fd6f647201d4121e899b89744aae02e3",
         "docs/installation.md": "6510a19562538e16cd355d657672cc4495920d998c95f584df696f9062744ea0",
         "docs/project-naming.md": "19571c67dfb973ccc17e342bcff790881c81648fe3392458b0815174d86a8dd8"
@@ -66,14 +74,14 @@
     },
     "integrations": {
       "translations": {
-        "zh": "64309a7563e7ac2bb112e34c42390206430e159f7bbbc717195d311e1f70feac",
-        "en": "66e32ead156f79907b8f5e6996b58c08bccfb7df17256ecbc10a9c30312fec5f"
+        "zh": "baed8dba44cf2f3738f42ed9aef3e3c8212186f9476496c26dfdc4630dfe257c",
+        "en": "84e6cce4c11b145687de8e75b1b5d76e825d44917a86e50616de9a25373d6232"
       },
       "sources": {
-        "docs/agent-stream-updates.md": "88f16a174fb346359e09bf4f9216be37322c81dcd4c7274e090a5f0ff0ed95a4",
+        "docs/agent-stream-updates.md": "50faec93950ad8b440f92ddb0264a5eaf1ee16eb32a868d539e067828a055326",
         "docs/cli-tools.md": "8d2dfe00cde83832d85b6d45772c2230b238d255c574af93b663b293dd6003e5",
-        "docs/extending.md": "cf56f6ff6b559e009f953e91b073cd7a03ed2888f90c355d9e6104a17fdbfcff",
-        "docs/http-tools.md": "65f67d3f2eed29bb7a91fa49c74a2f7eff916bb265795fa58a745992ad33e1db",
+        "docs/extending.md": "8d972ecf44342c33096562592434079a09fadadda3e1d7add98d7631384951e3",
+        "docs/http-tools.md": "f279988099863be14e9fc4cfd63ad453f2a0a939fa3a6b98615246839403a516",
         "docs/managed-tools.md": "c5074a0640d553e8ae1505bc289594684d0e79ab0e8662901d214c9073cc3b49",
         "docs/mcp-http.md": "cb5527eed888ed15fad8518810970147d8070ba861db989ff4fc32484694562e",
         "docs/model-adapters.md": "a916e2f7b1dd6595811731b3cabe170ba950518137c55a68c0deb320a4bc8414",
@@ -85,50 +93,59 @@
     },
     "models-tools": {
       "translations": {
-        "zh": "98ba7219880b71075e198e6d02576ddd9a5f90077ca4e8ec997766b5c5090a80",
-        "en": "45fe9b52302342cdbbf9e3fb4bcd4f6917e2da20ad35d987fa47d1338b47a9e9"
+        "zh": "6afb1a29c287db916eaeb712faa0c86d3f61f4f859c8c6af40fa6650bab78ae5",
+        "en": "1115bb76c14f02ae431de2cda5e5ca0a55967a7df8dc3900d6fedd732f289c37"
       },
       "sources": {
-        "README.md": "a4eb437cab7dceaae6ef592c29744adc9fe40642af59f4af6e0a7fae95e7d997",
+        "README.md": "c7fe5fa6fd11b98a9ded3580e67ecbb3345eae37a34dc4828a10b1da3a5ad454",
         "docs/agent-api.md": "be4af9af2bd3d40cae6f3332521771f675c1c64dac9bc6cd2ae82d517602f445",
         "docs/completion-verification.md": "22c10c5277f9968d9070c425814f678d9e39c1e84babd2558c8c81fcd6e947f8",
+        "docs/extending.md": "8d972ecf44342c33096562592434079a09fadadda3e1d7add98d7631384951e3",
         "docs/getting-started.md": "5d41b268cfca9c8524ccdab4de3bee88fd6f647201d4121e899b89744aae02e3",
+        "docs/managed-async-nodes.md": "40cbe740b7ca8158568ef858be4778da922ded5e5c5c1b8ad7fd86403e2ee038",
         "docs/model-adapters.md": "a916e2f7b1dd6595811731b3cabe170ba950518137c55a68c0deb320a4bc8414",
+        "docs/schema-validation.md": "74342948a9835bcbdf89e3f70126225b0a6103c93feb5dbcee364648c97964b1",
         "docs/sdk-model-tools.md": "0a50f0ce22e30527657626367de512fb43a36ffdce7d128850328b1c014b8f0f"
       }
     },
     "operations": {
       "translations": {
-        "zh": "29bb53842c90262d9fe1dfa2493ae30584893311f45e71727dfe2763d9f51acd",
-        "en": "6e8f83b5bfa6d19ba39c221773ba109765a8fe00787ab84fb44bd3a8f42998f8"
+        "zh": "96da90697925828eb3340702c84c2a8fb0539676680ee0423da6c6c47d2967fa",
+        "en": "5db6213dd5348b14ddecaef6fb9fc88d4f8438cae461d8cc75a2c99d252e0f79"
       },
       "sources": {
         "docs/agent-api.md": "be4af9af2bd3d40cae6f3332521771f675c1c64dac9bc6cd2ae82d517602f445",
         "docs/agent-limits.md": "456dbc1dde6357cf1a2dd318b298a9e6b68bdaa3dec1ad8d9ccefa10cc597472",
-        "docs/agent-stream-updates.md": "88f16a174fb346359e09bf4f9216be37322c81dcd4c7274e090a5f0ff0ed95a4",
+        "docs/agent-stream-updates.md": "50faec93950ad8b440f92ddb0264a5eaf1ee16eb32a868d539e067828a055326",
         "docs/recovery-guide.md": "c3d0360835e2a6fddc2ee88c8fefe38043aa6a319b190be7cb1af449a55f4a94",
-        "docs/runtime-assembly.md": "131f5f9b97da69c1e0fc5a7aa868306a32c9e13ce0cccb86b29ff6265304d289",
-        "docs/temporal-execution.md": "7a250d2684d8cece6181058aeb5f5b320d28d9edd75b0feaf6245b7129c15ecd"
+        "docs/runtime-assembly.md": "bad72f6249633607eded593f260682ba8ce65c4ce415bd77d497f90d6a5e12a4",
+        "docs/temporal-execution.md": "386d02bf3525bd8f9881112a71c95c833c16a6c6240742d034113702cd0b6412",
+        "docs/temporal-managed-nodes.md": "71f2e4dbceb7e1a0b9c87d40bea08dc4cabc35e1f4b30ed247e6bf7b3fc52e27"
       }
     },
     "overview": {
       "translations": {
-        "zh": "f24eb5f2fa1ef7ab2668099616f17f27a65a14e936299b78fe9d8e2292bec184",
-        "en": "90bf09f83b0c78264ffd3562aee646f132746ca6cd18885b098a6d6e98af5f6e"
+        "zh": "f56f91f4e15fc71767126b52077f265398bf8ceb9aa21f7492acd940463b0358",
+        "en": "77a7da2e6cac3a6cb0b2810f4477438465e2b1f0f20b1f2e511ad8eadbcd238e"
       },
       "sources": {
         "docs/agent-api.md": "be4af9af2bd3d40cae6f3332521771f675c1c64dac9bc6cd2ae82d517602f445",
-        "docs/agent-stream-updates.md": "88f16a174fb346359e09bf4f9216be37322c81dcd4c7274e090a5f0ff0ed95a4",
+        "docs/agent-stream-updates.md": "50faec93950ad8b440f92ddb0264a5eaf1ee16eb32a868d539e067828a055326",
         "docs/basic-capabilities.md": "308c84bdf4f81c2cc473c73cb17f8c8b4784893d349e8ee22e2ff0fc45bfa532",
         "docs/concepts.md": "ad1881ff612c4e4b15de63cf840dcbe3f93740b47de0164fd38e852e19802d48",
+        "docs/http-tools.md": "f279988099863be14e9fc4cfd63ad453f2a0a939fa3a6b98615246839403a516",
+        "docs/local-documents-assistant.md": "a161b8662c95b8d855fd7d6c5d05585c75095aeb402a8d40b91f684c5d39cb1f",
+        "docs/managed-async-nodes.md": "40cbe740b7ca8158568ef858be4778da922ded5e5c5c1b8ad7fd86403e2ee038",
         "docs/managed-tools.md": "c5074a0640d553e8ae1505bc289594684d0e79ab0e8662901d214c9073cc3b49",
-        "docs/support-journey.md": "85e2e0557885dbf849cd4e3c29b303ecaa6343484ba599d9c4859879b82304c9"
+        "docs/node-adapter-contracts.md": "6da884b7b301b495efcd67245bf1210a04faf3d1fcf8e703932712de43a02fd5",
+        "docs/support-journey.md": "85e2e0557885dbf849cd4e3c29b303ecaa6343484ba599d9c4859879b82304c9",
+        "docs/temporal-managed-nodes.md": "71f2e4dbceb7e1a0b9c87d40bea08dc4cabc35e1f4b30ed247e6bf7b3fc52e27"
       }
     },
     "quickstart": {
       "translations": {
-        "zh": "9a51508a2bc18473e5c16bf14d04911ff97abf7e6937642b6f630265e39a2a34",
-        "en": "2741cd8acc68e78dde3c72e03f06796ba6e062c0d717a6ca69150afe3bd5b61b"
+        "zh": "88ad4f8bb2b66d89dcbe1810acef0b32332092d89bce97b81d69d5a86036f45e",
+        "en": "777b5cf9f49305acee2080322178fe8932bc21a39360348cc84201b0d9709b6c"
       },
       "sources": {
         "docs/getting-started.md": "5d41b268cfca9c8524ccdab4de3bee88fd6f647201d4121e899b89744aae02e3",
@@ -138,14 +155,17 @@
     },
     "recovery": {
       "translations": {
-        "zh": "1f1fa8b0823f93d73ac6cfba8878fc778827819daee42c45c64f3873dd699031",
-        "en": "9e02d40848d29fb1ae8a748a77d35118945c5127084d6a5d91f9731c6ad36ec7"
+        "zh": "acb2e89b84c45901f08ff19888a49085229ec57763268d2343705824dcbac162",
+        "en": "5f292323d7c1057d2dbfc230f3eca918e5ab39b9de2ab638e40cd46b03df6c94"
       },
       "sources": {
         "docs/agent-api.md": "be4af9af2bd3d40cae6f3332521771f675c1c64dac9bc6cd2ae82d517602f445",
         "docs/concepts.md": "ad1881ff612c4e4b15de63cf840dcbe3f93740b47de0164fd38e852e19802d48",
         "docs/getting-started.md": "5d41b268cfca9c8524ccdab4de3bee88fd6f647201d4121e899b89744aae02e3",
-        "docs/recovery-guide.md": "c3d0360835e2a6fddc2ee88c8fefe38043aa6a319b190be7cb1af449a55f4a94"
+        "docs/local-documents-assistant.md": "a161b8662c95b8d855fd7d6c5d05585c75095aeb402a8d40b91f684c5d39cb1f",
+        "docs/managed-async-nodes.md": "40cbe740b7ca8158568ef858be4778da922ded5e5c5c1b8ad7fd86403e2ee038",
+        "docs/recovery-guide.md": "c3d0360835e2a6fddc2ee88c8fefe38043aa6a319b190be7cb1af449a55f4a94",
+        "docs/temporal-managed-nodes.md": "71f2e4dbceb7e1a0b9c87d40bea08dc4cabc35e1f4b30ed247e6bf7b3fc52e27"
       }
     },
     "sessions-memory": {
@@ -169,15 +189,17 @@
     },
     "testing": {
       "translations": {
-        "zh": "7b1726981e89047fd13f4f4f0631ba9ca4d191a2703a21a7b71eb1560e71e07c",
-        "en": "41a4ba7af6def841b413e02ddef16dd76f281ca3ad5cb6cef91790440114e787"
+        "zh": "d84ae58d68429fba39db119b55fe0e1f2e74f679582f70dc0693cb0c0cea381a",
+        "en": "1bd058a3fa460b994f43e990c38ad3709387bdbab6d4922b434a5d8b70f26412"
       },
       "sources": {
+        "docs/adapter-contracts.md": "216ed488e21fa2e791cc7c44d98160ea4c93f9c78fa46b25a40021bfd4f9c800",
         "docs/agent-api.md": "be4af9af2bd3d40cae6f3332521771f675c1c64dac9bc6cd2ae82d517602f445",
-        "docs/agent-stream-updates.md": "88f16a174fb346359e09bf4f9216be37322c81dcd4c7274e090a5f0ff0ed95a4",
+        "docs/agent-stream-updates.md": "50faec93950ad8b440f92ddb0264a5eaf1ee16eb32a868d539e067828a055326",
         "docs/business-evaluation.md": "b46f8414bcb49595e412061acb19c83a94e0eeeb54cae34304310eaa4de50851",
         "docs/completion-verification.md": "22c10c5277f9968d9070c425814f678d9e39c1e84babd2558c8c81fcd6e947f8",
         "docs/managed-tools.md": "c5074a0640d553e8ae1505bc289594684d0e79ab0e8662901d214c9073cc3b49",
+        "docs/node-adapter-contracts.md": "6da884b7b301b495efcd67245bf1210a04faf3d1fcf8e703932712de43a02fd5",
         "docs/planning-evaluation.md": "d0b2be62bccbc354b99e0f8127c28d729dd9394725132f15981f4708f63831b6",
         "docs/sdk-model-tools.md": "0a50f0ce22e30527657626367de512fb43a36ffdce7d128850328b1c014b8f0f",
         "docs/task-evaluation.md": "3f362c1bf8081200107d91d73c6bd47481800b30f1f9837cd67f6e9d01377e53"
@@ -197,17 +219,20 @@
     },
     "workflows": {
       "translations": {
-        "zh": "6c4bc994f5ab961893184efc26fcc78880199f431f6854982811693246a98f98",
-        "en": "9a251ff00330cdf55d005a85add6291adf5647a543e9beb90d193134e55d1658"
+        "zh": "8e6324042dc73cc8d5c57d2bc0eb0a4204d670090acf30bc23052e6f33af9f53",
+        "en": "79b1e97b67144d4a0b9e6756d898bbd9b7182dbcb9817f3d257cb78747352945"
       },
       "sources": {
         "docs/concepts.md": "ad1881ff612c4e4b15de63cf840dcbe3f93740b47de0164fd38e852e19802d48",
         "docs/dynamic-dag.md": "4afd83e76908d506fd6eb24fd45959f647d349dcbbbce27405e8eb116e063060",
+        "docs/managed-async-nodes.md": "40cbe740b7ca8158568ef858be4778da922ded5e5c5c1b8ad7fd86403e2ee038",
         "docs/managed-tools.md": "c5074a0640d553e8ae1505bc289594684d0e79ab0e8662901d214c9073cc3b49",
         "docs/orchestration.md": "58aacef85c1dac185992e0ef1aa92389313896a3be150d414909bb0bbbd719c8",
         "docs/parallel-workflows.md": "4c0e8887ecde436b55b45151373d4e874a9a3f61d8ba90ea634006ceb1562217",
-        "docs/runtime-assembly.md": "131f5f9b97da69c1e0fc5a7aa868306a32c9e13ce0cccb86b29ff6265304d289",
-        "docs/static-workflows.md": "8245f7c2326e3acff1fb05e436b7cc9814a1f3e725979c525c792bdd8293a774",
+        "docs/runtime-assembly.md": "bad72f6249633607eded593f260682ba8ce65c4ce415bd77d497f90d6a5e12a4",
+        "docs/schema-validation.md": "74342948a9835bcbdf89e3f70126225b0a6103c93feb5dbcee364648c97964b1",
+        "docs/static-workflows.md": "33a1321c35ad1ee9a4582a5423d81e443ccc296a674208b4ef8b2bfeca52db75",
+        "docs/temporal-managed-nodes.md": "71f2e4dbceb7e1a0b9c87d40bea08dc4cabc35e1f4b30ed247e6bf7b3fc52e27",
         "docs/user-input.md": "42cea73dcc429db441a2aedfd6d72f59b3317fa4375bcbdf2893a83a0834790c"
       }
     }

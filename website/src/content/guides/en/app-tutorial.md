@@ -3,12 +3,12 @@ title: Build one support application
 description: Advance one generated application from an offline Agent through Sessions, RAG, explicit Facts and a sequential Workflow.
 locale: en
 slug: app-tutorial
-sources: [docs/support-journey.md, docs/installation.md, docs/agent-api.md, docs/session-api.md, docs/recall-and-rag.md, docs/managed-memory.md, docs/orchestration.md, docs/recovery-guide.md]
+sources: [docs/support-journey.md, docs/installation.md, docs/agent-api.md, docs/session-api.md, docs/recall-and-rag.md, docs/managed-memory.md, docs/orchestration.md, docs/recovery-guide.md, docs/local-documents-assistant.md, docs/current-delivery.md]
 ---
 
 Follow ticket `INC-001` through five stages in one generated application: an Agent with a read-only tool, a persistent Session, local RAG, lasting Facts and a sequential Workflow. Each stage composes existing SDK components. The default provider is an offline fixture; it demonstrates execution and evidence plumbing without model credentials or network services.
 
-This tutorial targets the **0.1.0a8 Local SDK** at pinned source commit `300c62ce8dd417df6b471ce1c10a1b7a562d2c46`. Complete [installation](/en/docs/installation/) and the [approval quickstart](/en/docs/quickstart/) first. The stages below run without Temporal, Docker, embeddings or an external database. Online model compatibility and task quality need separate [testing and evaluation](/en/docs/testing/).
+This tutorial targets the **0.1.0a8 Local SDK** at pinned source commit `4bb46fe7a8935e6d13962a6c34e02519122c4c53`. Complete [installation](/en/docs/installation/) and the [approval quickstart](/en/docs/quickstart/) first. The stages below run without Temporal, Docker, embeddings or an external database. Online model compatibility and task quality need separate [testing and evaluation](/en/docs/testing/).
 
 ## 1. Generate an editable application
 
@@ -190,3 +190,38 @@ Callers own injected resources and create, await and close them on the same even
 - Establish offline regressions, model protocol checks and task quality cases through [testing and evaluation](/en/docs/testing/). Query signatures and control semantics in the [API and CLI reference](/en/docs/api-reference/).
 
 The repository [support journey (Chinese)](repo:docs/support-journey.md) describes the generated application and its component contracts. Temporal/Coding composition and production service integration are outside this Local tutorial's verification.
+
+## Separate application: local documents assistant
+
+`examples/local_documents` is a single-Agent CLI application outside the SDK. It queries UTF-8 Markdown/TXT in a selected directory, displays real sources and creates Markdown reports after human approval. Retrieval is bounded local lexical search without a vector database. Answers/reports require an explicitly configured real model, which receives selected excerpts and bounded conversation history.
+
+### Check the application combination before installation
+
+The distribution is `relf-local-documents-example`, import `local_documents`, CLI `relf-docs`. Its pyproject at the fixed source pins SDK `0.1.0a8+maintenance.a97223496646bac0`, so this is a separate installation path. The public SDK source's a8 base version does not satisfy that private exact dependency.
+
+If you have the frozen SDK and application wheels, verify both versions and hashes using the [exact application delivery guide (Chinese)](repo:docs/local-documents-assistant.md) and install them in a separate virtual environment. That guide also requires the complete application configuration and demo documents. The public checkout's application directory does not provide a direct pip installation path without the private package. This application entry does not replace the verified SDK tutorial above.
+
+### Query, preview and resume the original report
+
+After that separate installation, copy `assistant.toml` and `demo-documents`, explicitly configure your real model and key environment variable, then run in the application directory:
+
+```bash
+relf-docs --config assistant.toml --session main ask "How soon must Aurora P1 alerts be acknowledged?" --command-id ask-1
+relf-docs --config assistant.toml --session main history
+relf-docs --config assistant.toml --session main report "Summarize Aurora on-call and incident-review requirements" --output aurora.md --command-id report-1
+```
+
+Default terminal output shows the actually read relative path, line range and file SHA. For source IDs, run `relf-docs --config assistant.toml --json status QUERY_RUN_ID` with the query's original Run ID and inspect `sources[].id` and the corresponding source fields. `grounded=true` means declared citations correspond to this Run's read receipts; it does not prove every sentence correct. Sources are read-time snapshots. Submit a new query for changed content. Missing information requires an explicit lack of evidence, without invented sources.
+
+With sufficient evidence, a report pauses at `waiting_approval`, displaying its complete body, absolute path, original Action and operation digest in the default terminal output. No file exists yet. Review them, substitute the original values below and explicitly confirm the interactive approval:
+
+```bash
+relf-docs --config assistant.toml --json status RUN_ID
+relf-docs --config assistant.toml approve RUN_ID --action ACTION_ID --digest OPERATION_DIGEST --command-id approve-report-1
+relf-docs --config assistant.toml resume RUN_ID
+relf-docs --config assistant.toml status RUN_ID
+```
+
+Before approval, save `action_id`, `digest`, `path`, `content` and `sha256` from JSON `pending[0]`. Use the original `digest` for `OPERATION_DIGEST`, not the body's `sha256`. Independent approve only records the decision; resume advances the original save. Check `succeeded`, the actual file and its SHA against that original `sha256`. Repeating the original request and command ID retrieves its Run/receipt without another report. Reports only create new plain `.md` filenames under the output root, without overwrites or subdirectories.
+
+Keep separate state, documents and output roots. Preserve the original `assistant.toml`, `.assistant`, reports and write receipts. A new terminal restores the same environment, configuration and credentials before operating on the original Run. Unknown model results do not authorize automatic resubmission with a new ID. `status/history` makes no model calls; Ctrl-C while the application waits requests business cancellation. Frozen application and development-source fixes retain their separate delivery scopes. Website verification does not call this application's real model.

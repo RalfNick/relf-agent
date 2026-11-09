@@ -3,7 +3,7 @@ title: 模型与工具
 description: 注册普通 Python 函数，连接模型，选择 Agent 便捷入口或直接装配 LocalEngine。
 locale: zh
 slug: models-tools
-sources: [docs/sdk-model-tools.md, docs/getting-started.md, docs/model-adapters.md, docs/completion-verification.md, README.md, docs/agent-api.md]
+sources: [docs/sdk-model-tools.md, docs/getting-started.md, docs/model-adapters.md, docs/completion-verification.md, README.md, docs/agent-api.md, docs/extending.md, docs/schema-validation.md, docs/managed-async-nodes.md]
 ---
 
 ## 先用 Agent 便捷入口
@@ -172,3 +172,9 @@ def apply(value: int, *, context):
 已有 MCP、HTTP 或 CLI 工具可通过[集成与扩展](/zh/docs/integrations/)接入。继续阅读[审批与恢复](/zh/docs/recovery/)，理解写操作在超时和进程退出后的处理方式。
 
 方法签名与返回值见 [API 与 CLI 参考](/zh/docs/api-reference/)，端点验证见[测试与评估](/zh/docs/testing/)，同一应用逐步加入模型、会话和知识见[连续应用教程](/zh/docs/app-tutorial/)。
+
+## Callable 与 Schema 的维护边界
+
+当前固定源码加强了函数、方法、partial、类和可识别 `__call__` 入口的固定检查；不透明描述符等不能可靠确认的形态会提前拒绝。工具作者仍需用显式 version/config 固定闭包、默认参数、状态、业务客户端与外部依赖，不能将入口指纹视为任意 Python 执行图证明。允许与拒绝形态见[扩展指南](repo:docs/extending.md)。
+
+普通函数工具的参数为对象；[受管理异步节点](/zh/docs/workflows/)另接收完整 JSON 与独立 config。Local 在 Schema 包装时保留各自引用根及已声明嵌入资源，不自动获取外部文件或 URL；Temporal 仍保留其 `#` 引用子集。涉及引用根修复的包装身份可能变化，原 Run 应使用原版本恢复。详见[Schema 校验](repo:docs/schema-validation.md)。

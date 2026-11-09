@@ -3,7 +3,7 @@ title: Capabilities overview
 description: Choose agents, tools, memory, knowledge and execution patterns for your task, then compose them gradually.
 locale: en
 slug: overview
-sources: [docs/basic-capabilities.md, docs/concepts.md, docs/support-journey.md, docs/agent-stream-updates.md, docs/agent-api.md, docs/managed-tools.md]
+sources: [docs/basic-capabilities.md, docs/concepts.md, docs/support-journey.md, docs/agent-stream-updates.md, docs/agent-api.md, docs/managed-tools.md, docs/http-tools.md, docs/managed-async-nodes.md, docs/temporal-managed-nodes.md, docs/node-adapter-contracts.md, docs/local-documents-assistant.md]
 ---
 
 ## What Relf-Agent helps you build
@@ -34,12 +34,14 @@ Complete the [offline quickstart](/en/docs/quickstart/) first. It uses Python 3.
 
 ## Where the framework improvements help
 
-- **A smaller application entry:** start with `Agent(model=..., tools=...)`, then wait, inspect and control through `AgentRun`. Shared Runtime entries retain resource ownership. See [models and tools](/en/docs/models-tools/) and [API](/en/docs/api-reference/).
-- **Installed application development:** the default template supplies `agent_app.journey` and `customize` for Sessions, RAG, Facts and Workflows, with model, async-tool and memory replacement points. See the [application tutorial](/en/docs/app-tutorial/).
-- **Bounded observation and reconnect:** `subscribe_events` reads durable facts; opt-in `stream_updates` displays model text and async-tool progress using the original cursor. See [runtime and observation](/en/docs/operations/).
-- **Business flows without a placeholder model:** the graph template's `agent_app.tool_graph` runs async Tool nodes with explicit `providers={}`, retaining budgets, approvals and receipts. See [workflows](/en/docs/workflows/).
+- **A lighter application entry:** start with `Agent(model=..., tools=...)`, then wait, observe and control through AgentRun. Shared Runtimes retain original resource ownership. See [models and tools](/en/docs/models-tools/).
+- **Continuous application development:** generated `agent_app.journey`/`customize` connects Sessions, RAG, Facts, Workflows and component replacement. See the [application tutorial](/en/docs/app-tutorial/).
+- **Fixed external queries:** HTTPToolSource adds host-selected GET and parameter mapping while retaining policies, approvals and effect reconciliation. See [integrations](/en/docs/integrations/).
+- **Complete JSON async business nodes:** `GraphNode(executor=...)` receives complete input and separate config. Local and explicitly enabled stateless Temporal subsets retain the original execution protocol. See [workflows](/en/docs/workflows/).
+- **Bounded observation and adapter checks:** `subscribe_events`/`stream_updates` use original cursors; JSON/TOML can select display policy. `node-executor/core` supplies N01–N10 checks with no default execution. See [runtime configuration](/en/docs/operations/) and [testing](/en/docs/testing/).
+- **A separately installed documents assistant:** query local Markdown/TXT, inspect sources and approve report saves. The current application depends on a frozen private SDK combination; review its [installation prerequisites](/en/docs/app-tutorial/) first.
 
-These maintenance capabilities belong to the pinned commit. The original archives sharing base version `0.1.0a8` do not necessarily contain them. A wait timeout, failed close or display-stream end does not establish completed business work.
+Capabilities follow the fixed development commit above. The original a8 archives and individual private wheels do not automatically include these increments. A wait timeout, end of display or incomplete close cannot replace actual business-completion evidence.
 
 ## How the pieces fit
 

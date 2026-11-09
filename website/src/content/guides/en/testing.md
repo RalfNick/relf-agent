@@ -3,7 +3,7 @@ title: Testing & evaluation
 description: Run an offline application regression, check model protocols, and separate fixture results from live task quality.
 locale: en
 slug: testing
-sources: [docs/sdk-model-tools.md, docs/business-evaluation.md, docs/task-evaluation.md, docs/planning-evaluation.md, docs/agent-api.md, docs/completion-verification.md, docs/agent-stream-updates.md, docs/managed-tools.md]
+sources: [docs/sdk-model-tools.md, docs/business-evaluation.md, docs/task-evaluation.md, docs/planning-evaluation.md, docs/agent-api.md, docs/completion-verification.md, docs/agent-stream-updates.md, docs/managed-tools.md, docs/node-adapter-contracts.md, docs/adapter-contracts.md]
 ---
 
 Install SDK `0.1.0a8` using [quickstart](/en/docs/quickstart/) and activate that Python environment first. The offline examples below need no model key, network service or pytest. They were checked against the pinned maintenance source with base version a8.
@@ -237,3 +237,21 @@ After the existing offline regressions on this page, check these maintenance cap
 - Adapter failures: inspect business results, actual handler completion and resource cleanup separately. Keep original cleanup/leases after a failed close; do not create substitute requests after a return-value validation failure.
 
 These checks validate documented examples and selected execution contracts, not the full SDK/platform, independent adoption or model task quality. Website tutorials install the fixed source; private-candidate acceptance remains tied to its exact version.
+
+## Check custom async nodes
+
+The fixed development source adds `node-executor`, contract version `1`, profile `core`. Run in a separate writable directory:
+
+```bash
+relf-check-adapter --role node-executor > node-default.json
+relf-check-adapter --role node-executor --offline > node-offline.json
+relf-check-adapter --role node-executor --offline --evidence-dir node-evidence-1 > node-evidence.json
+```
+
+The first command reports `status=not_run`, without running a fixture or contacting services. The second and third explicitly execute N01–N10 against the packaged independent SQLite reference; successful reports use `status=passed`. The evidence directory must not exist, and its parent must already exist and be writable; choose a new path for another run. `--offline` qualifies that reference, not your business component.
+
+Checks cover complete JSON/separate config, input and config schema rejection before dispatch, original receipts/settlement after output failure, identity/method drift, unknown results, approvals/budgets, repeated commands, SQLite reopen, and actual handler cancellation/exit with cleanup retry. They do not certify write idempotency, Temporal, a persistent cross-process business supplier or real task quality.
+
+For your own node, connect a disposable test environment through `AdapterContractSuite(role="node-executor")`, `NodeContractSession` and an explicit fixture. Missing required controls remain `not_verified`. The fixture arranges data, faults and management observations; it supplies no Run/Action receipts or acceptance verdict. The Suite closes only owned resources explicitly listed as `NodeContractResource`. Preserve the original Suite/workspace after cleanup failure and retry `aclose()` on its original event loop.
+
+N10 cancels the caller of low-level `LocalEngine.drive`, which requests business cancellation under its existing protocol. Do not apply that behavior to the observation-only cancellation of high-level `AgentRun.wait` or event subscriptions. See the [node contract guide (Chinese)](repo:docs/node-adapter-contracts.md) for fixture ports and an editable example, and [adapter contracts (Chinese)](repo:docs/adapter-contracts.md) for report states.

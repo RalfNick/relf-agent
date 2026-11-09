@@ -12,7 +12,7 @@ sources: [docs/model-adapters.md, docs/managed-tools.md, docs/mcp-http.md, docs/
 | --- | --- | --- |
 | Python 业务函数 | `ToolRegistry.tool` / `register_function` | 参数 Schema、效果类别、版本、审批和核验 |
 | MCP 工具服务 | `MCPToolSource` + stdio / HTTP Transport | 选中的工具、固定目标、凭据、策略与关闭 |
-| 业务 HTTP JSON 接口 | `HTTPToolSource` | 固定 URL、POST、Schema、响应限制与效果语义 |
+| 业务 HTTP JSON 接口 | `HTTPToolSource` | 固定 URL、POST／GET、Schema、响应限制与效果语义 |
 | 可信本地 CLI | `CLIToolSource` | 固定 argv、JSON 输入输出、环境与进程生命周期 |
 | 文件资料 | Workspace 与受管理文件工具 | 固定根目录、相对路径、Scope 与读取额度 |
 | 可复用操作说明 | Skill Catalog 与受管理加载 | 允许的技能、正文版本、来源与工具权限 |
@@ -60,11 +60,47 @@ relf --db .ralf/runs.sqlite \
 
 - **幂等写入：** 下游必须真正接受并按稳定效果键去重，不能只在框架中声明一个类别。
 - **可查询写入：** 由 SDK 提供能查询原效果的 reconciler，核验不能隐式重做原操作。
-- **HTTP：** 固定 JSON POST 入口；业务 URL、方法和请求头不由模型动态提供。它不是通用浏览器或任意 REST 代理。
+- **HTTP：** 固定 JSON POST／GET 入口；业务 URL、方法和请求头不由模型动态提供。它不是通用浏览器或任意 REST 代理。
 - **CLI：** 固定程序与 argv、不隐式使用 shell。CLI 进程管理本身不是沙箱隔离。
 - **MCP HTTP：** 使用已实现的 JSON／POST SSE 子集；OAuth、resources、prompts、tasks 等不能从“支持工具调用”推断获得。
 
 超时或取消等待不证明远端业务已经停止。未知效果继续走[核验与恢复](/zh/docs/recovery/)，并等待实际调用和连接收尾。
+
+## 固定 HTTP GET 与查询参数
+
+`HTTPToolSource` 默认仍为 POST；固定维护源码另支持显式 `method="GET"` 和参数映射。下面是异步启动工厂片段；先将固定端点替换为自己的可信接口，并确认它的只读语义，再调用工厂并将返回的 tools 注入应用：
+
+```python
+from relf_agent import HTTPToolSource, ToolDescriptor, ToolPolicy, ToolRegistry, register_tool_source
+
+async def build_search_tools():
+    tools = ToolRegistry()
+    source = HTTPToolSource(
+        ToolDescriptor("search", "Search records", {
+            "type": "object",
+            "properties": {"query": {"type": "string"}, "tags": {
+                "type": "array", "items": {"type": "string"}, "minItems": 1}},
+            "required": ["query"], "additionalProperties": False,
+        }),
+        "https://your-business.example/search",
+        version="search-v1", method="GET",
+        query_parameters={"query": "q", "tags": "tag"},
+    )
+    try:
+        await register_tool_source(tools, source, policies={
+            "search": ToolPolicy("1", effect="read_only", requires_approval=False),
+        })
+    except BaseException:
+        await source.aclose()
+        raise
+    return tools, source
+```
+
+`{"query": "a b", "tags": ["a&b", "中文"]}` 编码为 `q=a+b&tag=a%26b&tag=%E4%B8%AD%E6%96%87`。可选映射参数缺省时不发送；列表变为重复参数。GET 接受字符串、有限数字、布尔值及非空标量列表，拒绝 null、对象、嵌套／空列表和未映射的实际参数；POST 不接受 `query_parameters`。
+
+固定 URL 不含凭据、查询或 fragment；模型不能改变 host、path、方法或头。GET 不发送正文，原 JSON 输入和编码后查询各自受 `max_input_bytes` 限制；不要把秘密放入会被服务记录的查询参数。Source 不跟随重定向或自动重试，成功响应须为有界的有限 UTF-8 JSON。
+
+直接注册只借用 Source。应用持有返回的 source，先排空实际执行并关闭 Engine／Runtime，再 `await source.aclose()`；Profile 使用异步 `RuntimeBuilder.abuild`／`TemporalRuntimeBuilder.abuild` 的 `tools/http-json` 工厂管理 owned Source。GET 不自动授予只读权限或免审批，仍使用原 ToolPolicy。完整 JSON／TOML 声明、效果与关闭边界见[HTTP 工具指南](repo:docs/http-tools.md)。
 
 ## Workspace、Skills 与 Sandbox
 

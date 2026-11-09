@@ -3,7 +3,7 @@ title: 审批与恢复
 description: 检查原操作、保存人工决定，并根据真实业务证据恢复原 Run。
 locale: zh
 slug: recovery
-sources: [docs/recovery-guide.md, docs/getting-started.md, docs/concepts.md, docs/agent-api.md]
+sources: [docs/recovery-guide.md, docs/getting-started.md, docs/concepts.md, docs/agent-api.md, docs/managed-async-nodes.md, docs/temporal-managed-nodes.md, docs/local-documents-assistant.md]
 ---
 
 ## 先观察原任务
@@ -104,3 +104,11 @@ relf --db .ralf/runs.sqlite --factory agent_app.runtime:create_engine cancel RUN
 
 
 CLI 在业务命令后检查同步关闭的完成证据；关闭失败或非 None 返回会以退出码 2 报错，不能据此断言原提交未发生。先只读检查原 Run／回执，修复工厂并确认原实际调用已结束，再以同 ID、同输入／定义／预算找回原请求。
+
+## 异步节点与安全审批预览
+
+受管理 executor 节点仍恢复原 Action 和效果证据。输出 Schema 失败可能发生在真实回执与额度结算已保存之后；这不授权重新执行业务写入。`queryable_write` 无证据时保留核验等待，`idempotent_write` 仍依赖下游实际去重。详见[节点恢复](repo:docs/managed-async-nodes.md)。
+
+Temporal 容量拒绝、未知效果和已结束状态是不同事实；检查原节点／子 Run、`handler_not_started`、Journal、ACK 及真实处理器退出证据，再推进原任务。默认 16 个 owner 槽不提供跨 Run 排队，不能通过更换 ID 修复容量不足或丢失回执。见[Temporal 节点](repo:docs/temporal-managed-nodes.md)。
+
+本地文档助手等人工终端预览将 ANSI／OSC 和 Unicode 格式控制显示为可见转义，批准仍绑定原始正文、路径和摘要；不要把屏幕转义文字作为替代正文提交。独立 approve 只保存决定，实际文件应在恢复原任务后核对。见[本地资料助手](repo:docs/local-documents-assistant.md)。

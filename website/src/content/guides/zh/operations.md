@@ -3,7 +3,7 @@ title: 运行与部署
 description: 选择 Local 或 Temporal，管理版本化配置、执行额度、观察与资源生命周期。
 locale: zh
 slug: operations
-sources: [docs/runtime-assembly.md, docs/agent-api.md, docs/agent-limits.md, docs/temporal-execution.md, docs/recovery-guide.md, docs/agent-stream-updates.md]
+sources: [docs/runtime-assembly.md, docs/agent-api.md, docs/agent-limits.md, docs/temporal-execution.md, docs/recovery-guide.md, docs/agent-stream-updates.md, docs/temporal-managed-nodes.md]
 ---
 
 ## 先选择执行后端
@@ -135,7 +135,7 @@ asyncio.run(main())
 
 ```bash
 mkdir ../stream-app
-git show 300c62ce8dd417df6b471ce1c10a1b7a562d2c46:examples/stream_updates.py > ../stream-app/stream_updates.py
+git show 4bb46fe7a8935e6d13962a6c34e02519122c4c53:examples/stream_updates.py > ../stream-app/stream_updates.py
 cd ../stream-app
 python stream_updates.py --db .ralf/stream-example.sqlite --command-id stream-1
 python stream_updates.py --db .ralf/stream-example.sqlite --command-id stream-1
@@ -158,6 +158,26 @@ python stream_updates.py --db .ralf/stream-example.sqlite --command-id stream-1
 
 Temporal 沿原 History／Worker 接收 Signal，已验收仅覆盖所选原生文本 Agent Service 子集；本页离线例子不新增 Temporal 高级流组合、真实写、线上模型或平台资格。具体边界见[增量流说明](repo:docs/agent-stream-updates.md)。
 
+## 在配置中选择有界展示策略
+
+在已有 `[[profiles]]` 的 Local 或 Temporal TOML Profile 中增加以下组件；JSON 使用等价的 `components.stream_updates` 对象。它是现有 Profile 的增量片段，不是独立 Catalog：
+
+```toml
+[profiles.components.stream_updates]
+adapter = "bounded"
+[profiles.components.stream_updates.config]
+max_deltas = 64
+max_bytes = 65536
+max_payload_bytes = 4096
+publish_timeout = 0.25
+```
+
+省略组件时展示仍关闭；config 可省略或仅覆盖部分字段。`max_deltas` 为 1–1024，`max_bytes` 为 256–1048576，`max_payload_bytes` 为 256–min(65536, max_bytes) 的整数；`publish_timeout` 为 (0, 2] 的有限秒数。布尔值、未知字段和越界配置在分配资源前拒绝。
+
+配置只启用展示接收，不会把普通 Provider.complete 改为流式调用。模型文本仍需显式 `StreamedModelProvider` 或已注册的流式工厂；异步工具仍须 `emit_tool_delta`。普通 Provider 可正常完成而不产生文本增量。Local 同步／异步装配与 Temporal 异步装配沿用该策略，策略不创建新客户端。
+
+新策略使用新 Profile 版本和新请求；旧 Run 保留原策略、组件和游标。wrapper 的迭代器清理仍由持有者 `retry_stream_closes()` 重试，配置不接管它。完整说明见[增量流与配置](repo:docs/agent-stream-updates.md)；受管理节点和 Temporal 容量边界见[工作流](/zh/docs/workflows/)。
+
 ## 从本地试点继续
 
 先验证一个离线任务、真实工具和审批恢复，再为实际模型、外部数据、MCP 或 Temporal 添加所需依赖与服务。Temporal 可选依赖从源码仓库根目录安装 `python -m pip install -e '.[temporal]'`，随后自行配置 Service、Worker 与匹配发布；本指南不会隐式启动服务。
@@ -166,7 +186,7 @@ API 和部分组合仍在 Alpha 阶段。部署判断使用你的实际组件与
 
 ## 验证基线与支持边界
 
-本站基于页首所示固定源码提交的 SDK **0.1.0a8 基版本维护源码**，验证日期 **2026-10-31**。日期记录这些教程的验证，不表示每种部署或线上型号均获保证。
+本站基于页首所示固定源码提交的 SDK **0.1.0a8 基版本维护源码**，验证日期 **2026-11-09**。日期记录这些教程的验证，不表示每种部署或线上型号均获保证。
 
 | 组合 | 文档状态 | 使用前继续验证 |
 | --- | --- | --- |

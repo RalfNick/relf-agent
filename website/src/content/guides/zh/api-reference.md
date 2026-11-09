@@ -3,7 +3,7 @@ title: API 与 CLI 参考
 description: 查询常用 Local Agent、Runtime、Session 和 CLI 的签名、返回值与恢复契约。
 locale: zh
 slug: api-reference
-sources: [docs/api-reference.md, docs/agent-api.md, docs/session-api.md, docs/user-input.md, docs/sdk-model-tools.md, docs/recovery-guide.md, docs/runtime-assembly.md, docs/getting-started.md, docs/agent-stream-updates.md]
+sources: [docs/api-reference.md, docs/agent-api.md, docs/session-api.md, docs/user-input.md, docs/sdk-model-tools.md, docs/recovery-guide.md, docs/runtime-assembly.md, docs/getting-started.md, docs/agent-stream-updates.md, docs/managed-async-nodes.md, docs/temporal-managed-nodes.md, docs/node-adapter-contracts.md, docs/http-tools.md]
 ---
 
 本页精选常用 Local 入口，对照 SDK `0.1.0a8` 核验，不是完整的自动生成 API 列表。完整程序从[连续应用教程](/zh/docs/app-tutorial/)开始；Provider 装配见[模型与工具](/zh/docs/models-tools/)。Temporal 和可选后端的独立契约见[运行与部署](/zh/docs/operations/)。
@@ -167,3 +167,17 @@ relf send-input --help
 | `cancel RUN_ID --command-id CANCEL_ID` | 记录停止决定，不回滚效果。 |
 
 `status`／`inspect`／`events` 直接只读本地 SQLite 权威，不导入工厂，也不是通用 Temporal 检查入口。完整 CLI 操作见[用户输入](/zh/docs/user-input/)或[快速开始](/zh/docs/quickstart/)，回归和协议命令见[测试与评估](/zh/docs/testing/)。更广的可选查询见[仓库 API 索引](repo:docs/api-reference.md)。
+
+## 新增节点、HTTP 与接入检查入口
+
+| 入口 | 契约与使用路径 |
+| --- | --- |
+| `GraphNode(executor=..., config=...)` | 显式选择组件；不得同时声明 Agent、普通 tool 或 transform。见[完整离线流程](/zh/docs/workflows/) |
+| `NodeExecutorSpec`／`NodeExecutorRegistry.register(spec, component)` | 显式 effect、input/config/output Schema、版本、审批与 cost；组件提供非空有限 JSON 对象 identity 和 async execute；queryable_write 必须有 async reconcile，其他效果类别可选 |
+| `execute(input, config, context)` | 完整有限 JSON 输入、独立对象配置、原 InvocationContext；`reconcile` 返回 EffectObservation 或 None，`EffectObservation(None)` 表示已确认 JSON null |
+| `workflow_executors` | LocalEngine／TemporalRuntime 的 SDK 参数，以及 Local／Temporal Profile 的组件角色；默认 adapter 为 `identity` |
+| `HTTPToolSource(method="GET", query_parameters=...)` | 固定端点、参数名映射和原策略；完整[集成示例](/zh/docs/integrations/) |
+| `components.stream_updates` | adapter `bounded` 的四个有界字段；[配置与观察](/zh/docs/operations/) |
+| `AdapterContractSuite(role="node-executor")` | core N01–N10；默认不执行、缺少控制不认证；[CLI 与 fixture](/zh/docs/testing/) |
+
+节点注册表借用组件，真实资源按原 owned／borrowed 生命周期收尾。Temporal 受管理节点限于显式无会话组合，不能从同名 SDK 端口推断后端完全对等。更完整的签名与边界见[Local 节点](repo:docs/managed-async-nodes.md)、[Temporal 节点](repo:docs/temporal-managed-nodes.md)和[检查端口](repo:docs/node-adapter-contracts.md)。

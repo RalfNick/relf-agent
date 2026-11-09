@@ -269,6 +269,100 @@ def verify_maintenance_recipes(locale, directory, sdk, env):
     )
 
 
+def verify_development_recipes(locale, directory, sdk, env):
+    recipe = next(
+        code for code in blocks(locale, "workflows", "bash")
+        if ":examples/managed_async_nodes.py" in code
+    )
+    checkout = directory / "managed-nodes" / "sdk"
+    checkout.mkdir(parents=True)
+    git_dir = subprocess.check_output(
+        ["git", "rev-parse", "--absolute-git-dir"], cwd=ROOT, text=True
+    ).strip()
+    output = run(
+        ["bash", "-eu", "-c", recipe], checkout,
+        {**env, "GIT_DIR": git_dir, "GIT_WORK_TREE": str(sdk)},
+    )
+    rows = [json.loads(line) for line in output.splitlines()]
+    assert len(rows) == 3 and len({row["run_id"] for row in rows}) == 1, rows
+    assert rows[0]["state"] == "waiting_approval", rows[0]
+    assert rows[0]["requests_total"] == rows[0]["effects_total"] == 0, rows[0]
+    for row in rows[1:]:
+        assert row["state"] == "succeeded" and row["spent"] == 2, row
+        assert row["requests_total"] == row["effects_total"] == 1, row
+        assert row["receipt_replay_matches"], row
+    assert rows[1]["requests_this_process"] == 1 and rows[2]["requests_this_process"] == 0
+    assert rows[0]["pending"]["action_id"] == rows[1]["action_id"]
+    assert rows[1]["action_id"] == rows[2]["action_id"]
+    assert rows[1]["effect_key"] == rows[2]["effect_key"]
+
+    copy_code = next(
+        code for code in blocks(locale, "workflows") if "identity-nodes.sqlite" in code
+    )
+    copied = [json_records(execute(copy_code, directory / "copy_node.py", env))[-1] for _ in range(2)]
+    assert copied[0]["run_id"] == copied[1]["run_id"]
+    assert all(row["state"] == "succeeded" and row["result"] == [1, None, "hello"] for row in copied)
+
+    contract_code = next(
+        code for code in blocks(locale, "testing", "bash") if "--role node-executor" in code
+    )
+    contracts = directory / "node-contracts"
+    contracts.mkdir()
+    run(["bash", "-eu", "-c", contract_code], contracts, env)
+    default = json.loads((contracts / "node-default.json").read_text())
+    assert default["status"] == "not_run" and default["passed"] == 0, default
+    expected_cases = {f"N{number:02}" for number in range(1, 11)}
+    assert default["role"] == "node-executor" and default["profile"] == "core", default
+    assert default["total"] == default["not_verified"] == 10, default
+    assert {case["case_id"] for case in default["cases"]} == expected_cases, default
+    assert all(case["status"] == "not_verified" for case in default["cases"]), default
+    for name in ["node-offline.json", "node-evidence.json"]:
+        report = json.loads((contracts / name).read_text())
+        assert report["role"] == "node-executor" and report["status"] == "passed", report
+        assert report["passed"] == report["total"] == 10 and report["not_verified"] == 0, report
+        assert {case["case_id"] for case in report["cases"]} == expected_cases, report
+        assert all(case["status"] == "passed" for case in report["cases"]), report
+    assert (contracts / "node-evidence-1").is_dir()
+
+    http_code = next(
+        code for code in blocks(locale, "integrations") if "async def build_search_tools" in code
+    )
+    http_probe = http_code + '''
+import asyncio
+async def check_configuration():
+    tools, source = await build_search_tools()
+    try:
+        assert source.identity["method"] == "GET"
+        assert (await source.list_tools())[0].name == "search"
+    finally:
+        await source.aclose()
+asyncio.run(check_configuration())
+print("HTTP configuration PASS; no service request")
+'''
+    assert "HTTP configuration PASS" in execute(http_probe, directory / "http_config.py", env)
+
+    policy = next(
+        code for code in blocks(locale, "operations", "toml")
+        if "profiles.components.stream_updates" in code
+    )
+    policy_probe = f'''
+import asyncio
+import tomllib
+from relf_agent import AgentSpec, RuntimeBuilder, RuntimeProfile
+component = tomllib.loads({('[[profiles]]' + chr(10) + policy)!r})["profiles"][0]["components"]
+profile = RuntimeProfile("stream-config", "1", {{"default": {{"adapter": "offline-echo"}}}}, component)
+with RuntimeBuilder().build(profile, ".ralf/stream-policy.sqlite") as runtime:
+    run = runtime.submit(AgentSpec("configured", "Echo"), "hello", command_id="configured-1")
+    assert asyncio.run(runtime.drive(run.run_id)).state == "succeeded"
+print("Stream policy configuration PASS")
+'''
+    assert "Stream policy configuration PASS" in execute(policy_probe, directory / "stream_config.py", env)
+    print(
+        f"{locale}: managed-node approval/reopen/effect replay, identity Profile, N01-N10, "
+        "HTTP GET registration and TOML stream policy passed; external services excluded"
+    )
+
+
 with TemporaryDirectory(prefix="relf-website-examples-") as tmp:
     work = Path(tmp)
     sdk = work / "sdk"
@@ -348,6 +442,7 @@ with TemporaryDirectory(prefix="relf-website-examples-") as tmp:
         )
         verify_command_recipes(locale, directory, sdk, env)
         verify_maintenance_recipes(locale, directory, sdk, env)
+        verify_development_recipes(locale, directory, sdk, env)
 
 print(
     f"Tutorial examples passed against pinned SDK source {BASELINE[:12]}; online model/embedding probes excluded."

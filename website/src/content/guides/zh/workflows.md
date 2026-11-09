@@ -3,7 +3,7 @@ title: 工作流与多 Agent
 description: 从静态图到有界的 Plan 与 Team，按任务需要选择编排方式。
 locale: zh
 slug: workflows
-sources: [docs/static-workflows.md, docs/orchestration.md, docs/parallel-workflows.md, docs/dynamic-dag.md, docs/concepts.md, docs/user-input.md, docs/managed-tools.md, docs/runtime-assembly.md]
+sources: [docs/static-workflows.md, docs/orchestration.md, docs/parallel-workflows.md, docs/dynamic-dag.md, docs/concepts.md, docs/user-input.md, docs/managed-tools.md, docs/runtime-assembly.md, docs/managed-async-nodes.md, docs/temporal-managed-nodes.md, docs/schema-validation.md]
 ---
 
 ## 先选择任务结构
@@ -68,7 +68,7 @@ relf --db .ralf/tool-graph.sqlite --format text inspect RUN_ID
 
 `tool-runtime.toml` 显式声明 `providers = {}`，`tool-graph.json` 定义节点和映射，`agent_app/tool_runtime.py` 注册 `order-fixture` 及原恢复工厂。替换其中两个 async 函数即可接自己的业务；同步注册工厂只装配工具，异步客户端按[异步装配](repo:docs/async-assembly.md)管理，不能返回未等待的 coroutine。
 
-空 Provider 只适用于有限 **Local Tool／Transform 图**，字段仍必填。普通 Agent／混合图需要可解析的 Provider，TemporalProfile 仍要求非空配置。Tool 节点复用原 Action、预算、授权、审批、回执和未知效果核验；不是任意节点／reducer 或逐记录数据流。原 a8 包没有这些生成文件。
+上述普通 Tool／Transform 流程使用有限 Local 图，`providers={}` 仍须显式填写。普通 Agent／混合图需要可解析的 Provider；下方另列 Temporal 无模型 executor 节点的显式注册条件。Tool 节点复用原 Action、预算、授权、审批、回执和未知效果核验；不是任意节点／reducer 或逐记录数据流。原 a8 包没有这些生成文件。
 
 ### 给新工具流程加审批
 
@@ -91,6 +91,63 @@ relf --db .ralf/tool-graph.sqlite --format text inspect RUN_ID
 ```
 
 第一个节点批准后，resume 可能停在第二个节点审批；重新检查新的 Action／digest，换一个决定 ID，再执行上述控制步骤，直到 Snapshot 为 `succeeded`。重试同一批准使用原 ID，只回读原回执，不增加调用；最终仍为两个 Tool Action、0 个 Model Action、2 credits。此例对只读工具演示审批；改成写操作时另行声明真实效果类别、下游幂等／查询与核验契约。
+
+## 使用受管理异步组件节点
+
+已有异步业务组件、完整数组输入或独立配置时，可以使用 `GraphNode(executor="receipt", config={...})`，不必包装成模型 Agent。组件提供非空、有限 JSON 对象 `identity` 和真正的 `async execute(input, config, context)`；`NodeExecutorRegistry.register(NodeExecutorSpec(..., effect="..."), component)` 显式注册。`input` 是完整有限 JSON，`config` 是独立对象；同步函数返回 coroutine 不满足端口。组件无需继承框架类。`effect="queryable_write"` 还必须实现真正异步的 `reconcile(input, config, context)`；其他效果类别可选。
+
+回到安装所用的**固定框架源码根目录**，保持虚拟环境激活，选择不存在的 `../managed-node-app`：
+
+```bash
+mkdir ../managed-node-app
+git show 4bb46fe7a8935e6d13962a6c34e02519122c4c53:examples/managed_async_nodes.py > ../managed-node-app/managed_async_nodes.py
+cd ../managed-node-app
+python managed_async_nodes.py --db .ralf/receipts.sqlite --command-id receipt-1 --pause-before-approval
+python managed_async_nodes.py --db .ralf/receipts.sqlite --command-id receipt-1
+python managed_async_nodes.py --db .ralf/receipts.sqlite --command-id receipt-1
+```
+
+该脚本仅写两个本地示例 SQLite 库，不调用模型或实际库存服务。第一条执行命令停在 `waiting_approval`，实际业务请求为 0；第二条重新打开原库、批准原 Action 并完成，`requests_total=effects_total=1`、`spent=2`；第三条回读相同 Run／Action／effect key，`requests_this_process=0`、`receipt_replay_matches=true`。示例自动批准仅用于已知本地夹具；真实应用应先审查原工具、完整参数和操作摘要。
+
+执行库是 `.ralf/receipts.sqlite`，独立业务回执在相邻的 `.ralf/receipts.sqlite.business.sqlite`；两者均保留。示例按实际 effect key 和相同参数去重，这是业务实现的保证。新操作使用新 command ID，原操作保留原代码、配置、路径与 ID。
+
+### 通过 Profile 使用默认 identity 节点
+
+默认 `identity` adapter 只复制输入，config 只能为空。另选一个已安装 SDK 的可写应用目录，将下列代码保存为 `copy_node.py`，执行两次 `python copy_node.py`：
+
+```python
+import asyncio
+import json
+from relf_agent import GraphNode, GraphWorkflowSpec, RuntimeBuilder, RuntimeProfile, ValueRef
+
+profile = RuntimeProfile(
+    "nodes", "1", {},
+    {"workflow_executors": {"adapter": "identity", "config": {}}},
+)
+flow = GraphWorkflowSpec(
+    "copy", [GraphNode("copy", executor="identity")], output=ValueRef("copy")
+)
+with RuntimeBuilder().build(profile, ".ralf/identity-nodes.sqlite") as runtime:
+    handle = runtime.submit(flow, [1, None, "hello"], command_id="copy-1", budget=2)
+    snapshot = asyncio.run(runtime.drive(handle.run_id))
+    print(json.dumps({"run_id": handle.run_id, "state": snapshot.state, "result": snapshot.result}))
+```
+
+两次均应为 `succeeded`、结果 `[1, null, "hello"]` 且 Run ID 相同。JSON／TOML 使用同一 `components.workflow_executors` 声明；完整配置与自定义同步／异步工厂见[节点装配指南](repo:docs/managed-async-nodes.md)。注册表借用组件；工厂通过原 `BuildContext.own/own_async` 登记资源，退出前等待实际执行结束再关闭客户端。
+
+### Local 与 Temporal 的节点边界
+
+| 节点或组合 | Local | Temporal |
+| --- | --- | --- |
+| 普通 Tool／纯 Transform 节点 | 已支持的有限图 | 本次未支持 |
+| `GraphNode(executor=...)` | 串行、有界并行及原嵌套图 | 显式启用的无会话串行／有界并行、Agent 混合图和原 Team／Dynamic 嵌套 |
+| executor 图结合 Session／Turn／native session history | 按 Local 原支持组合 | 拒绝；Coding composition、部署准入和该图的 parent completion policy 也不支持 |
+
+Temporal 的 SDK 入口为 `TemporalRuntime(providers={}, tools=ToolRegistry(), workflow_executors=nodes)`，或使用 `TemporalProfile` 的同名组件；显式注册节点时可配置 `providers={}`，混合图中的 Agent 仍需 Provider。需要先安装 Temporal extra、准备 Service／Worker、原发布和队列；[无模型 Service 示例](repo:docs/temporal-managed-nodes.md)提供完整命令，本页离线流程不启动服务。发布检查全部注册节点：只要注册表包含任一非 `read_only` 节点，即使当前图未选中它，也必须提供耐久 `EffectJournal`；纯只读注册集合不要求 Journal。
+
+节点复用原 Action、审批、预算、结果与效果核验。`input_schema`／`config_schema` 在派发前验收；注册和 GraphNode 两级输出 Schema 在真实回执与结算保存后验收。失败不能撤销实际效果或授权重写。Local 保持独立 Schema 引用根，Temporal 限于原 `#` 引用子集。没有增加循环、reducer 或逐记录流式 Workflow。
+
+Temporal 默认节点执行 owner 为 16 槽；多 Run 或过高并发可在处理器尚未启动时返回 `memory_backend_error`／`handler_not_started=true`。`max_concurrency` 不提供自动容量排队或跨 Run 背压；不要根据进度缺失重发业务。先核对原 Run／Action 和实际调用，再按[运行与恢复](repo:docs/temporal-managed-nodes.md)处理；自定义组件先走[节点接入检查](/zh/docs/testing/)。
 
 ## 定义一个团队
 

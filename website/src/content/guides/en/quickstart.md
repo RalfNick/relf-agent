@@ -15,7 +15,7 @@ In a terminal, create a virtual environment and install:
 ```bash
 git clone https://github.com/RalfNick/relf-agent.git
 cd relf-agent
-git checkout 300c62ce8dd417df6b471ce1c10a1b7a562d2c46
+git checkout 4bb46fe7a8935e6d13962a6c34e02519122c4c53
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -e .
@@ -24,7 +24,7 @@ relf --version
 
 > This guide uses source installation. Check your actual revision. Relf-Agent is in Alpha, and APIs and deployment combinations continue to evolve. A public PyPI release has not been verified as the installation path for this guide.
 
-The checkout pins the documentation baseline **0.1.0a8**, verified on 2026-10-31; confirm that version before continuing. See [installation](/en/docs/installation/) if your version differs.
+The checkout pins the documentation baseline **0.1.0a8**, verified on 2026-11-09; confirm that version before continuing. See [installation](/en/docs/installation/) if your version differs.
 
 ## 2. Create an offline ticket project
 

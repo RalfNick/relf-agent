@@ -1,6 +1,7 @@
 {
   "url": "https://github.com/RalfNick/relf-agent",
-  "ref": "300c62ce8dd417df6b471ce1c10a1b7a562d2c46",
+  "ref": "4bb46fe7a8935e6d13962a6c34e02519122c4c53",
   "sdkVersion": "0.1.0a8",
-  "verifiedAt": "2026-10-31"
+  "verifiedAt": "2026-11-09",
+  "publishedRef": "refs/heads/codex/callable-preview-fixes"
 }

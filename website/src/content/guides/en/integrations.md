@@ -12,7 +12,7 @@ sources: [docs/model-adapters.md, docs/managed-tools.md, docs/mcp-http.md, docs/
 | --- | --- | --- |
 | Python business function | `ToolRegistry.tool` / `register_function` | Argument schema, effects, version, approval and reconciliation |
 | MCP tool service | `MCPToolSource` with stdio or HTTP transport | Selected tools, fixed targets, credentials, policies and cleanup |
-| Business HTTP JSON endpoint | `HTTPToolSource` | Fixed URL, POST, schemas, response bounds and effect semantics |
+| Business HTTP JSON endpoint | `HTTPToolSource` | Fixed URL, POST/GET, schemas, response bounds and effect semantics |
 | Trusted local CLI | `CLIToolSource` | Fixed argv, JSON input/output, environment and process lifetime |
 | File references | Workspace and managed file tools | Fixed root, relative paths, scope and read limits |
 | Reusable operating instructions | Skill catalogs and managed loading | Allowed skills, versioned content, sources and tool permissions |
@@ -60,11 +60,47 @@ The sample business service deduplicates with the framework-injected `effect_key
 
 - **Idempotent writes:** the downstream system must genuinely accept and deduplicate the stable effect key. Declaring a category alone is insufficient.
 - **Queryable writes:** provide a reconciler through the SDK to query the original effect. Reconciliation must not silently execute the operation again.
-- **HTTP:** a fixed JSON POST boundary, with no model-selected URL, method or headers. This is not a general browser or arbitrary REST proxy.
+- **HTTP:** a fixed JSON POST/GET boundary, with no model-selected URL, method or headers. This is not a general browser or arbitrary REST proxy.
 - **CLI:** a fixed program and argv, with no implicit shell. Process management alone does not provide sandbox isolation.
 - **MCP HTTP:** the implemented JSON/POST SSE subset does not imply OAuth, resources, prompts or tasks support.
 
 A timeout or cancelled wait does not prove the remote operation stopped. Follow [reconciliation and recovery](/en/docs/recovery/) for uncertain effects, and wait for actual calls and connections to finish.
+
+## Fixed HTTP GET and query parameters
+
+`HTTPToolSource` still defaults to POST. The fixed maintenance source also supports explicit `method="GET"` and parameter mapping. This async startup factory is a configuration example: replace the fixed endpoint with your trusted service and confirm read-only semantics before calling it and injecting the returned tools:
+
+```python
+from relf_agent import HTTPToolSource, ToolDescriptor, ToolPolicy, ToolRegistry, register_tool_source
+
+async def build_search_tools():
+    tools = ToolRegistry()
+    source = HTTPToolSource(
+        ToolDescriptor("search", "Search records", {
+            "type": "object",
+            "properties": {"query": {"type": "string"}, "tags": {
+                "type": "array", "items": {"type": "string"}, "minItems": 1}},
+            "required": ["query"], "additionalProperties": False,
+        }),
+        "https://your-business.example/search",
+        version="search-v1", method="GET",
+        query_parameters={"query": "q", "tags": "tag"},
+    )
+    try:
+        await register_tool_source(tools, source, policies={
+            "search": ToolPolicy("1", effect="read_only", requires_approval=False),
+        })
+    except BaseException:
+        await source.aclose()
+        raise
+    return tools, source
+```
+
+`{"query": "a b", "tags": ["a&b", "中文"]}` becomes `q=a+b&tag=a%26b&tag=%E4%B8%AD%E6%96%87`. Missing optional mapped arguments are omitted; lists become repeated parameters. GET accepts strings, finite numbers, booleans and nonempty scalar lists. It rejects null, objects, nested/empty lists and unmapped actual arguments. POST rejects `query_parameters`.
+
+The fixed URL contains no credentials, query or fragment. Models cannot change its host, path, method or headers. GET sends no body; the original JSON input and encoded query each obey `max_input_bytes`. Keep secrets out of query parameters that services may log. The Source follows no redirects or automatic retries; successful responses must be bounded finite UTF-8 JSON.
+
+Direct registration borrows the Source. Retain the returned source, drain actual execution and close Engine/Runtime before `await source.aclose()`. Profile assembly uses `tools/http-json` with async `RuntimeBuilder.abuild`/`TemporalRuntimeBuilder.abuild` to own Sources. GET does not automatically grant read-only permission or waive approval: the original ToolPolicy still applies. See the [HTTP guide (Chinese)](repo:docs/http-tools.md) for complete JSON/TOML, effect and cleanup contracts.
 
 ## Workspaces, skills and sandboxes
 

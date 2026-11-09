@@ -3,12 +3,12 @@ title: 用一个工单开发应用
 description: 用同一份应用源码，逐步跑通离线 Agent、Session、RAG、显式 Facts 与顺序 Workflow。
 locale: zh
 slug: app-tutorial
-sources: [docs/support-journey.md, docs/installation.md, docs/agent-api.md, docs/session-api.md, docs/recall-and-rag.md, docs/managed-memory.md, docs/orchestration.md, docs/recovery-guide.md]
+sources: [docs/support-journey.md, docs/installation.md, docs/agent-api.md, docs/session-api.md, docs/recall-and-rag.md, docs/managed-memory.md, docs/orchestration.md, docs/recovery-guide.md, docs/local-documents-assistant.md, docs/current-delivery.md]
 ---
 
 围绕工单 `INC-001`，在同一生成应用中完成五个阶段：带只读工具的 Agent、持久 Session、本地 RAG、长期 Facts 和顺序 Workflow。每个阶段组合现有 SDK 组件。默认 Provider 是离线替身，无需模型凭据与网络服务，用于验证执行流程与证据传递。
 
-本教程面向固定源码提交 `300c62ce8dd417df6b471ce1c10a1b7a562d2c46` 的 **0.1.0a8 Local SDK**。先完成[安装](/zh/docs/installation/)和[审批首用教程](/zh/docs/quickstart/)。以下阶段不需要 Temporal、Docker、Embedding 或外部数据库。线上模型兼容性与任务质量需要另外进行[测试与评估](/zh/docs/testing/)。
+本教程面向固定源码提交 `4bb46fe7a8935e6d13962a6c34e02519122c4c53` 的 **0.1.0a8 Local SDK**。先完成[安装](/zh/docs/installation/)和[审批首用教程](/zh/docs/quickstart/)。以下阶段不需要 Temporal、Docker、Embedding 或外部数据库。线上模型兼容性与任务质量需要另外进行[测试与评估](/zh/docs/testing/)。
 
 ## 1. 生成可编辑的应用
 
@@ -190,3 +190,38 @@ python -m agent_app.customize agent --data-dir .ralf/custom-support --command-id
 - 通过[测试与评估](/zh/docs/testing/)建立离线回归、模型协议检查与任务质量样例；在[API 与 CLI 参考](/zh/docs/api-reference/)查询签名和控制语义。
 
 仓库[连续工单说明](repo:docs/support-journey.md)给出生成应用的来源与组件契约。Temporal／Coding 组合及生产服务集成不在本 Local 教程的验证范围内。
+
+## 独立应用：本地文档助手
+
+`examples/local_documents` 是 SDK 之外的单 Agent CLI 应用：查询指定目录的 UTF-8 Markdown／TXT，显示真实来源，并在人工批准后创建 Markdown 报告。它使用本地有界词法检索，不要求向量数据库；回答／报告需要显式配置的真实模型，模型会收到选中的资料摘录和有界会话历史。
+
+### 安装前先核对应用组合
+
+应用发行名 `relf-local-documents-example`，导入 `local_documents`，CLI `relf-docs`。固定源码中该应用的 pyproject 锁定 SDK `0.1.0a8+maintenance.a97223496646bac0`，因此这是另一条安装路径。当前公开 SDK 源码基版本为 a8，不能满足这个私有精确依赖。
+
+已获得冻结 SDK 与应用 wheel 时，先按[准确应用交付记录](repo:docs/local-documents-assistant.md)核对两者版本与 SHA，在单独虚拟环境安装；该记录还要求准备完整应用配置与演示资料。公开 checkout 中的应用目录不提供一个免私有包的直接 pip 安装入口。这个应用入口不替代前面已验证的 SDK 连续教程。
+
+### 查询、预览与恢复原报告
+
+完成上述独立安装、复制 `assistant.toml` 和 `demo-documents` 并配置真实模型／密钥环境变量后，在应用工作目录执行：
+
+```bash
+relf-docs --config assistant.toml --session main ask "Aurora 的 P1 告警多久确认？" --command-id ask-1
+relf-docs --config assistant.toml --session main history
+relf-docs --config assistant.toml --session main report "总结 Aurora 的值班和复盘要求" --output aurora.md --command-id report-1
+```
+
+默认终端输出显示实际读取的相对路径、行范围和文件 SHA；需要来源 ID 时，用查询的原 Run ID 执行 `relf-docs --config assistant.toml --json status QUERY_RUN_ID`，读取 `sources[].id` 与对应来源字段。`grounded=true` 只表示所声明引用对应本次读取回执，不能证明每句话都正确。来源是读取时快照；文件变化后，要用新查询获取当前内容。资料不足时明确无依据，不编造来源。
+
+报告有足够依据时停在 `waiting_approval`，默认终端显示完整正文、绝对路径、原 Action 与操作摘要；此时文件尚未创建。核对后，把原值替换进命令，交互中明确确认：
+
+```bash
+relf-docs --config assistant.toml --json status RUN_ID
+relf-docs --config assistant.toml approve RUN_ID --action ACTION_ID --digest OPERATION_DIGEST --command-id approve-report-1
+relf-docs --config assistant.toml resume RUN_ID
+relf-docs --config assistant.toml status RUN_ID
+```
+
+批准前从 JSON 的 `pending[0]` 保存 `action_id`、`digest`、`path`、`content` 和 `sha256`；命令中的 `OPERATION_DIGEST` 使用原 `digest`，不是正文 `sha256`。独立 approve 只记录决定，resume 才推进原保存；检查 `succeeded`、真实文件及其 SHA 与原 `sha256` 一致。再次以原请求和 command ID 提交只找回原 Run／回执，不增加一次报告。报告仅在输出根新建普通 `.md`，不覆盖已有文件或接受子目录。
+
+状态、资料和输出根彼此分离，保留原 `assistant.toml`、`.assistant`、报告及写入回执。新终端先恢复原环境、配置与凭据，再操作原 Run；未知模型结果不能靠换 ID 自动重发。`status/history` 不调用模型，应用等待中的 Ctrl-C 会请求业务取消。冻结应用和开发源码的修复范围分别以其交付记录为准。本轮网站验证不调用该应用的真实模型。

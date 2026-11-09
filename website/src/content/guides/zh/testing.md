@@ -3,7 +3,7 @@ title: 测试与评估
 description: 运行离线应用回归、检查模型协议，并区分固定样例结果与真实任务质量。
 locale: zh
 slug: testing
-sources: [docs/sdk-model-tools.md, docs/business-evaluation.md, docs/task-evaluation.md, docs/planning-evaluation.md, docs/agent-api.md, docs/completion-verification.md, docs/agent-stream-updates.md, docs/managed-tools.md]
+sources: [docs/sdk-model-tools.md, docs/business-evaluation.md, docs/task-evaluation.md, docs/planning-evaluation.md, docs/agent-api.md, docs/completion-verification.md, docs/agent-stream-updates.md, docs/managed-tools.md, docs/node-adapter-contracts.md, docs/adapter-contracts.md]
 ---
 
 先按[快速开始](/zh/docs/quickstart/)安装 SDK `0.1.0a8` 并激活 Python 环境。下面的离线路径不需要模型密钥、网络服务或 pytest，已对照固定的 a8 基版本维护提交验证。
@@ -237,3 +237,21 @@ relf-evaluate-business --provider openai --model-env RELF_EVAL_MODEL \
 - 自有适配器故障：分别观察业务结果、实际处理器结束和资源关闭；关闭失败不得丢弃原 cleanup／租约，返回校验失败不得新建替代请求。
 
 这些检查验证文档示例与所选执行契约，不替代完整 SDK／平台资格、真实独立接入或业务模型质量。当前网站教程使用固定源码安装，私有候选的原验收按其准确版本单列。
+
+## 检查自定义异步节点
+
+固定开发源码增加 `node-executor`、contract version `1`、profile `core`。在独立的可写目录执行：
+
+```bash
+relf-check-adapter --role node-executor > node-default.json
+relf-check-adapter --role node-executor --offline > node-offline.json
+relf-check-adapter --role node-executor --offline --evidence-dir node-evidence-1 > node-evidence.json
+```
+
+第一条为 `status=not_run`，不运行 fixture 或连接服务；第二、三条显式执行包内独立 SQLite 参考的 N01–N10，成功报告为 `status=passed`。证据目录必须不存在，父目录须已存在且可写；重跑换新路径。`--offline` 的成绩属于参考组件，不证明自己的业务组件合格。
+
+检查覆盖完整 JSON／独立 config、输入及配置 Schema 的派发前拒绝、输出失败后的原回执／结算、身份／方法漂移、未知结果、审批／预算、重复命令与 SQLite 重开，以及实际处理器取消／退出和关闭重试。它不认证写幂等、Temporal、跨进程业务供应端或真实任务质量。
+
+替换自己的节点时，用 `AdapterContractSuite(role="node-executor")`、`NodeContractSession` 和显式 fixture 接入可处置测试环境；缺少所需控制端口为 `not_verified`，不能当成通过。fixture 只安排数据、故障和管理观察，不提供 Run／Action 回执或验收 verdict。Suite 只关闭明确列入 `NodeContractResource` 的 owned 资源；清理失败保留原 Suite／工作目录，在原事件循环重试 `aclose()`。
+
+N10 的低层 `LocalEngine.drive` 调用方取消会沿原协议请求业务取消；不能把它套用到高层 `AgentRun.wait` 或事件订阅的只读观察取消。完整 fixture 端口与可编辑示例见[节点接入检查](repo:docs/node-adapter-contracts.md)，报告状态规则见[适配器契约](repo:docs/adapter-contracts.md)。

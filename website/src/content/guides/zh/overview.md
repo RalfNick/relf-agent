@@ -3,7 +3,7 @@ title: 能力总览
 description: 从业务目标选择 Agent、工具、记忆、知识与执行方式，逐步组合你的应用。
 locale: zh
 slug: overview
-sources: [docs/basic-capabilities.md, docs/concepts.md, docs/support-journey.md, docs/agent-stream-updates.md, docs/agent-api.md, docs/managed-tools.md]
+sources: [docs/basic-capabilities.md, docs/concepts.md, docs/support-journey.md, docs/agent-stream-updates.md, docs/agent-api.md, docs/managed-tools.md, docs/http-tools.md, docs/managed-async-nodes.md, docs/temporal-managed-nodes.md, docs/node-adapter-contracts.md, docs/local-documents-assistant.md]
 ---
 
 ## Relf-Agent 用来解决什么
@@ -34,12 +34,14 @@ Relf-Agent 的源码仓库为 `RalfNick/relf-agent`。本站教程固定 SDK **0
 
 ## 本次框架优化可以直接用在哪里
 
-- **更轻的应用入口：** 从 `Agent(model=..., tools=...)` 开始，用 `AgentRun` 等待、检查或控制任务；多个入口共享 Runtime 时，保持原资源归属。见[模型与工具](/zh/docs/models-tools/)与 [API](/zh/docs/api-reference/)。
-- **安装后连续开发：** 默认模板提供 `agent_app.journey` 与 `customize`，可逐步加入 Session、RAG、Facts、Workflow，并替换模型、异步工具和记忆。见[连续教程](/zh/docs/app-tutorial/)。
-- **有界观察与重连：** `subscribe_events` 读取持久事实，`stream_updates` 在显式选择策略后展示模型文本与异步工具进度，二者均使用原游标。见[运行与观察](/zh/docs/operations/)。
-- **无需占位模型的业务流程：** graph 模板中的 `agent_app.tool_graph` 直接运行 async Tool 节点，显式 `providers={}`，仍有预算、审批与回执。见[工作流](/zh/docs/workflows/)。
+- **更轻的应用入口：** 从 `Agent(model=..., tools=...)` 开始，使用 AgentRun 等待、观察与控制；共享 Runtime 保留原资源归属。见[模型与工具](/zh/docs/models-tools/)。
+- **连续应用开发：** 生成的 `agent_app.journey`／`customize` 连接 Session、RAG、Facts、Workflow 及组件替换。见[连续教程](/zh/docs/app-tutorial/)。
+- **固定外部查询：** HTTPToolSource 增加宿主固定 GET 与参数映射，仍保留策略、审批和效果核验。见[集成](/zh/docs/integrations/)。
+- **完整 JSON 异步业务节点：** `GraphNode(executor=...)` 接收完整输入与独立配置；Local 及显式无会话 Temporal 子集复用原执行协议。见[工作流](/zh/docs/workflows/)。
+- **有界观察与接入验证：** `subscribe_events`／`stream_updates` 使用原游标，展示策略可由 JSON／TOML 选择；`node-executor/core` 提供默认不执行的 N01–N10 检查。见[运行配置](/zh/docs/operations/)与[测试](/zh/docs/testing/)。
+- **单独安装的文档助手：** 查询本地 Markdown／TXT、核对来源、批准后保存报告；当前应用依赖冻结私有 SDK 组合。安装前先看[应用前提](/zh/docs/app-tutorial/)。
 
-这些维护能力以页首固定提交为准，不能仅凭相同 `0.1.0a8` 基版本号认定原归档已包含它们。等待超时、关闭失败或展示结束也不替代实际业务完成证据。
+能力以页首固定开发提交为准，原 a8 归档和各私有验证包不自动包含这些增量。等待超时、展示结束或关闭失败均不能替代实际业务完成证据。
 
 ## 能力如何一起工作
 

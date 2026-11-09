@@ -3,7 +3,7 @@ title: Workflows & teams
 description: Choose static graphs, bounded plans or teams to match the structure of your task.
 locale: en
 slug: workflows
-sources: [docs/static-workflows.md, docs/orchestration.md, docs/parallel-workflows.md, docs/dynamic-dag.md, docs/concepts.md, docs/user-input.md, docs/managed-tools.md, docs/runtime-assembly.md]
+sources: [docs/static-workflows.md, docs/orchestration.md, docs/parallel-workflows.md, docs/dynamic-dag.md, docs/concepts.md, docs/user-input.md, docs/managed-tools.md, docs/runtime-assembly.md, docs/managed-async-nodes.md, docs/temporal-managed-nodes.md, docs/schema-validation.md]
 ---
 
 ## Choose the task structure
@@ -68,7 +68,7 @@ relf --db .ralf/tool-graph.sqlite --format text inspect RUN_ID
 
 `tool-runtime.toml` explicitly declares `providers = {}`, `tool-graph.json` defines nodes/mappings, and `agent_app/tool_runtime.py` registers `order-fixture` and the original recovery factory. Replace its two async functions for your business. The synchronous registration factory only assembles tools; manage async clients through [async assembly (Chinese)](repo:docs/async-assembly.md), never by returning an unawaited coroutine.
 
-Empty providers support finite **Local Tool/Transform graphs** only; the field remains required. Ordinary Agent/mixed graphs need a resolvable Provider, and TemporalProfile still requires nonempty providers. Tool nodes retain original Actions, budgets, authorization, approvals, receipts and unknown-effect reconciliation. They are not arbitrary nodes/reducers or record-by-record dataflow. Original a8 archives do not generate these files.
+The ordinary Tool/Transform recipe above uses a finite Local graph, with explicit `providers={}`. Ordinary Agent/mixed graphs need a resolvable Provider; the Temporal model-free executor registration requirements are listed below. Tool nodes retain original Actions, budgets, authorization, approvals, receipts and unknown-effect reconciliation. They are not arbitrary nodes/reducers or record-by-record dataflow. Original a8 archives do not generate these files.
 
 ### Add approval to a new Tool flow
 
@@ -91,6 +91,63 @@ relf --db .ralf/tool-graph.sqlite --format text inspect RUN_ID
 ```
 
 After approving the first node, resume may pause for the second. Inspect its new Action/digest, use a new decision ID and repeat the controls until the Snapshot is `succeeded`. Retrying the same approval uses its original ID and receipt without extra dispatch. Final counts remain two Tool Actions, zero Model Actions and two credits. This example approves read-only fixtures; writes need their real effect class and downstream idempotency/query/reconciliation contract.
+
+## Use managed async component nodes
+
+For an existing async business component, complete array input or separate configuration, use `GraphNode(executor="receipt", config={...})`. The component supplies a nonempty, finite JSON object `identity` and a real `async execute(input, config, context)` method; register it explicitly with `NodeExecutorRegistry.register(NodeExecutorSpec(..., effect="..."), component)`. `input` is the complete finite JSON value and `config` is a separate object. A synchronous function returning a coroutine does not satisfy the port. No framework base class is required. `effect="queryable_write"` additionally requires a real async `reconcile(input, config, context)`; it is optional for other effect categories.
+
+Return to the **fixed framework source root** used for installation, keep the environment active, and choose a nonexistent `../managed-node-app`:
+
+```bash
+mkdir ../managed-node-app
+git show 4bb46fe7a8935e6d13962a6c34e02519122c4c53:examples/managed_async_nodes.py > ../managed-node-app/managed_async_nodes.py
+cd ../managed-node-app
+python managed_async_nodes.py --db .ralf/receipts.sqlite --command-id receipt-1 --pause-before-approval
+python managed_async_nodes.py --db .ralf/receipts.sqlite --command-id receipt-1
+python managed_async_nodes.py --db .ralf/receipts.sqlite --command-id receipt-1
+```
+
+The script writes only two local example SQLite databases, without calling a model or real inventory service. The first execution pauses at `waiting_approval` with zero business requests. The second reopens the original database, approves the original Action and completes with `requests_total=effects_total=1` and `spent=2`. The third retrieves the same Run, Action and effect key, with `requests_this_process=0` and `receipt_replay_matches=true`. Automatic approval here applies only to this known local fixture; real applications must review the original tool, complete arguments and operation digest.
+
+Keep both `.ralf/receipts.sqlite` and its adjacent business ledger `.ralf/receipts.sqlite.business.sqlite`. The example actually deduplicates by effect key and matching arguments; that guarantee comes from the business implementation. New operations need new command IDs; preserve code, configuration, paths and IDs for original operations.
+
+### Select the default identity node through a Profile
+
+The default `identity` adapter only copies input and accepts empty config. In another writable application directory with the SDK installed, save this as `copy_node.py` and run `python copy_node.py` twice:
+
+```python
+import asyncio
+import json
+from relf_agent import GraphNode, GraphWorkflowSpec, RuntimeBuilder, RuntimeProfile, ValueRef
+
+profile = RuntimeProfile(
+    "nodes", "1", {},
+    {"workflow_executors": {"adapter": "identity", "config": {}}},
+)
+flow = GraphWorkflowSpec(
+    "copy", [GraphNode("copy", executor="identity")], output=ValueRef("copy")
+)
+with RuntimeBuilder().build(profile, ".ralf/identity-nodes.sqlite") as runtime:
+    handle = runtime.submit(flow, [1, None, "hello"], command_id="copy-1", budget=2)
+    snapshot = asyncio.run(runtime.drive(handle.run_id))
+    print(json.dumps({"run_id": handle.run_id, "state": snapshot.state, "result": snapshot.result}))
+```
+
+Both runs should be `succeeded`, with result `[1, null, "hello"]` and the same Run ID. JSON/TOML uses the same `components.workflow_executors` declaration. See the [node assembly guide (Chinese)](repo:docs/managed-async-nodes.md) for full configuration and custom sync/async factories. The registry borrows components; factories register resources through the original `BuildContext.own/own_async`. Wait for actual execution to stop before closing clients.
+
+### Node support in Local and Temporal
+
+| Node or combination | Local | Temporal |
+| --- | --- | --- |
+| Ordinary Tool / pure Transform nodes | Supported finite graphs | Not added in this increment |
+| `GraphNode(executor=...)` | Serial, bounded parallel and original nested graphs | Explicit stateless serial/bounded parallel graphs, Agent mixtures and original Team/Dynamic nesting |
+| Executor graph with Session/Turn/native session history | Original supported Local combinations | Rejected; Coding composition, deployment admission and parent completion policy for this graph are also unsupported |
+
+The Temporal SDK entry is `TemporalRuntime(providers={}, tools=ToolRegistry(), workflow_executors=nodes)`, or use the corresponding `TemporalProfile` component. Explicit node registration permits `providers={}`; Agents in mixed graphs still need Providers. Install the Temporal extra and prepare a Service/Worker, original release and queue first. The [model-free Service guide (Chinese)](repo:docs/temporal-managed-nodes.md) supplies full commands; the offline recipe above starts no service. Publication checks every registered node: any non-`read_only` registration requires a durable `EffectJournal`, even if the current graph does not select it. An entirely read-only registry needs no Journal.
+
+Nodes retain original Actions, approvals, budgets, results and effect reconciliation. `input_schema`/`config_schema` validate before dispatch; registered and GraphNode output schemas validate after actual receipts and settlement have been saved. Validation failure cannot undo an effect or authorize another write. Local preserves separate schema reference roots; Temporal retains its original `#` reference subset. Loops, reducers and record-by-record streaming Workflows are not added.
+
+Temporal's default node execution owner has 16 slots. Multiple Runs or excessive concurrency can return `memory_backend_error` with `handler_not_started=true` before a handler starts. `max_concurrency` does not provide automatic capacity queuing or cross-Run backpressure. Missing progress cannot authorize another business request. Inspect the original Run/Action and actual calls, then follow the [runtime and recovery guide (Chinese)](repo:docs/temporal-managed-nodes.md); begin custom component checks in [testing](/en/docs/testing/).
 
 ## Define a team
 

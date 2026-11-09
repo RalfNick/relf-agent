@@ -3,7 +3,7 @@ title: API & CLI reference
 description: Find common Local Agent, Runtime, Session and CLI signatures, return values and recovery contracts.
 locale: en
 slug: api-reference
-sources: [docs/api-reference.md, docs/agent-api.md, docs/session-api.md, docs/user-input.md, docs/sdk-model-tools.md, docs/recovery-guide.md, docs/runtime-assembly.md, docs/getting-started.md, docs/agent-stream-updates.md]
+sources: [docs/api-reference.md, docs/agent-api.md, docs/session-api.md, docs/user-input.md, docs/sdk-model-tools.md, docs/recovery-guide.md, docs/runtime-assembly.md, docs/getting-started.md, docs/agent-stream-updates.md, docs/managed-async-nodes.md, docs/temporal-managed-nodes.md, docs/node-adapter-contracts.md, docs/http-tools.md]
 ---
 
 This is a curated reference for the common Local path, checked against SDK `0.1.0a8`. It is not an exhaustive generated API listing. Start with the [application tutorial](/en/docs/app-tutorial/) for a complete program; use [models and tools](/en/docs/models-tools/) for provider setup. Temporal and optional backends have separate contracts in [operations](/en/docs/operations/).
@@ -167,3 +167,17 @@ relf send-input --help
 | `cancel RUN_ID --command-id CANCEL_ID` | Records a stop decision; does not roll back effects. |
 
 `status`/`inspect`/`events` read the local SQLite authority without importing a factory. They do not provide generic Temporal inspection. For an end-to-end CLI exercise use [user input](/en/docs/user-input/) or [quickstart](/en/docs/quickstart/). For regression and protocol commands use [testing and evaluation](/en/docs/testing/). The broader [repository API index (Chinese)](repo:docs/api-reference.md) is optional deeper reading.
+
+## New node, HTTP and adapter-check entry points
+
+| Entry point | Contract and usage |
+| --- | --- |
+| `GraphNode(executor=..., config=...)` | Explicit component selection, mutually exclusive with Agent, ordinary tool and transform declarations. See the [complete offline flow](/en/docs/workflows/) |
+| `NodeExecutorSpec` / `NodeExecutorRegistry.register(spec, component)` | Explicit effect, input/config/output schemas, version, approval and cost; component supplies a nonempty finite JSON object identity and async execute; async reconcile is required for queryable_write and optional for other effects |
+| `execute(input, config, context)` | Complete finite JSON input, separate object config and original InvocationContext; reconcile returns EffectObservation or None, with `EffectObservation(None)` confirming JSON null |
+| `workflow_executors` | SDK argument on LocalEngine/TemporalRuntime and a component role in Local/Temporal Profiles; default adapter `identity` |
+| `HTTPToolSource(method="GET", query_parameters=...)` | Fixed endpoint, argument-name mapping and original policy; [integration example](/en/docs/integrations/) |
+| `components.stream_updates` | Four bounded settings on adapter `bounded`; [configuration and observation](/en/docs/operations/) |
+| `AdapterContractSuite(role="node-executor")` | core N01–N10; no default execution or certification for missing controls; [CLI and fixture](/en/docs/testing/) |
+
+The node registry borrows components; actual resources retain their original owned/borrowed lifecycle. Temporal managed nodes are limited to explicitly enabled stateless combinations. Shared SDK port names do not imply complete backend parity. Full signatures and boundaries are in the [Local node](repo:docs/managed-async-nodes.md), [Temporal node](repo:docs/temporal-managed-nodes.md) and [contract-port](repo:docs/node-adapter-contracts.md) guides (Chinese).

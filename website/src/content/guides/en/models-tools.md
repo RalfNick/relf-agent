@@ -3,7 +3,7 @@ title: Models & tools
 description: Register ordinary Python functions, connect models through Agent or explicit LocalEngine assembly.
 locale: en
 slug: models-tools
-sources: [docs/sdk-model-tools.md, docs/getting-started.md, docs/model-adapters.md, docs/completion-verification.md, README.md, docs/agent-api.md]
+sources: [docs/sdk-model-tools.md, docs/getting-started.md, docs/model-adapters.md, docs/completion-verification.md, README.md, docs/agent-api.md, docs/extending.md, docs/schema-validation.md, docs/managed-async-nodes.md]
 ---
 
 ## Start with the Agent entry
@@ -172,3 +172,9 @@ Keep credentials in the environment or trusted host. Changed identities of tools
 Use [integrations and extensions](/en/docs/integrations/) for existing MCP, HTTP or CLI tools. Read [approval and recovery](/en/docs/recovery/) to handle writes across timeouts and process exits.
 
 Check signatures and return values in [API & CLI reference](/en/docs/api-reference/), verify an endpoint in [testing and evaluation](/en/docs/testing/), or continue one application through models, sessions and knowledge in the [application tutorial](/en/docs/app-tutorial/).
+
+## Callable and schema maintenance boundaries
+
+The fixed source strengthens pinning for functions, methods, partials, classes and identifiable `__call__` entry points. Opaque descriptors and shapes whose identity cannot be established are rejected early. Authors still explicitly version/configure closures, defaults, state, business clients and external dependencies. An entry-point fingerprint does not prove an arbitrary Python execution graph. Supported and rejected shapes are listed in the [extension guide (Chinese)](repo:docs/extending.md).
+
+Ordinary function tools take object arguments; [managed async nodes](/en/docs/workflows/) accept complete JSON with separate config. Local schema wrapping preserves separate reference roots and declared embedded resources without fetching external files or URLs. Temporal retains its `#` reference subset. Reference-root fixes can change wrapper identity; recover original Runs with their original version. See [schema validation (Chinese)](repo:docs/schema-validation.md).

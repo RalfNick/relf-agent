@@ -3,7 +3,7 @@ title: Runtime & deployment
 description: Choose Local or Temporal and manage versioned configuration, execution allowances, observation and resource lifetimes.
 locale: en
 slug: operations
-sources: [docs/runtime-assembly.md, docs/agent-api.md, docs/agent-limits.md, docs/temporal-execution.md, docs/recovery-guide.md, docs/agent-stream-updates.md]
+sources: [docs/runtime-assembly.md, docs/agent-api.md, docs/agent-limits.md, docs/temporal-execution.md, docs/recovery-guide.md, docs/agent-stream-updates.md, docs/temporal-managed-nodes.md]
 ---
 
 ## Choose an execution backend
@@ -135,7 +135,7 @@ Return to the **fixed framework checkout root** used for installation, keep its 
 
 ```bash
 mkdir ../stream-app
-git show 300c62ce8dd417df6b471ce1c10a1b7a562d2c46:examples/stream_updates.py > ../stream-app/stream_updates.py
+git show 4bb46fe7a8935e6d13962a6c34e02519122c4c53:examples/stream_updates.py > ../stream-app/stream_updates.py
 cd ../stream-app
 python stream_updates.py --db .ralf/stream-example.sqlite --command-id stream-1
 python stream_updates.py --db .ralf/stream-example.sqlite --command-id stream-1
@@ -158,6 +158,26 @@ The complete response returns only after EOF and validation; partial text cannot
 
 Temporal signals are accepted by the original History/Worker. Service evidence covers only selected native-text Agent cases; these offline examples add no qualification for advanced Temporal streams, real writes, hosted models or platforms. See the [streaming contract (Chinese)](repo:docs/agent-stream-updates.md).
 
+## Select bounded display policy in configuration
+
+Add this component to an existing Local or Temporal TOML Profile under `[[profiles]]`. JSON uses an equivalent `components.stream_updates` object. This is an addition to a Profile, not a standalone catalog:
+
+```toml
+[profiles.components.stream_updates]
+adapter = "bounded"
+[profiles.components.stream_updates.config]
+max_deltas = 64
+max_bytes = 65536
+max_payload_bytes = 4096
+publish_timeout = 0.25
+```
+
+Omitting the component keeps display off; config can be omitted or partially overridden. Integer ranges are 1–1024 for `max_deltas`, 256–1048576 for `max_bytes`, and 256–min(65536, max_bytes) for `max_payload_bytes`. `publish_timeout` is finite seconds in (0, 2]. Booleans, unknown fields and out-of-range settings are rejected before resource allocation.
+
+Configuration enables display reception without converting ordinary Provider.complete calls into streaming calls. Model text still needs an explicit `StreamedModelProvider` or registered streaming factory; async tools still call `emit_tool_delta`. Ordinary Providers can complete without text deltas. Local sync/async assembly and Temporal async assembly reuse this policy, which creates no new client.
+
+A changed policy needs a new Profile version and request. Preserve the original policy, components and cursor for old Runs. The wrapper owner still retries iterator cleanup with `retry_stream_closes()`; configuration does not assume that responsibility. See the [stream/configuration guide (Chinese)](repo:docs/agent-stream-updates.md) and [workflows](/en/docs/workflows/) for managed nodes and Temporal capacity boundaries.
+
 ## Continue from a local pilot
 
 Validate an offline task, a real tool and approval/recovery first. Add dependencies and services for your chosen models, remote data, MCP or Temporal. From the source repository root, install the Temporal extra with `python -m pip install -e '.[temporal]'`, then provide the service, workers and matching release. This guide starts no services implicitly.
@@ -166,7 +186,7 @@ APIs and some combinations remain Alpha. Evaluate deployment using evidence from
 
 ## Verified baseline and support boundaries
 
-This site documents the SDK **0.1.0a8 maintenance source** at the pinned commit shown above, verified on **2026-10-31**. The date records these tutorial checks, not a guarantee for every deployment or hosted model.
+This site documents the SDK **0.1.0a8 maintenance source** at the pinned commit shown above, verified on **2026-11-09**. The date records these tutorial checks, not a guarantee for every deployment or hosted model.
 
 | Combination | Documentation status | Your next verification |
 | --- | --- | --- |

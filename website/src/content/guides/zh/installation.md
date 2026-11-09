@@ -3,7 +3,7 @@ title: 安装与环境
 description: 从源码准备一个轻量的 Python 环境，先在本地跑通 Relf-Agent。
 locale: zh
 slug: installation
-sources: [docs/installation.md, docs/getting-started.md, docs/project-naming.md]
+sources: [docs/installation.md, docs/getting-started.md, docs/project-naming.md, docs/current-delivery.md]
 ---
 
 ## 环境要求
@@ -19,7 +19,7 @@ Relf-Agent 的固定源码基线为 **0.1.0a8**，仓库为 `RalfNick/relf-agent
 ```bash
 git clone https://github.com/RalfNick/relf-agent.git
 cd relf-agent
-git checkout 300c62ce8dd417df6b471ce1c10a1b7a562d2c46
+git checkout 4bb46fe7a8935e6d13962a6c34e02519122c4c53
 git rev-parse HEAD
 python3 -m venv .venv
 source .venv/bin/activate
@@ -28,9 +28,9 @@ relf --version
 python -m pip check
 ```
 
-文档基线为 SDK **0.1.0a8**，提交 `300c62ce8dd417df6b471ce1c10a1b7a562d2c46`，验证日期为 2026-10-31。checkout 命令固定此版本，`relf --version` 应显示 `0.1.0a8`。基础依赖含 `httpx` 和 `jsonschema`。更新源码后行为可能变化；为旧 Run 保留原 SDK 和配置。
+文档基线为 SDK **0.1.0a8**，提交 `4bb46fe7a8935e6d13962a6c34e02519122c4c53`，验证日期为 2026-11-09。checkout 命令固定此版本，`relf --version` 应显示 `0.1.0a8`。基础依赖含 `httpx` 和 `jsonschema`。更新源码后行为可能变化；为旧 Run 保留原 SDK 和配置。
 
-> 本站验证的是上述固定的 **a8 基版本维护源码**，不是原 `0.1.0a8` 归档包，也不等同于私有冻结候选 `0.1.0a8+maintenance.0608576182db502f`。后续维护沿用基版本号，须同时核对 `git rev-parse HEAD`；只检查 `relf --version` 不能区分这些源码。私有候选的准确文件、SHA 和独立验收见仓库[当前交付入口](repo:docs/current-delivery.md)。本页提供可公开检出的源码安装路径，未声明新的 PyPI／GitHub 包、平台或独立采用资格。[历史 a2 归档](https://github.com/RalfNick/relf-agent/releases/tag/v0.1.0a2)保留原入口与证据；新旧环境分开，旧 Run、History 和函数身份不自动迁移。
+> 本站使用公开开发分支 `codex/callable-preview-fixes` 中上述固定提交，含 HTTP GET、流式策略配置和受管理异步节点等维护增量；它尚未合入 main，也不是新的公开发行包。后续源码仍使用 a8 基版本号，须同时核对 `git rev-parse HEAD`；只检查 `relf --version` 不能区分能力。原 `0.1.0a8` 归档、推荐私有组合及各次验证 wheel 保留各自范围，不含全部新能力。准确候选及验收见[固定源码的交付记录](repo:docs/current-delivery.md)；[main 当前交付入口](current-delivery:docs/current-delivery.md)可能尚未包含开发分支增量。本页不增加平台、真实模型或独立采用资格。[历史 a2 归档](https://github.com/RalfNick/relf-agent/releases/tag/v0.1.0a2)保留原证据；新旧环境分开，旧 Run、History 和函数身份不自动迁移。
 
 如果已经获得本地 wheel，可以在虚拟环境中用 `python -m pip install /实际路径/包名.whl` 安装，并核对制品来源与版本。
 

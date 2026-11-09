@@ -3,7 +3,7 @@ title: Approval & recovery
 description: Inspect the original operation, record a human decision and recover the original run from real evidence.
 locale: en
 slug: recovery
-sources: [docs/recovery-guide.md, docs/getting-started.md, docs/concepts.md, docs/agent-api.md]
+sources: [docs/recovery-guide.md, docs/getting-started.md, docs/concepts.md, docs/agent-api.md, docs/managed-async-nodes.md, docs/temporal-managed-nodes.md, docs/local-documents-assistant.md]
 ---
 
 ## Observe the original run
@@ -104,3 +104,11 @@ After `CloseIncomplete` or a cancelled close wait, retain the Runtime/resources 
 
 
 The CLI checks synchronous-close completion after a business command. A failed close or non-None result reports exit code 2; that does not prove submission never occurred. Read the original Run/receipt, fix the factory and settle the original actual calls, then retrieve the same request with its original ID, input, definition and budget.
+
+## Async nodes and safe approval previews
+
+Managed executor nodes recover original Actions and effect evidence. Output schema failure can occur after actual receipts and credit settlement have been saved. It does not authorize another business write. `queryable_write` retains reconciliation waiting without evidence; `idempotent_write` still depends on actual downstream deduplication. See [node recovery (Chinese)](repo:docs/managed-async-nodes.md).
+
+Temporal capacity refusal, unknown effects and terminal state are distinct facts. Inspect the original node/child Run, `handler_not_started`, Journal, ACK and actual handler-exit evidence before advancing original work. The default 16 owner slots provide no cross-Run queuing. Changing IDs cannot repair capacity shortages or missing receipts. See [Temporal nodes (Chinese)](repo:docs/temporal-managed-nodes.md).
+
+Human terminal previews in the local documents assistant expose ANSI/OSC and Unicode format controls as visible escapes. Approval still binds the original body, path and digest; do not submit escaped screen text as replacement content. Independent approve only saves a decision. Verify the actual file after resuming the original task. See the [local documents guide (Chinese)](repo:docs/local-documents-assistant.md).
