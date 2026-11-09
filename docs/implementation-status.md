@@ -2,6 +2,10 @@
 
 ## 当前交付摘要
 
+2026-11-09 节点／检索边界后续维护（有限验收完成）：在 `ec23ae5` 基线补齐 Local 节点六公共注册端口固定，以及向量与公共 RetrievalResult 返回时的 TTL 复核。复用现有边界，不新增 I/O、重试或执行权威。准确候选 `0.1.0a8+guards.34d5fe53e3fe66ef` 固定464产品／1580输入，源码／目录外安装同33模块、603个ID全部通过，零跳过；独立仅运行依赖10条、sdist重建464产品一致及所选Local／Temporal／节点／Knowledge身份和8个catalog摘要兼容通过。安装首轮600通过／3个旧starter构建夹具错误保留；只补隔离测试构建依赖及冻结输入，同603项重验通过，SDK仍从site-packages导入，不将开发依赖加到产品。同一冻结输入完整离线自然退出0：15718通过／913条件跳过、零失败／错误，共16631项，JUnit2347.255秒；准确分层结果见[本轮记录](../architecture/reviews/2026-11-09-framework-maintenance.md)和[交付入口](current-delivery.md)。
+
+最终审计确认原16598个ID及通过／跳过状态保持，新增33项、本批603项及原五个10秒窗口全过；冻结产品／输入、308份原包和封存历史证据SHA保持，原pytest／guard已退出。六入口保护限本机直接入口，不递归保护私有辅助函数；本轮已保存回执的await漂移场景保持原Run失败终态，恢复只采纳／结算该回执，不重派发或重开。TTL修复不替代原Engine后续来源validate。所有历史失败、推荐组合与容量维护包保持，不授予新的平台／模型／真实服务或完整 R 项资格。本地提交以Git记录为准，不推送或公开发布。
+
 2026-11-09 容量背压／关闭诊断维护（有限验收完成）：仅新默认 NodeCapacityOwner 的未 claim 容量证明沿原 Native History 有界 timer，保持原 Action／attempt／效果身份与预算；独立 History timer 完成和 Action 内持久 ACK 序号保障所选冷恢复。`CloseIncomplete` 增加兼容的只读诊断，原 report、取消及实际停止责任保持。准确候选 `0.1.0a8+capacity.c5a29d8fa601a9ec` 固定464产品／1578输入，源码／目录外安装各46模块884项通过／零跳过，真实Service同5个ID各5/5通过；仅运行依赖16条及sdist重建464产品一致通过，所选七catalog、普通／显式旧owner发布与原Context owner方法／通知描述保持。完整离线15685通过／913条件跳过、零失败／错误，共16598项；旧16490个ID全部保留，本批884个定向ID与原五个10秒恢复窗口全过。首轮沙箱本机端口阻断的中止记录保留，同门禁允许本机端口的完整轮自然退出0；Service5项的条件跳过不替代上述独立真实运行，见[本轮验收](../architecture/reviews/2026-11-09-temporal-capacity-close.md)。不关闭完整 R 项，原失败保留；新默认节点及所选 Coding／部署指纹变化，旧任务须原包／匹配 Worker。推荐组合仍是11月1日原包，快照选择见[交付简表](current-delivery.md#先选择交付快照)，诊断字段见[指南](close-diagnostics.md)。本地提交以Git记录为准；未推送、触发远端 CI 或公开发布。
 
 2026-11-09 节点扩展检查源码：`node-executor/core` N01–N10 通过原 Registry／LocalEngine／Store 验证 fixture 配置下的结构端口、JSON／Schema、漂移、审批重开及取消清理。默认无 fixture 不执行；旧四角色摘要保持。独立 SQLite 参考与可编辑示例见[指南](node-adapter-contracts.md)。源码／准确安装各815项和仅运行依赖14条检查已通过，完整源码回归15582通过／908条件跳过、零失败／错误，见[验收记录](../architecture/reviews/2026-11-09-node-executor-contract.md)。不认证写效果、Temporal、真实质量或外部采用。

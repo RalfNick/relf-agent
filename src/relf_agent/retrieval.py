@@ -301,6 +301,7 @@ def _validate_result(result, scope, namespace, query):
         raise ValidationError("Retriever reported an incorrect character count")
     if any(item.scope != scope or item.namespace != namespace for item in result.items):
         raise ValidationError("Knowledge source is unavailable in the requested scope")
+    _validate_expiry(result.items)
     return result
 
 

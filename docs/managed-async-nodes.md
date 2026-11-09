@@ -82,6 +82,10 @@ flow = GraphWorkflowSpec(
 
 注册要求非空 JSON identity 和真正的 async execute；可选 reconcile 也必须是真正异步方法。async callable 对象同样支持。同步函数返回 coroutine、generator 或上下文管理器不能充当此端口。直接方法、代码入口和声明身份在派发及结果接收边界复核；组件内部客户端、闭包和外部依赖仍需要集成方通过版本／identity 固定，不能把这些检查理解为任意 Python 沙箱。
 
+2026-11-09 的后续维护补齐 Local 注册表本身的公共端口固定，与 Temporal 现有范围一致：`manifest`、`manifests`、`tool`、`get`、`check`、`validate_output`。初始合法自定义仍可使用；Engine 配置后不要替换这些入口来更新规则，尤其不能替换输出校验以改变既有 Run 的 Schema。更改业务规则应使用新定义／版本和匹配宿主。该检查不递归追踪任意私有辅助函数，也不会撤销已经发生的业务效果。提交后、派发前发现漂移会拒绝执行；本轮覆盖的处理器await期间漂移且回执已保存的场景中，原Run返回 `failed/definition_mismatch`，回执仍留在原Action中。冷恢复只采纳／结算原回执，不重新调用业务处理器，也不把原失败终态改成成功。尚未确认效果的路径继续按原unknown核验，不能据漂移一概推断业务未执行。
+
+准确私有候选 `0.1.0a8+guards.34d5fe53e3fe66ef` 的源码／目录外安装同603项、独立运行依赖10条及sdist464产品一致检查通过；完整离线15718通过／913条件跳过、零失败／错误，共16631项，JUnit2347.255秒。边界、原夹具失败和精确制品见[本轮维护](../architecture/reviews/2026-11-09-framework-maintenance.md)与[当前交付](current-delivery.md)。原包不自动包含此修复，推荐组合保持，不增加新的服务／平台资格。
+
 ## Schema 引用与恢复
 
 Local 维护源码支持 input/config 各自的 `$defs`、本地 `$ref`／`$dynamicRef` 和固定嵌入资源；编译包装保持独立引用根，不自动读取外部文件或 URL。Temporal 保留原 `#` 引用子集，不继承全部 Local 引用支持。冲突资源 ID 在注册前拒绝。原 Spec 不变，普通无引用 Manifest 保持；含引用的修复会改变对应包装身份，原任务需原版本恢复。详见[Schema 指南](schema-validation.md)与[本批验收](../architecture/reviews/2026-11-05-framework-boundaries.md)。原 nodes2 验证包不含此修复。

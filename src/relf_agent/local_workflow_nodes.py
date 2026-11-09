@@ -5,6 +5,8 @@ from .tools import _entry_pin, _same_entry_pin
 from .types import digest
 from .workflow_executors import NodeExecutorRegistry, is_alias
 
+_REGISTRY_PORTS = ("manifest", "manifests", "tool", "get", "check", "validate_output")
+
 
 def configure(engine, registry):
     if registry is not None and not isinstance(registry, NodeExecutorRegistry):
@@ -17,6 +19,11 @@ def configure(engine, registry):
         else tuple(
             _entry_pin(getattr(registry.executor, name)) for name in ("execute", "reconcile")
         )
+    )
+    engine._workflow_node_registry_pins = (
+        None
+        if registry is None
+        else tuple(_entry_pin(getattr(registry, name)) for name in _REGISTRY_PORTS)
     )
     if registry is not None and getattr(registry.executor, "_registry", None) is not registry:
         raise ValidationError("Workflow node adapter must belong to its original registry")
@@ -36,12 +43,15 @@ def _registry(engine):
     adapter = original.executor
     try:
         methods = tuple(_entry_pin(getattr(adapter, name)) for name in ("execute", "reconcile"))
+        ports = tuple(_entry_pin(getattr(original, name)) for name in _REGISTRY_PORTS)
     except (AttributeError, ValidationError):
         raise DefinitionMismatch("Original Workflow node adapter methods changed") from None
     if getattr(adapter, "_registry", None) is not original or not _same_entry_pin(
         methods, engine._workflow_node_method_pins
     ):
         raise DefinitionMismatch("Original Workflow node adapter ownership or methods changed")
+    if not _same_entry_pin(ports, engine._workflow_node_registry_pins):
+        raise DefinitionMismatch("Original Workflow node registry methods changed")
     return original
 
 

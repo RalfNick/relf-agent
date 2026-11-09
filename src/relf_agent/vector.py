@@ -31,6 +31,7 @@ from .retrieval import (
     _store_identity,
     _text,
     _validate_chunks,
+    _validate_expiry,
 )
 from .storage import SQLiteStore
 from .types import canonical, digest
@@ -449,7 +450,9 @@ class VectorRetriever:
             ):
                 continue
             items.append(_retrieved(chunk, hit.score))
-        return _bounded_result(items, query, "vector")
+        result = _bounded_result(items, query, "vector")
+        _validate_expiry(result.items)
+        return result
 
     async def validate(self, scope, namespace, items):
         _scope(scope, namespace)
