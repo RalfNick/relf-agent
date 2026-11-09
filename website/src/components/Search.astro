@@ -4,6 +4,7 @@ import type { Locale } from '../lib/site';
 interface Props { locale: Locale }
 const { locale } = Astro.props; const zh = locale === 'zh';
 ---
+<script id="search-catalog" type="application/json" is:inline>null</script>
 <dialog class="search-dialog" aria-labelledby="search-title" data-locale={locale} data-pagefind-ignore>
   <div class="search-heading"><h2 id="search-title">{zh ? '搜索文档' : 'Search documentation'}</h2><button class="icon-button" data-search-close aria-label={zh ? '关闭搜索' : 'Close search'}><Icon name="close" /></button></div>
   <div id="search-ui">
@@ -15,10 +16,11 @@ const { locale } = Astro.props; const zh = locale === 'zh';
     <ol class="doc-search-results" aria-label={zh ? '搜索结果' : 'Search results'}></ol>
   </div><p id="search-status" class="search-message" role="status" aria-live="polite"></p>
   <div class="search-fallback" hidden><button class="button button-primary" data-search-retry>{zh ? '重试搜索' : 'Retry search'}<Icon name="restart" size={16}/></button><a class="button button-secondary" href={`/${locale}/docs/quickstart/`}>{zh ? '浏览文档' : 'Browse documentation'}<Icon name="book" size={16}/></a></div>
-  <div class="search-footer"><span>Pagefind · {zh ? '本地静态搜索' : 'Static local search'}</span><span><kbd>esc</kbd> {zh ? '关闭' : 'close'}</span></div>
+  <div class="search-footer"><span>{zh ? '本地文档搜索' : 'Local documentation search'}</span><span><kbd>esc</kbd> {zh ? '关闭' : 'close'}</span></div>
 </dialog>
 <script>
   import { createSearchBootstrap, withinDeadline, type SearchIndex } from '../lib/search-bootstrap';
+  import { createSnapshotIndex } from '../lib/search-snapshot';
   const dialog = document.querySelector<HTMLDialogElement>('.search-dialog');
   const message = document.querySelector<HTMLElement>('.search-message');
   const fallback = document.querySelector<HTMLElement>('.search-fallback');
@@ -26,7 +28,8 @@ const { locale } = Astro.props; const zh = locale === 'zh';
   const input = document.querySelector<HTMLInputElement>('#search-query');
   const results = document.querySelector<HTMLOListElement>('.doc-search-results');
   const zh = dialog?.dataset.locale === 'zh';
-  const bootstrap = createSearchBootstrap((path) => import(/* @vite-ignore */ path), zh ? 'zh' : 'en');
+  const bootstrap = createSearchBootstrap((path) => import(/* @vite-ignore */ path), zh ? 'zh' : 'en', () =>
+    createSnapshotIndex(document.querySelector('#search-catalog')?.textContent ?? '', zh ? 'zh' : 'en'));
   let index: SearchIndex | null = null;
   let loading = false;
   let request = 0;
@@ -61,7 +64,7 @@ const { locale } = Astro.props; const zh = locale === 'zh';
         if (url.origin !== window.location.origin || !url.pathname.startsWith(`/${zh ? 'zh' : 'en'}/docs/`)) return;
         const row = document.createElement('li');
         const link = document.createElement('a'); link.href = url.href; link.textContent = item.meta.title || item.url;
-        const excerpt = document.createElement('p'); excerpt.textContent = new DOMParser().parseFromString(item.excerpt, 'text/html').body.textContent;
+        const excerpt = document.createElement('p'); excerpt.textContent = item.excerptFormat === 'text' ? item.excerpt : new DOMParser().parseFromString(item.excerpt, 'text/html').body.textContent;
         row.append(link, excerpt); results?.append(row);
       });
       const count = results?.children.length ?? 0;
@@ -100,7 +103,7 @@ const { locale } = Astro.props; const zh = locale === 'zh';
     button.addEventListener('pointerenter', warmSearch, { once: true });
     button.addEventListener('focus', warmSearch, { once: true });
   });
-  // Start cold network work before the first dialog click, without blocking page rendering.
+  // Prepare the page's local snapshot without blocking rendering or fetching search resources.
   if ('requestIdleCallback' in window) window.requestIdleCallback(warmSearch, { timeout: 2_000 });
   else setTimeout(warmSearch, 1_000);
   document.querySelector('[data-search-close]')?.addEventListener('click', () => dialog?.close());

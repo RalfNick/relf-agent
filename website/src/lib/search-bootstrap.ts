@@ -2,6 +2,7 @@ export interface SearchData {
   url: string;
   meta: { title?: string };
   excerpt: string;
+  excerptFormat?: 'text';
 }
 export interface SearchIndex {
   search(query: string): Promise<{ results: { data(): Promise<SearchData> }[] }>;
@@ -29,6 +30,7 @@ export async function withinDeadline<T>(operation: Promise<T>, milliseconds: num
 export function createSearchBootstrap(
   importModule: (path: string) => Promise<SearchModule>,
   locale: 'zh' | 'en',
+  readSnapshot?: () => SearchIndex,
 ) {
   let ready: SearchIndex | null = null;
   let pending: Promise<SearchIndex> | null = null;
@@ -61,6 +63,13 @@ export function createSearchBootstrap(
     };
     const path = `/pagefind/pagefind.js${++attempt > 1 ? `?retry=${Date.now()}-${attempt}` : ''}`;
     pending = withinDeadline((async () => {
+      // Production pages carry their complete locale snapshot. No Worker,
+      // network readiness probe or result-fragment fetch is needed.
+      if (readSnapshot) {
+        active = readSnapshot();
+        candidate = active;
+        return active;
+      }
       const module = await importModule(path);
       ensureCurrent();
       active = module.createInstance({ basePath: '/pagefind/' });

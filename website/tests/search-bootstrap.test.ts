@@ -81,3 +81,16 @@ test('interactive queries still time out at twelve seconds', async (t) => {
   t.mock.timers.tick(12_001);
   await rejected;
 });
+
+test('an embedded snapshot can serve the first query when the search network never connects', async (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const blockedNetwork = deferred<any>();
+  const snapshot = index();
+  const loader = createSearchBootstrap(async () => blockedNetwork.promise, 'en', () => snapshot);
+  const loading = loader.load();
+  for (let i = 0; i < 10; i++) await Promise.resolve();
+  t.mock.timers.tick(30_001);
+  const ready = await loading;
+  const result = await (await ready.search('approval')).results[0].data();
+  assert.equal(result.url, '/en/docs/testing/');
+});

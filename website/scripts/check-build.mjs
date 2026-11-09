@@ -2,6 +2,8 @@ import { readdir, readFile, stat } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { checkBuiltRepositoryLinks } from './check-repository-links.mjs';
 import { strictChunkMarker } from './strict-pagefind.mjs';
+import { createSnapshotIndex } from '../src/lib/search-snapshot.ts';
+import { guideSlugs } from '../src/lib/site.ts';
 
 const root = resolve("dist");
 async function walk(dir) {
@@ -21,6 +23,30 @@ const documents = new Map(
   ),
 );
 const problems = [];
+const searchSnapshots = new Map();
+for (const [file, html] of documents) {
+  if (!html.includes('class="search-dialog"')) continue;
+  const locale = /<html[^>]*lang="zh-CN"/.test(html) ? 'zh' : 'en';
+  try {
+    const payload = html.match(/<script id="search-catalog" type="application\/json">([\s\S]*?)<\/script>/)?.[1];
+    if (!payload) throw new Error('Missing embedded search snapshot');
+    const index = createSnapshotIndex(payload, locale);
+    const snapshot = JSON.parse(payload);
+    const paths = new Set(snapshot.documents.map((document) => document.url));
+    if (paths.size !== guideSlugs.length || guideSlugs.some((slug) => !paths.has(`/${locale}/docs/${slug}/`)))
+      throw new Error('Incomplete search snapshot');
+    if (searchSnapshots.has(locale) && searchSnapshots.get(locale) !== payload) throw new Error('Inconsistent locale snapshots');
+    if (!searchSnapshots.has(locale)) {
+      for (const [query, slug] of [['node-executor', 'testing'], ['subscribe_events', 'operations'], [locale === 'zh' ? '审批' : 'approval', 'recovery']]) {
+        const matches = await Promise.all((await index.search(query)).results.map((result) => result.data()));
+        if (!matches.some((match) => match.url === `/${locale}/docs/${slug}/`)) throw new Error(`Search probe failed: ${query}`);
+      }
+      searchSnapshots.set(locale, payload);
+    }
+    await index.destroy();
+  } catch (error) { problems.push(`${file}: ${error.message}`); }
+}
+if (searchSnapshots.size !== 2) problems.push('Missing bilingual search snapshots');
 // Every query chunk must reject failed loads in both worker and main-thread paths.
 for (const file of ['pagefind.js', 'pagefind-worker.js']) {
   if (!(await readFile(join(root, 'pagefind', file), 'utf8')).includes(strictChunkMarker))
