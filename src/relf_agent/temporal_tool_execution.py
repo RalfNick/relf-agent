@@ -13,14 +13,18 @@ from .types import canonical, digest
 METHODS = ("execute", "wait", "aclose")
 
 
-def notification_identity():
+def notification_identity(*, node_capacity=False):
     from .temporal_context_execution import ContextExecutionOwner
+
+    owner = ContextExecutionOwner
+    if node_capacity:
+        from .temporal_node_capacity_owner import NodeNotificationOwner
+
+        owner = NodeNotificationOwner
 
     return {
         "max_calls": 256,
-        "implementation": {
-            name: executable_digest(getattr(ContextExecutionOwner, name)) for name in METHODS
-        },
+        "implementation": {name: executable_digest(getattr(owner, name)) for name in METHODS},
     }
 
 
@@ -89,7 +93,9 @@ def validate_protocol(manifest):
         ordinary(value)
         for item in value["implementation"].values():
             sha(item)
-        if value["notifications"] != notification_identity():
+        if value["notifications"] != notification_identity(
+            node_capacity=value["owner"].get("kind") == "workflow-node-capacity-owner"
+        ):
             raise ValidationError("Tool notifications lost their fixed mechanical owner")
     except (ValidationError, ValueError, TypeError):
         raise DefinitionMismatch("Tool execution lost its fixed bounded owner identity") from None
@@ -115,7 +121,9 @@ class ToolExecutionRegistration:
             "implementation": {
                 name: executable_digest(getattr(self.owner, name)) for name in METHODS
             },
-            "notifications": notification_identity(),
+            "notifications": notification_identity(
+                node_capacity=identity.get("kind") == "workflow-node-capacity-owner"
+            ),
         }
         validate_protocol(
             {"kernel": "temporal-3", "binding_protocol": 3, "tool_execution_protocol": value}

@@ -679,6 +679,9 @@ class TemporalRunState:
             self.state = (
                 "cancelling" if coding_enabled(self.manifest) and not stopped(self) else "cancelled"
             )
+            from .temporal_node_capacity import cancel_waiting
+
+            cancel_waiting(self)
             from .temporal_completion_state import close_pending
 
             close_pending(self)
@@ -1656,7 +1659,16 @@ class TemporalRunState:
         from .temporal_stream_updates import remember_observation
 
         remember_observation(self, action_id, response)
+        from .temporal_node_capacity import fail_unadmitted, observe
+
+        if observe(self, action_id, response):
+            return
         if not response["ok"]:
+            action = next(a for a in self.actions if a["id"] == action_id)
+            if response.get("dispatched") is False and fail_unadmitted(
+                self, action, response.get("code", "activity_failed")
+            ):
+                return
             self.accept_failure(action_id, response)
             return
         action = next(a for a in self.actions if a["id"] == action_id)

@@ -73,7 +73,7 @@ def test_provider_free_node_release_pins_private_tools_without_publishing_them_t
     assert worker.tools._tools == {}
     assert (
         manifest["tool_execution_protocol"]["owner"]["behavior_version"]
-        == "workflow-node-default-1"
+        == "workflow-node-capacity-1"
     )
     assert component.calls == []
     asyncio.run(worker.close_context_execution())
@@ -214,6 +214,12 @@ def node_envelope(worker, *, orchestration=False):
         ),
         "release_digest": request_release_digest(body, manifest),
         "node_request": body,
+        **(
+            {"node_capacity_ordinal": 0}
+            if manifest["tool_execution_protocol"]["owner"].get("kind")
+            == "workflow-node-capacity-owner"
+            else {}
+        ),
     }
 
 

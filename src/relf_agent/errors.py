@@ -64,9 +64,18 @@ class ExecutionHostFailed(RalfError):
 class CloseIncomplete(RalfError):
     code = "close_incomplete"
 
-    def __init__(self, report):
+    def __init__(self, report, *, diagnostics=None):
+        from .close_diagnostics import safe_close_diagnostics
+
         super().__init__("Runtime closing is incomplete; retain resources and retry")
         self.report = report
+        self._close_diagnostics = safe_close_diagnostics(diagnostics)
+
+    @property
+    def diagnostics(self):
+        from .close_diagnostics import safe_close_diagnostics
+
+        return safe_close_diagnostics(self._close_diagnostics)
 
 
 class SessionBusy(RalfError):

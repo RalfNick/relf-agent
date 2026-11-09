@@ -28,6 +28,7 @@ with workflow.unsafe.imports_passed_through():
         temporal_deployment_lifecycle_transport,
         temporal_deployment_release_state,
         temporal_execution_end_transport,
+        temporal_node_capacity,
         temporal_node_protocol,
         temporal_node_state,
         temporal_startup_options,

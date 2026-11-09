@@ -15,6 +15,9 @@ def prepare(state, action, request):
         return request
     request = copy.deepcopy(request)
     request["release_digest"] = state.release_digest
+    from .temporal_node_capacity import envelope
+
+    request = envelope(state, action, request)
     state.tool_executions[action["id"]] = {
         "action_id": action["id"],
         "request_digest": digest(request),
@@ -59,6 +62,15 @@ def record(state, payload, *, admission=False):
 def admit(state, payload):
     value, action = record(state, payload, admission=True)
     invocation = payload["invocation_id"]
+    if value.get("capacity_fenced"):
+        return {
+            "run_id": state.run_id,
+            "action_id": action["id"],
+            "release_digest": state.release_digest,
+            "invocation_id": invocation,
+            "claimed": False,
+            "allowed": False,
+        }
     claim = value.get("invocation_id")
     if claim is not None:
         return {

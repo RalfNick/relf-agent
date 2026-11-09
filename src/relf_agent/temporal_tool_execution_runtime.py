@@ -46,21 +46,35 @@ async def execute(runtime, request, *, dispatch_guard=None, on_end=None, coding_
     from .temporal_activities import _code
     from .temporal_bindings import selected_runtime
     from .temporal_context_execution import ContextExecutionRejected
+    from .temporal_node_capacity import refusal, selected, unstarted
+    from .temporal_node_capacity_owner import NodeCapacityUnavailable
     from .temporal_state import detached
 
-    started = False
+    started = claimed = admission_requested = capacity_node = closing_refusal = denied = False
+    closed_before_handler = False
+    fixed = None
     try:
         host = owner(runtime)
         runtime.validate_release(request["runtime_manifest"])
-        if host._tool_execution_closing or not callable(dispatch_guard) or not callable(on_end):
-            raise ValidationError("Tool execution requires open ownership and original callbacks")
         fixed, invocation = detached(request), uuid.uuid4().hex
+        if selected(fixed["runtime_manifest"]) and "node_request" in fixed:
+            from .temporal_node_protocol import validate_node_envelope
+
+            validate_node_envelope(fixed, fixed["runtime_manifest"])
+            ordinal = fixed.get("node_capacity_ordinal")
+            if type(ordinal) is not int or not 0 <= ordinal < 64:
+                raise ValidationError("Node capacity requires its bounded original ordinal")
+            capacity_node = True
+        if host._tool_execution_closing:
+            closing_refusal = True
+            raise ValidationError("Tool execution ownership is closing")
+        if not callable(dispatch_guard) or not callable(on_end):
+            raise ValidationError("Tool execution requires open ownership and original callbacks")
         proof = {
             name: fixed[name]
             for name in ("scope", "action_id", "release_digest", "execution_epoch")
         } | {"request_digest": digest(fixed)}
         actual_end = asyncio.Event()
-        claimed = False
         authority = None
 
         async def actual_ended(value):
@@ -69,17 +83,21 @@ async def execute(runtime, request, *, dispatch_guard=None, on_end=None, coding_
             actual_end.set()
 
         async def business():
-            nonlocal started
+            nonlocal started, closed_before_handler
+            if capacity_node:
+                await admit_invocation()
             runtime.validate_release(fixed["runtime_manifest"])
             owner(runtime)
             if host._tool_execution_closing:
+                closed_before_handler = True
                 raise ContextExecutionRejected(handler_not_started=True)
             selected = selected_runtime(runtime, fixed)
             started = True
             return await selected._execute_tool(fixed, coding_authority=authority)
 
-        async def invocation_operation():
-            nonlocal claimed, authority
+        async def admit_invocation():
+            nonlocal claimed, authority, admission_requested, denied
+            admission_requested = True
             if "coding_request" in fixed:
                 from .delegated_coding import registered_coding_tool
 
@@ -105,10 +123,15 @@ async def execute(runtime, request, *, dispatch_guard=None, on_end=None, coding_
             # Only the first claim, including a cancelled no-start claim, may
             # acknowledge this intent. A foreign rejection cannot end its owner.
             claimed = grant["claimed"]
+            denied = claimed and not grant["allowed"]
             if not grant["allowed"]:
                 actual_end.set()
                 raise ContextExecutionRejected(handler_not_started=True)
             claimed = True
+
+        async def invocation_operation():
+            if not capacity_node:
+                await admit_invocation()
             try:
                 result = await completed(
                     await host.tool_execution.execute(business, proof=proof, on_end=actual_ended)
@@ -143,11 +166,22 @@ async def execute(runtime, request, *, dispatch_guard=None, on_end=None, coding_
             on_end=notify,
         )
     except Exception as exc:
+        if capacity_node and not started and not claimed:
+            if type(exc) is NodeCapacityUnavailable and not admission_requested:
+                return refusal(fixed)
+            if closing_refusal or (
+                isinstance(exc, ContextExecutionRejected)
+                and exc.handler_not_started
+                and not admission_requested
+            ):
+                return unstarted(fixed, _code(exc, "tool_execution_failed"))
         duplicate = isinstance(exc, ContextExecutionRejected) and not exc.handler_not_started
         return {
             "ok": False,
             "code": _code(exc, "tool_execution_failed"),
-            "dispatched": started or duplicate,
+            "dispatched": started
+            or duplicate
+            or (capacity_node and admission_requested and not denied and not closed_before_handler),
             **(
                 {"handler_not_started": exc.handler_not_started}
                 if isinstance(exc, ContextExecutionRejected)
@@ -176,7 +210,32 @@ async def close(runtime, *, wait_timeout=30):
     host = owner(runtime)
     host._tool_execution_closing = True
     if not await wait(runtime, wait_timeout=wait_timeout):
-        raise CloseIncomplete({"tool_execution": "pending"})
+        from .close_diagnostics import make_close_diagnostics
+        from .temporal_context_execution import ContextExecutionOwner
+        from .temporal_node_capacity_owner import NodeCapacityOwner, NodeNotificationOwner
+        from .tool_execution import ToolExecutionOwner
+
+        blockers = {}
+        if type(host.tool_execution) in {ToolExecutionOwner, NodeCapacityOwner}:
+            blockers["handler"] = host.tool_execution._execution.active_count
+        notifications = host._tool_notifications
+        if type(notifications) in {ContextExecutionOwner, NodeNotificationOwner}:
+            blockers["end_ack"] = sum(
+                entry["task"].done() for entry in list(notifications._entries.values())
+            )
+        stage = (
+            "handler_drain"
+            if blockers.get("handler")
+            else "end_ack"
+            if blockers.get("end_ack")
+            else "execution_drain"
+        )
+        raise CloseIncomplete(
+            {"tool_execution": "pending"},
+            diagnostics=make_close_diagnostics(
+                authority="temporal", stage=stage, ownership="mixed", blockers=blockers
+            ),
+        )
     if host._tool_notifications is not None:
         await host._tool_notifications.aclose(wait_timeout=wait_timeout)
     owner(runtime)

@@ -323,9 +323,9 @@ class TemporalRuntime:
 
         configure_nodes(self, workflow_executors, tools)
         if workflow_executors is not None and tool_execution is None:
-            from .tool_execution import ToolExecutionOwner
+            from .temporal_node_capacity_owner import NodeCapacityOwner
 
-            tool_execution = ToolExecutionOwner(version="workflow-node-default-1", max_calls=16)
+            tool_execution = NodeCapacityOwner()
 
         if tool_execution is None and (
             coding_execution or has_sandbox_tools(tools.manifests(tuple(tools._tools)))
@@ -342,6 +342,14 @@ class TemporalRuntime:
         self._tool_notifications = (
             ContextExecutionOwner(max_calls=256) if tool_execution is not None else None
         )
+        if (
+            self._tool_execution_pin is not None
+            and self._tool_execution_pin.identity["owner"].get("kind")
+            == "workflow-node-capacity-owner"
+        ):
+            from .temporal_node_capacity_owner import NodeNotificationOwner
+
+            self._tool_notifications = NodeNotificationOwner()
         if type(enable_sessions) is not bool:
             raise ValidationError("enable_sessions requires an explicit boolean")
         self.enable_sessions = enable_sessions

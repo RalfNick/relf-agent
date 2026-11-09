@@ -56,9 +56,24 @@ class _ConstructionCleanup:
         if self._aclosing:
             raise ValidationError("Temporal construction cleanup is already closing")
         self._aclosing = True
+        stage = "construction"
         try:
             await self.wait(wait_timeout=wait_timeout)
+            stage = "resource_close"
             await self._context.cleanup_async()
+        except CloseIncomplete as exc:
+            from .close_diagnostics import enrich_close_diagnostics
+
+            enrich_close_diagnostics(
+                exc,
+                authority="temporal",
+                stage=stage,
+                ownership="owned",
+                blockers={"resource": len(self._context._resources)}
+                if stage == "resource_close"
+                else None,
+            )
+            raise
         finally:
             self._aclosing = False
 
@@ -73,12 +88,32 @@ class _ConstructionCleanup:
         if pending:
             _, pending = await asyncio.wait(pending, timeout=wait_timeout)
             if pending:
-                raise CloseIncomplete("Actual component construction remains owned")
+                from .close_diagnostics import make_close_diagnostics
+
+                raise CloseIncomplete(
+                    "Actual component construction remains owned",
+                    diagnostics=make_close_diagnostics(
+                        authority="temporal",
+                        stage="construction",
+                        ownership="owned",
+                        blockers={"construction": len(pending)},
+                    ),
+                )
         if self._threads.has_active:
             try:
                 await asyncio.wait_for(self._threads.drain(), wait_timeout)
             except TimeoutError:
-                raise CloseIncomplete("Actual construction bridge remains owned") from None
+                from .close_diagnostics import make_close_diagnostics
+
+                raise CloseIncomplete(
+                    "Actual construction bridge remains owned",
+                    diagnostics=make_close_diagnostics(
+                        authority="temporal",
+                        stage="construction",
+                        ownership="owned",
+                        blockers={"thread": self._threads.active_count},
+                    ),
+                ) from None
 
 
 def _paths(declaration, kind, data_path):

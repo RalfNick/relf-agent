@@ -82,6 +82,7 @@ class Runtime:
             close_policy,
         )
         self.state, self._loop = "open", None
+        self._close_authority, self._close_stage = "local", "unknown"
         self._supervisor = RunTaskSupervisor(engine, unresolved=self._pending_controls)
         self._close_task, self.close_report = None, None
         self._drained = False
@@ -441,10 +442,12 @@ class Runtime:
                             ref.run_id, command_id="facade-close-cancel:" + ref.run_id
                         )
                         self._supervisor.start(ref)
+                self._close_stage = "run_drain"
                 await self._supervisor.drain()
                 self._drained = True
             parked = tuple(self._supervisor.refs.values())
             if self.owned:
+                self._close_stage = "authority_close"
                 if isinstance(self.engine, RuntimeInstance):
                     await self.engine.aclose()
                 else:
@@ -492,8 +495,31 @@ class Runtime:
         try:
             return await asyncio.wait_for(asyncio.shield(self._close_task), timeout=timeout)
         except Exception as exc:
+            from .close_diagnostics import enrich_close_diagnostics
+
             report = CloseReport(self.state, tuple(self._supervisor.refs.values()), self.owned)
-            raise CloseIncomplete(report) from exc
+            error = CloseIncomplete(
+                report, diagnostics=exc.diagnostics if isinstance(exc, CloseIncomplete) else None
+            )
+            stage = self._close_stage
+            blockers = {}
+            if stage in {"run_drain", "rpc_drain"}:
+                blockers["run" if stage == "run_drain" else "rpc"] = len(self._supervisor.tasks)
+            if (
+                stage == "authority_close"
+                and isinstance(self.engine, RuntimeInstance)
+                and self.engine._engine_closed
+            ):
+                stage = "resource_close"
+                blockers["resource"] = len(self.engine._context._resources)
+            enrich_close_diagnostics(
+                error,
+                authority=self._close_authority,
+                stage=stage,
+                ownership="owned" if self.owned else "borrowed",
+                blockers=blockers,
+            )
+            raise error from exc
 
 
 class _RunEventSource:

@@ -2,6 +2,8 @@
 
 2026-11-05 维护源码增加 `TemporalRuntime(workflow_executors=...)` 与 `GraphNode(executor=...)`。它复用 [Local 节点](managed-async-nodes.md)的 `NodeExecutorRegistry`、完整 JSON 输入、独立 config 和原 `InvocationContext`。源码和准确隔离 wheel 各13项真实 Temporal Service 恢复测试、各690项受影响离线回归已通过；原完整轮15479通过／1项旧夹具失败／908条件跳过，该夹具修复后源码／安装各8项通过，范围及证据见[本批验收](../architecture/reviews/2026-11-05-temporal-managed-nodes.md)。原 a8、推荐组合和此前节点验证包不包含本能力；准确制品和验收范围以[当前交付](current-delivery.md)为准。
 
+2026-11-09 容量背压／关闭诊断的准确候选 `0.1.0a8+capacity.c5a29d8fa601a9ec` 已通过源码／目录外安装各46模块884项、真实Service同5个ID各5项，以及运行依赖16条、sdist重建464产品一致与所选元数据兼容检查；完整源码回归15685通过／913条件跳过、零失败／错误，共16598项，本轮有限维护已验收；913跳过中的本次5个Service用例仍以独立实际运行成绩解释。原容量失败、原型冷重放失败及阶段修复分别保留，见[本轮验收](../architecture/reviews/2026-11-09-temporal-capacity-close.md)。原 History 权威和恢复身份保持，本轮不扩展未支持的 Session／Coding 等组合；关闭只读呈现与原实例重试见[诊断指南](close-diagnostics.md)。
+
 ## 支持范围
 
 | 组合 | 当前源码范围 |
@@ -82,7 +84,19 @@ JSON 使用同一结构。identity 工厂只接受空 config；自定义同步�
 
 Parent 使用原子 Run 额度托管，按所选节点真实 cost 预留，支持 cost=0、1 或大于8；普通 Agent 子额度仍遵循原规则。节点只消耗原 Tool 额度，不收模型决策额度。预算不足在 execute 前拒绝，不创建独立预算账本；未知效果保持原额度与工作责任。
 
-2026-11-09 已复现一项容量限制：默认节点 ToolExecutionOwner 为16槽，已被实际调用占用时，额外的未启动调用可能返回 `code=memory_backend_error`、`handler_not_started=true` 并使子 Run 失败。图的 max_concurrency 是调度上限，不保证单 Worker 或多个 Run 的执行槽可用；当前没有自动容量排队／恢复协议。显式增加 owner 上限只移动阈值，不能替代跨 Run 背压。不能根据进度缺失或一次拒绝自行重执行业务；这一限制列在[剩余能力](remaining-work.md)，本批节点扩展检查没有修改它。
+2026-11-09 本轮修复前已复现一项容量限制：默认节点 ToolExecutionOwner 为16槽，已被实际调用占用时，额外的未启动调用返回 `code=memory_backend_error`、`handler_not_started=true` 并使子 Run 失败。当时没有自动容量等待／恢复协议；节点扩展检查没有修改它。该原失败记录保留，不能用新实现的有限定向成绩改写原包结果。图的 max_concurrency 是调度上限，不保证单 Worker 或多个 Run 的执行槽可用；显式增加 owner 上限只移动阈值，不能替代跨 Run 背压。
+
+### 本轮容量背压（有限验收完成）
+
+维护源码仅为新的默认 `NodeCapacityOwner` 启用容量背压，身份显式固定为 `kind=workflow-node-capacity-owner`、`behavior_version=workflow-node-capacity-1`；实际工具槽仍为16，通知上限仍为256。仅当槽满且尚未取得原 History claim 时，Worker 才返回专用未启动证明，由原 Native History 保存拒绝 ordinal 并安排有界 timer。它继续使用同一 Action、attempt、effect key 和原预算，不建立本地执行队列或另一套重试权威。
+
+容量等待最多接纳64次明确拒绝，timer 从0.1秒指数增加至1秒，并共同受原 `activity_timeout * 2 + 5` 的 `schedule_to_close` 上限约束；每次 Activity 不超过原超时或原期限剩余时间。等待不是新的无限业务期限。timer 等待中的取消保留原零消费 fence，不创建新的工具尝试或效果身份，也不代替其他实际处理器的停止证明。
+
+重复调用、owner 已关闭、已取得 claim 的未知结果及非容量错误不进入此分支。旧节点发布、显式旧 owner、Sandbox 等继续沿原路径；不能根据缺失进度、任意 `handler_not_started` 字段或未知结果自行重执行业务。本轮不承诺跨宿主公平队列或新的全局容量能力，准确恢复和安装范围见[本轮验收](../architecture/reviews/2026-11-09-temporal-capacity-close.md)。
+
+容量等待使用单独的原 `workflow.sleep` Task，并以无 timeout 的 `wait_condition` 等待该 timer 实际完成或原 Run 终态。Drive／query 只观察原等待，不重开 timer，也不以查询激活时更新的时钟代替完成证据。新容量 executor 的 ACK Activity ID 取原 Action 内持久 `ack_ordinal`，不依赖 `len(event_log)`；旧节点和普通分支不外推本规则。
+
+最终源码／准确安装的同5个Service ID均通过，覆盖单图17节点、两Run共享16＋1槽、History Worker冷重启、等待取消以及延后ACK的关闭重试。History Worker冷重启保留独立Activity Worker和实际handler，不是物理执行Worker全冷恢复；原Activity10秒、Worker ready20秒、就绪30秒及用例120秒门槛保持。原型首轮4/5及后续ACK ID5／6分歧的失败History保持，不提供对这些未发行坏History的透明迁移；最终结果与准确包范围分别登记。
 
 执行沿原 dispatch intent、效果观察／回执、History 采纳与 ACK 推进。已确认结果还需真实 handler 停止、ACK（含延后 ACK）排空，节点才能完成。ACK 失败应修复原 Journal／Worker 路径后驱动原 Run，不能重新 execute。`queryable_write` 需要原 reconcile 证据；`unqueryable_write` 的未知效果保留人工核验，框架不能替代下游幂等性。
 
@@ -93,5 +107,7 @@ Parent 使用原子 Run 额度托管，按所选节点真实 cost 预留，支�
 ## 版本与待验收项
 
 恢复必须保留原组件版本、Profile、namespace、队列和实际可处理原发布的 Worker。原节点未启用发布不增加节点字段；这不等于所有旧 History 都能用新 Worker 透明回放。尤其所选 Coding composition 固定 `_pure_sources` 实现指纹，本批共享纯规则变化会改变它；旧 Coding 任务须使用原包／匹配 Worker，不降低原指纹检查。
+
+本轮容量维护改变新的默认节点发布身份，以及所选 Coding／部署的实现指纹；旧任务仍须使用原包和匹配 Worker。不自动迁移旧 History，也不将新候选的恢复成绩授予旧包或任意旧发布。
 
 源码和准确隔离 wheel 已独立覆盖所选串并行／混合／嵌套、审批重启、未知效果、回执恢复及取消后真实停止与关闭重试，13项全部实际运行，无条件跳过。写提交后崩溃而缺少实际结束证明的用例，验收的是保留未知义务并阻止重写，并非业务成功。延后 ACK 的特定失败回路另有确定性状态测试；完整轮的唯一旧夹具缺项已定向修复，原模块源码／安装各8项通过；原15479通过／1失败／908跳过保留，没有再次全库运行。准确包为 `0.1.0a8+tnodes.3675891f64d0664f`，包内文档保留构建快照，最终支持范围和勘误以本页及验收记录为准。这些不授予真实模型质量、更多平台或公开发行资格。

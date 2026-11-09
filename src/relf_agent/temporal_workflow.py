@@ -31,6 +31,7 @@ with workflow.unsafe.imports_passed_through():
         temporal_deployment_session_updates,  # noqa: F401 -- Registry-owned SDK commit path
         temporal_execution_end_transport,  # noqa: F401 -- original physical end observations
         temporal_manual_recovery,  # noqa: F401 -- original Action recovery proof
+        temporal_node_capacity,  # noqa: F401 -- original node History capacity timers
         temporal_node_protocol,  # noqa: F401 -- fixed pure node admission
         temporal_node_state,  # noqa: F401 -- original ToolAction node proposal
         temporal_parent_completion_state,  # noqa: F401 -- preload pure parent release gates
@@ -703,6 +704,29 @@ class TemporalRunWorkflow:
                 non_retryable=True,
             ) from None
 
+    async def _wait_node_capacity(self):
+        from .temporal_node_capacity import delay, resume, waiting
+
+        if waiting(self.state) is None:
+            return False
+        seconds = delay(self.state, now=workflow.now().timestamp())
+        timer_fired = False
+        if seconds > 0 and self.state.state not in {"succeeded", "failed", "cancelled"}:
+            timer = asyncio.create_task(workflow.sleep(seconds))
+            try:
+                await workflow.wait_condition(
+                    lambda: timer.done() or self.state.state in {"succeeded", "failed", "cancelled"}
+                )
+                if timer.done() and not timer.cancelled():
+                    timer.result()
+                    timer_fired = True
+            finally:
+                if not timer.done():
+                    timer.cancel()
+                    await asyncio.gather(timer, return_exceptions=True)
+        resume(self.state, now=workflow.now().timestamp(), timer_fired=timer_fired)
+        return True
+
     @workflow.run
     async def run(self, accepted: dict) -> None:
         self._check_deployment_initialization()
@@ -716,6 +740,8 @@ class TemporalRunWorkflow:
         timeout = timedelta(seconds=accepted["activity_timeout"])
         total_timeout = timedelta(seconds=accepted["activity_timeout"] * 2 + 5)
         while True:
+            if await self._wait_node_capacity():
+                continue
             if not await self._ensure_deployment_admission(timeout):
                 await self._wait_deployment_admission()
                 continue
@@ -725,6 +751,11 @@ class TemporalRunWorkflow:
             if self.state.pending_acks:
                 evidence = self.state.pending_acks.pop(0)
                 self.state.active_evidence_ack = evidence["action_id"]
+                ack_activity_id = (
+                    temporal_node_capacity.ack_transport_id(self.state, evidence)
+                    if temporal_node_capacity.owns(self.state)
+                    else f"ack:{evidence['action_id']}:{len(self.state.event_log)}"
+                )
                 try:
                     result = await self._execute_activity(
                         ACK_ACTIVITY,
@@ -732,7 +763,7 @@ class TemporalRunWorkflow:
                         start_to_close_timeout=timeout,
                         schedule_to_close_timeout=total_timeout,
                         retry_policy=RetryPolicy(maximum_attempts=1),
-                        activity_id=f"ack:{evidence['action_id']}:{len(self.state.event_log)}",
+                        activity_id=ack_activity_id,
                     )
                     if not result["ok"]:
                         self.state.deferred_acks.append(evidence)
@@ -846,6 +877,18 @@ class TemporalRunWorkflow:
                         pass
                 continue
             action, request = operation
+            node_capacity = temporal_node_capacity.owns(self.state) and action["kind"] == "tool"
+            dispatch_timeout, dispatch_total = timeout, total_timeout
+            if node_capacity:
+                now = workflow.now().timestamp()
+                temporal_node_capacity.begin_window(
+                    self.state, action, now=now, total_seconds=total_timeout.total_seconds()
+                )
+                remaining = temporal_node_capacity.remaining(self.state, action, now=now)
+                if remaining <= 0:
+                    continue
+                dispatch_timeout = timedelta(seconds=min(timeout.total_seconds(), remaining))
+                dispatch_total = timedelta(seconds=remaining)
             try:
                 response = await self._execute_activity(
                     CODING_STOP_ACTIVITY
@@ -868,8 +911,8 @@ class TemporalRunWorkflow:
                     if action["kind"] == "model"
                     else TOOL_ACTIVITY,
                     request,
-                    start_to_close_timeout=timeout,
-                    schedule_to_close_timeout=total_timeout,
+                    start_to_close_timeout=dispatch_timeout,
+                    schedule_to_close_timeout=dispatch_total,
                     retry_policy=RetryPolicy(
                         maximum_attempts=1
                         if action["kind"] == "coding_stop"
@@ -906,6 +949,8 @@ class TemporalRunWorkflow:
                         "managed_session",
                         "model_adoption",
                     }
+                    else temporal_node_capacity.transport_id(action)
+                    if node_capacity
                     else action["attempts"][0]["id"],
                 )
                 if action["kind"] == "coding_stop":
@@ -996,7 +1041,10 @@ class TemporalRunWorkflow:
                         action["id"], {"ok": False, "code": "activity_outcome_unknown"}
                     )
                 else:
-                    self.state.operation_unknown(action["id"], "activity_outcome_unknown")
+                    if not temporal_node_capacity.fail_unadmitted(
+                        self.state, action, "activity_outcome_unknown"
+                    ):
+                        self.state.operation_unknown(action["id"], "activity_outcome_unknown")
 
     async def _deadline(self, seconds):
         await workflow.sleep(seconds)
@@ -1010,6 +1058,7 @@ class TemporalRunWorkflow:
                 else "cancelled"
             )
             self.state.error = {"code": "deadline_exceeded"}
+            temporal_node_capacity.cancel_waiting(self.state)
             from .temporal_user_input import close_pending
 
             close_pending(self.state)

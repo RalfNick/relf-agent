@@ -522,13 +522,28 @@ class TemporalRuntimeAssembly:
             raise ValidationError("Temporal assembly is already closing")
         self._closing, self._aclosing = True, True
         self._begin_close()
+        stage = "execution_drain"
         try:
             await self._drain_execution(wait_timeout)
+            stage = "worker_stop"
             await self._finish_worker(wait_timeout)
+            stage = "resource_close"
             await self._context.cleanup_async()
             self._closed = True
             if self._worker_failure is not None:
                 raise self._worker_failure
+        except CloseIncomplete as exc:
+            from .close_diagnostics import enrich_close_diagnostics
+
+            blockers = {}
+            if stage == "resource_close":
+                blockers["resource"] = len(self._context._resources)
+            elif stage == "worker_stop" and self._worker_stop is not None:
+                blockers["worker"] = int(not self._worker_stop.done())
+            enrich_close_diagnostics(
+                exc, authority="temporal", stage=stage, ownership="owned", blockers=blockers
+            )
+            raise
         finally:
             self._aclosing = False
 

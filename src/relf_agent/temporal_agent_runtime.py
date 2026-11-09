@@ -105,6 +105,7 @@ class TemporalClientRuntime(Runtime):
             close_policy,
         )
         self.state, self._drained = "open", False
+        self._close_authority, self._close_stage = "temporal", "unknown"
         self._close_task, self.close_report = None, None
         self._supervisor = RpcTaskSupervisor()
         self._session_locator = None
@@ -426,9 +427,11 @@ class TemporalClientRuntime(Runtime):
     async def _shutdown(self):
         try:
             if not self._drained:
+                self._close_stage = "rpc_drain"
                 await self._supervisor.drain()
                 self._drained = True
             if self.owned:
+                self._close_stage = "authority_close"
                 result = await self.engine.aclose()
                 if result is not None:
                     refuse_lazy(result)

@@ -36,6 +36,13 @@ def next_operation(state):
         )
         state._emit("workflow_node_action_recorded", {"action_id": identity})
     action = state.actions[0]
+    from .temporal_node_capacity import retry_operation, waiting
+
+    if waiting(state) is not None:
+        return None
+    retry = retry_operation(state, action)
+    if retry is not None:
+        return retry
     if action["status"] == "completed":
         if (
             state.pending_acks

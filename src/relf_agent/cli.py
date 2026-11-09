@@ -13,7 +13,13 @@ from pathlib import Path
 from . import __version__
 from .cli_views import diagnostics_inspection, inspection, render_inspection, render_result
 from .demo import create_demo_engine, demo_spec
-from .errors import AuthorizationDenied, DefinitionMismatch, RalfError, ValidationError
+from .errors import (
+    AuthorizationDenied,
+    CloseIncomplete,
+    DefinitionMismatch,
+    RalfError,
+    ValidationError,
+)
 from .ports import _has_engine_close, close_engine, is_sync_callable, validate_engine
 from .storage import SQLiteStore
 from .types import RunSnapshot, Scope
@@ -262,10 +268,32 @@ def main(argv=None):
             print(json.dumps(result, ensure_ascii=False, allow_nan=False))
         return 0
     except RalfError as exc:
+        from .runtime_builder import RuntimeBuildError
+
+        cause = exc.__cause__ if type(exc) is RuntimeBuildError else None
+        diagnostics = (
+            exc.diagnostics
+            if isinstance(exc, CloseIncomplete)
+            else cause.diagnostics
+            if type(cause) is CloseIncomplete
+            else None
+        )
         message = (
             f"{exc.code}: {exc}"
+            + (
+                f"; stage={diagnostics['stage']}; retry={diagnostics['retry_action']}"
+                if diagnostics is not None
+                else ""
+            )
             if args.format == "text"
-            else json.dumps({"code": exc.code, "message": str(exc)}, ensure_ascii=False)
+            else json.dumps(
+                {
+                    "code": exc.code,
+                    "message": str(exc),
+                    **({"diagnostics": diagnostics} if diagnostics is not None else {}),
+                },
+                ensure_ascii=False,
+            )
         )
         print(message, file=sys.stderr)
         return 2

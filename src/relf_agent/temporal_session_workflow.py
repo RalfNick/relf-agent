@@ -16,6 +16,7 @@ with workflow.unsafe.imports_passed_through():
         coding_create_inventory,  # Pure native inventory schema used during Session activation.
         temporal_context_read_protocol,
         temporal_context_read_state,
+        temporal_node_capacity,
         temporal_parent_completion_state,
         temporal_session_identity,  # noqa: F401 -- preload pure Session addressing
     )

@@ -1,0 +1,212 @@
+{
+  "date": "2026-11-09",
+  "base": "4bb46fe7a8935e6d13962a6c34e02519122c4c53",
+  "status": "scoped acceptance passed; no push or public release",
+  "scope": "default Temporal node capacity in original History, additive close diagnostics, delivery entry",
+  "source_version": "0.1.0a8",
+  "candidate": {
+    "version": "0.1.0a8+capacity.c5a29d8fa601a9ec",
+    "product_digest": "3441dd47caa9b9e46a3cecd5c81c5aa24fbfdafc0e723211d8f6ee543fbddda3",
+    "build_digest": "c5a29d8fa601a9ec9d62654af0044dbbfe6033739a00cc0d632a6fe79d5488c8",
+    "product_files": 464,
+    "wheel": "dist/temporal-capacity-close-20261109/sdk-artifacts/relf_agent-0.1.0a8+capacity.c5a29d8fa601a9ec-py3-none-any.whl",
+    "wheel_sha256": "5536d856fa3b91bbb12c85a094ce6e928077ca4c4a3bf1d01b7c747d5b4ad918",
+    "sdist": "dist/temporal-capacity-close-20261109/sdk-artifacts/relf_agent-0.1.0a8+capacity.c5a29d8fa601a9ec.tar.gz",
+    "sdist_sha256": "506ba759b648dbb3c77e3f8304c4a7fc3a77111608007d1e70202c5c3afe9d2d"
+  },
+  "source_targeted": {
+    "path": "dist/temporal-capacity-close-20261109/source-final-targeted.xml",
+    "sha256": "8f097059da2d44fd3bfb633131f3a7848c83d637c7b44a4361f3c188541b32e8",
+    "tests": 884,
+    "passed": 884,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 52.325
+  },
+  "isolated_installed_targeted": {
+    "path": "dist/temporal-capacity-close-20261109/installed-final-targeted.xml",
+    "sha256": "169b8368cab01c281e10b409c2b646e08114842a387ce40bf61eb75428407fec",
+    "tests": 884,
+    "passed": 884,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 56.459
+  },
+  "targeted_same_test_ids": 884,
+  "actual_temporal_service": {
+    "source": {
+      "path": "dist/temporal-capacity-close-20261109/service/source-final/pytest.xml",
+      "sha256": "c94cb6982e1f378683e0105eb7a0532499cc3bceb67a344a88514fdd89d3a4e2",
+      "tests": 5,
+      "passed": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 95.102
+    },
+    "isolated_installed": {
+      "path": "dist/temporal-capacity-close-20261109/service/installed-final/pytest.xml",
+      "sha256": "fe1ba28c6d12d1990426a33e7deab142f600e99d7043889531a118516d1d8068",
+      "tests": 5,
+      "passed": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 89.251
+    },
+    "same_test_ids": 5,
+    "sdk": "1.34.0",
+    "cli": "1.9.1",
+    "server": "1.32.0",
+    "cli_sha256": "33c298d41f6eefebf01a28a3511f444480e939e21d3518cb0c12a4abad467c4b",
+    "time_skipping": false,
+    "worker_restart": "History Worker process only; independent Activity Worker and real handlers remain alive",
+    "scenarios": [
+      "17 nodes",
+      "16+1 nodes across two Runs",
+      "cold History Worker replay during capacity wait",
+      "cancel waiting without spending and retry close",
+      "handler ended while real on_end ACK pending"
+    ],
+    "original_limits_seconds": {
+      "activity": 10,
+      "worker_ready": 20,
+      "until": 30,
+      "case": 120
+    },
+    "source_runner": {
+      "path": "dist/temporal-capacity-close-20261109/service/source-final/result.json",
+      "sha256": "418618d3cba1559afc629072fc70abbd8bbdecd0e5c485782d31a1d8ab6254a4"
+    },
+    "installed_runner": {
+      "path": "dist/temporal-capacity-close-20261109/service/installed-final/result.json",
+      "sha256": "4d06d1372e2e68ae1c7fd463418c5c432b621cfd8346887c020eef4668a5921f"
+    }
+  },
+  "runtime_dependencies_only": {
+    "commands_passed": 16,
+    "sdist_rebuilt_products_equal": 464,
+    "rebuilt_wheel_sha256": "7bc3c70b7c42b31e88bc07947eb2e3824fd71c023c45b862819c049df43ad655",
+    "record": {
+      "path": "dist/temporal-capacity-close-20261109/production-result.json",
+      "sha256": "6fc00c84ce56314856d397346ba78df063276e01d3af50ff41647b17e19fbf4c"
+    }
+  },
+  "compatibility": {
+    "ordinary_temporal_release_same": true,
+    "explicit_legacy_node_release_same": true,
+    "legacy_notification_identity_same": true,
+    "original_context_owner_methods_same": true,
+    "old_catalog_count": 7,
+    "old_catalog_digests_same": true,
+    "new_default_node_owner_changed_as_expected": true,
+    "default_capacity_remains": 16,
+    "source_and_installed_new_default_same": true,
+    "unchanged_digest": "63a7bff7ef985083c30089d444f9e9769cd27560022ddefdf695a1411af01cf9",
+    "packages": {
+      "old": "/private/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-node-contract-20261109-9ek7wglv/venv/lib/python3.12/site-packages/relf_agent/__init__.py",
+      "source": "/Users/bytedance/Codex-Projects/ralf-agent/src/relf_agent/__init__.py",
+      "installed": "/private/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-capacity-close-20261109-88meey3m/venv/lib/python3.12/site-packages/relf_agent/__init__.py"
+    },
+    "versions": {
+      "old": "0.1.0a8+ncontracts.4335e907afe20318",
+      "source": "0.1.0a8",
+      "installed": "0.1.0a8+capacity.c5a29d8fa601a9ec"
+    },
+    "service_calls": 0,
+    "model_calls": 0,
+    "scope": "selected metadata only; no old Coding/deployment/Session fingerprint or arbitrary History qualification",
+    "record": {
+      "path": "dist/temporal-capacity-close-20261109/compatibility.json",
+      "sha256": "c3f5455c20b7eda9bd834fd024ba41ec499ffef0d53b575b33ac5356e874ff77"
+    }
+  },
+  "full_offline": {
+    "path": "dist/temporal-capacity-close-20261109/final-allowed/full.xml",
+    "sha256": "69caee2eb64b134f579bf21275b6b8d83039b5aa1f9ce87ebd2e7ee4b750abef",
+    "tests": 16598,
+    "passed": 15685,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 913,
+    "elapsed_seconds": 2438.285,
+    "status": "passed",
+    "runner": {
+      "path": "dist/temporal-capacity-close-20261109/final-allowed/result.json",
+      "sha256": "9265fe38b701c80ddffd81fd1b10fe26995e4f4ef164e8bc7d8430f82e334c41"
+    },
+    "verification": {
+      "path": "dist/temporal-capacity-close-20261109/final-allowed/verification.json",
+      "sha256": "1934b7f49f4be3a4302cbdcc89a0068231e9bee9fb0294b4c49c079b0ac7e0ec"
+    },
+    "wall_seconds": 2441.504581874702,
+    "prior_test_ids_retained": 16490,
+    "prior_passing_ids_still_pass": 15582,
+    "new_test_ids": 108,
+    "targeted_cases_passed_in_full": 884,
+    "original_crash_windows_passed": 5,
+    "original_crash_child_deadline_seconds": 10,
+    "awake_guard_and_pytest_group_exited": true,
+    "new_conditional_service_skips": 5,
+    "all_integrity_checks_passed": true
+  },
+  "integrity": {
+    "frozen_products": 464,
+    "frozen_inputs": 1578,
+    "original_artifacts_unchanged": 306,
+    "freeze_records": [
+      {
+        "path": "dist/temporal-capacity-close-20261109/frozen-products.json",
+        "sha256": "812c6e657ee50f82376eb67b1e8735f88456968fb3f6e7bcebf7f3ce26af5f32"
+      },
+      {
+        "path": "dist/temporal-capacity-close-20261109/frozen-inputs.json",
+        "sha256": "c61b62e4261f12351474957fe320f9df5ee9da497e3880102d454fd83d472b7e"
+      }
+    ],
+    "protected_review_unchanged": true,
+    "persistent_hooks_unchanged": true,
+    "unowned_website_changes_excluded": true
+  },
+  "preserved_failures": {
+    "original_capacity_reproducer": "capacity-original/known-limitation.json",
+    "targeted_red_and_prototype_service_failures": "separate original directories retained under this batch evidence directory",
+    "prototype_bad_histories": "not issued releases; not granted transparent compatibility",
+    "first_partial_full": {
+      "record": {
+        "path": "dist/temporal-capacity-close-20261109/final/result.json",
+        "sha256": "75e8cdc0412ea6b3e4082b5368b0ae4a8b404d86c2ab5f2cc5c3f89de992197d"
+      },
+      "classification": {
+        "path": "dist/temporal-capacity-close-20261109/final/partial-classification.json",
+        "sha256": "9758b2c6ad5977b51c70e86b498151b1a9045daa72f62109118d5dd4196b75da"
+      },
+      "exit_code": -15,
+      "elapsed_seconds": 221.99457783298567,
+      "raw_failures_or_errors": 22,
+      "confirmed_localhost_bind_permission_errors": 8,
+      "supervisor_ready_mismatches_cause_not_independently_proven": 14,
+      "qualified_full_regression": false,
+      "remaining_original_process_group_members": 0
+    }
+  },
+  "qualification_limits": [
+    "macOS ARM64 Python 3.12 only",
+    "no whole physical execution Worker crash qualification",
+    "no arbitrary old History or Coding/deployment/Session fingerprint migration",
+    "no new real write, PostgreSQL, cross-host or remote storage qualification",
+    "no model quality or independent external adoption qualification",
+    "not complete R01-R26 or enterprise production acceptance",
+    "original recommended artifacts and all historical evidence retained",
+    "candidate is local verification only; no remote CI, push or public release"
+  ],
+  "real_model_quality": false,
+  "independent_external_adoption": false,
+  "full_r01_r26": false,
+  "remote_ci": false,
+  "push": false,
+  "public_release": false,
+  "commit_record": "Git is authoritative; generated acceptance record does not embed its own commit SHA"
+}
