@@ -1,5 +1,11 @@
 # Dynamic DAG and nested orchestration
 
+## 有界执行与检查增量：2026-11-10
+
+在 `085c0f5` 基线上，本批通过同一纯 `BoundedLoopPolicy` 显式实现 Planner／PlanVerifier 两个角色：执行已有成员，检查其已采纳结果，必要时沿原修订进入下一轮；到次数上限仍不满足则失败。每轮只提出一个无环 DAG，上一结果通过原 Literal 固定，不新增执行权威、绑定格式或共享 reducer。必须同时选择两个角色，默认 CompleteVerifier 不提供循环语义。
+
+完整无模型应用、首用 SDK、JSON／TOML 及不透明结果身份边界见[有界执行指南](bounded-loop-workflows.md)。本批按所选有限范围完成验收，准确成绩见[本批记录](../architecture/reviews/2026-11-10-bounded-loop.md)；下方 Fan-Out 和 dev15 内容保留各自原快照。通用循环图、共享状态合并与流式数据流不由此交付，原图环检测、成员权限及恢复限额继续生效。
+
 ## 当前能力入口：2026-11-10
 
 开发源码基线为已登记推送的 `aa77b90`。现有动态 DAG、嵌套成员和原父子 Run 协议继续使用；Local 通用受管理异步节点，以及 Temporal 所选无会话串并行／混合图和 Team／Dynamic 嵌套 executor 已有实现与分层证据，见[Local 节点](managed-async-nodes.md)、[Temporal 节点](temporal-managed-nodes.md)及[当前交付](current-delivery.md)。不能把下方 dev15 的 Temporal 拒绝范围当作当前源码总能力。

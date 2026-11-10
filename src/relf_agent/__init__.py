@@ -36,6 +36,7 @@ from .binding_sessions import SessionBindingResource
 from .binding_skills import SkillBindingResource
 from .binding_types import AgentBindingDescriptor, BindingSelection
 from .binding_workspace import WorkspaceBindingResource
+from .bounded_loop import BoundedLoopPolicy
 from .business_evaluation import evaluate_business, load_business_cases
 from .chunking import CharacterChunker, Chunker, ParagraphChunker
 from .cli_tools import CLIToolSource
@@ -664,6 +665,7 @@ __all__ += [
     "PlanningConclusion",
     "RuleDAGPlanner",
     "FanOutDAGPlanner",
+    "BoundedLoopPolicy",
     "A2AApplication",
     "A2AClient",
     "A2AError",

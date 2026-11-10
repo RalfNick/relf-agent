@@ -1,5 +1,11 @@
 # Ordered framework alignment roadmap
 
+## 有界迭代默认组合：2026-11-10
+
+开发基线 `085c0f5` 的本批增量为显式 `BoundedLoopPolicy`：同一不可变策略复用原 Planner／PlanVerifier 和 Dynamic DAG 修订，执行已有成员并检查原已采纳结果，最多32轮，不满足最终条件则失败。它补默认迭代接入路径，保留 Local／Temporal 原单一执行权威及各自组合边界，不放开静态图的环或 Team 重复成员限制。直到条件成立不等于业务正确，普通结果检查也不等于共享状态 reducer。
+
+本批所选源码／准确安装、恢复与真实服务子集已通过，完整应用及配置见[有界执行与结果检查](bounded-loop-workflows.md)，准确成绩见[独立验收](../architecture/reviews/2026-11-10-bounded-loop.md)。原 Fan-Out、推荐组合、Alpha、官网和已推源码各按原快照解释，不因本批接口存在扩大资格；下方原复核正文保留。完整循环图／共享状态合并、模型／工具参数增量、复合流、多模态、生态治理及外部采用仍分别开放，不据此宣称达到或超过其他框架。
+
 ## 当前复核：2026-11-10
 
 开发源码基线为 `aa77b90`，与 `ec23ae5` 均已登记推送到 `codex/callable-preview-fixes` 并保留 `[skip ci]`。公开 main、官网、推荐安装组合和历史 Alpha 继续按各自快照解释，不能根据源码分支推导它们包含新能力，见[当前交付](current-delivery.md)。

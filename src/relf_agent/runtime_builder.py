@@ -651,6 +651,9 @@ class ComponentRegistry:
         from .fan_out_factories import register_fan_out_factory
 
         register_fan_out_factory(self)
+        from .bounded_loop_factories import register_bounded_loop_factories
+
+        register_bounded_loop_factories(self)
 
     def register(self, kind, name, factory, *, validator=None):
         self._register(kind, name, factory, validator, asynchronous=False)

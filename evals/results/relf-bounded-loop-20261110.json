@@ -1,0 +1,290 @@
+{
+  "date": "2026-11-10",
+  "base": "085c0f5e3249c59fe709888b07b55c89aba84b30",
+  "status": "accepted selected bounded loop subset",
+  "scope": "pure BoundedLoopPolicy over original Dynamic DAG plan/verify revisions",
+  "result_ids": "opaque; ordered adopted history belongs to execution authority",
+  "version": "0.1.0a8+loop.1f1b6e386ee578cd",
+  "products": 468,
+  "execution_inputs": 1596,
+  "wheel": {
+    "path": "dist/bounded-loop-20261110/sdk-artifacts/relf_agent-0.1.0a8+loop.1f1b6e386ee578cd-py3-none-any.whl",
+    "sha256": "a966e0531837293e21914b75f10f630f6c4106134be2ad0ffbade410a34c48c4"
+  },
+  "sdist": {
+    "path": "dist/bounded-loop-20261110/sdk-artifacts/relf_agent-0.1.0a8+loop.1f1b6e386ee578cd.tar.gz",
+    "sha256": "6ce4868db6ea027ff03a8939cfe5a71d26c0ed86fb750811210e9659c2211828"
+  },
+  "targeted": {
+    "source": {
+      "cases": 692,
+      "seconds": 99.372
+    },
+    "installed": {
+      "cases": 692,
+      "seconds": 94.882
+    },
+    "same_ids": true,
+    "skipped": 0
+  },
+  "real_temporal_service": {
+    "source_label": "source-fixed",
+    "source": 2,
+    "installed": 2,
+    "same_ids": true,
+    "source_seconds": 39.98,
+    "installed_seconds": 37.169,
+    "histories_per_case": 8,
+    "qualification": "Two actual Service cases, deterministic read-only maths, original parent/child authority and saved replay evidence; cold restart only at approval-quiescent window, not active physical handler recovery or arbitrary external-write exactly-once/model quality",
+    "audit": "dist/bounded-loop-20261110/service/audit.json"
+  },
+  "original_service_failure": {
+    "retained": true,
+    "passed": false,
+    "failures": 2,
+    "cause": "Test fixture used Local held against original Temporal reserved/unknown budget projection",
+    "history_replay_qualified": false,
+    "history_files": 0,
+    "service_shutdown_completed": true,
+    "xml_sha256": "4affa2f1fd26ca3bc579506db01cdd8438fbfc3cc23b642a8c8b53bc1e53fc89",
+    "result_sha256": "3caae5f90bc669caa2d0d1bba9622a0743be35bc341920a1a76e74fe17666b53",
+    "input_snapshot_sha256": "c1eec38de2789e02e3e3d490f80482b250466c31a7679dc8ef9c06bcac4e0efc",
+    "sole_fixed_input": [
+      "tests/test_bounded_loop_temporal_service.py"
+    ],
+    "cases": [
+      {
+        "directory": "/Users/bytedance/Codex-Projects/ralf-agent/dist/bounded-loop-20261110/service/source-preflight/pytest-temp/test_actual_temporal_loop_reta0",
+        "business": {
+          "calls": {
+            "plan": 3,
+            "work": 3,
+            "verify": 3
+          },
+          "distinct_effect_keys": 3,
+          "receipts": 3,
+          "work_inputs": [
+            {
+              "iteration": 1,
+              "previous": null,
+              "task": {
+                "target": 3
+              }
+            },
+            {
+              "iteration": 2,
+              "previous": {
+                "done": false,
+                "iteration": 1,
+                "value": 1
+              },
+              "task": {
+                "target": 3
+              }
+            },
+            {
+              "iteration": 3,
+              "previous": {
+                "done": false,
+                "iteration": 2,
+                "value": 2
+              },
+              "task": {
+                "target": 3
+              }
+            }
+          ],
+          "work_results": [
+            {
+              "done": false,
+              "value": 1,
+              "iteration": 1
+            },
+            {
+              "done": false,
+              "value": 2,
+              "iteration": 2
+            },
+            {
+              "done": true,
+              "value": 3,
+              "iteration": 3
+            }
+          ],
+          "result": {
+            "done": true,
+            "value": 3,
+            "iteration": 3
+          }
+        },
+        "history_files": 0,
+        "cleanup": {
+          "processes": [
+            {
+              "label": "initial",
+              "pid": 81009,
+              "exit_code": 0
+            }
+          ],
+          "all_waited": true,
+          "errors": []
+        }
+      },
+      {
+        "directory": "/Users/bytedance/Codex-Projects/ralf-agent/dist/bounded-loop-20261110/service/source-preflight/pytest-temp/test_actual_temporal_second_ro0",
+        "business": {
+          "calls": {
+            "plan": 3,
+            "work": 3,
+            "verify": 3
+          },
+          "distinct_effect_keys": 3,
+          "receipts": 3,
+          "work_inputs": [
+            {
+              "iteration": 1,
+              "previous": null,
+              "task": {
+                "target": 3
+              }
+            },
+            {
+              "iteration": 2,
+              "previous": {
+                "done": false,
+                "iteration": 1,
+                "value": 1
+              },
+              "task": {
+                "target": 3
+              }
+            },
+            {
+              "iteration": 3,
+              "previous": {
+                "done": false,
+                "iteration": 2,
+                "value": 2
+              },
+              "task": {
+                "target": 3
+              }
+            }
+          ],
+          "work_results": [
+            {
+              "done": false,
+              "value": 1,
+              "iteration": 1
+            },
+            {
+              "done": false,
+              "value": 2,
+              "iteration": 2
+            },
+            {
+              "done": true,
+              "value": 3,
+              "iteration": 3
+            }
+          ],
+          "result": {
+            "done": true,
+            "value": 3,
+            "iteration": 3
+          }
+        },
+        "history_files": 0,
+        "cleanup": {
+          "processes": [
+            {
+              "label": "initial",
+              "pid": 81179,
+              "exit_code": -9
+            },
+            {
+              "label": "replacement",
+              "pid": 81350,
+              "exit_code": 0
+            }
+          ],
+          "all_waited": true,
+          "errors": []
+        }
+      }
+    ]
+  },
+  "regression_rechecks": {
+    "first_full": {
+      "passed": 16000,
+      "skipped": 917,
+      "failed": 1,
+      "exit_code": 1,
+      "path": "dist/bounded-loop-20261110/final-allowed"
+    },
+    "original_internal_wait_seconds": 5,
+    "allowed_rechecks": {
+      "exact": 1,
+      "original_order": 4,
+      "new_loop_prefix_then_old_module": 192
+    },
+    "product_or_test_source_changed": false,
+    "deadlines_increased": false,
+    "initial_timing_slow_stage_confirmed": false,
+    "restricted_socket_failures_separate": true,
+    "retry_round": "final-repeat",
+    "retry_all_checks_passed": true
+  },
+  "runtime_only_commands": 15,
+  "guide_python_block_unchanged": true,
+  "example_duplicate_new_business_calls": 0,
+  "sdist_equal_products": 468,
+  "compatibility": {
+    "catalogs": 8,
+    "selected_metadata_only": true,
+    "default_planner_and_verifier_tables_same": true
+  },
+  "complete_offline": {
+    "cases": 16918,
+    "counts": {
+      "passed": 16001,
+      "skipped": 917
+    },
+    "new_ids": 187,
+    "previous_ids": 16731,
+    "targeted_all_pass": true,
+    "junit_seconds": 2720.455,
+    "runner_seconds": 2724.571071792394,
+    "original_child_deadline_seconds": 10,
+    "whole_watchdog_seconds": 7200,
+    "verification": "dist/bounded-loop-20261110/final-repeat/verification.json"
+  },
+  "preservation": {
+    "original_artifacts": {
+      "count": 313,
+      "changed": []
+    },
+    "unowned_files": {
+      "count": 35,
+      "changed": []
+    },
+    "closed_evidence": {
+      "count": 150,
+      "changed": []
+    },
+    "first_failure_and_rechecks": {
+      "count": 508,
+      "changed": []
+    }
+  },
+  "service_recorded_processes_gone": 12,
+  "offline_guard_gone": true,
+  "real_model_quality": false,
+  "full_r01_r26": false,
+  "new_platform_qualification": false,
+  "arbitrary_history_or_private_helper_migration_qualification": false,
+  "commit": "Git is authoritative; local only, single-invocation hooks override",
+  "push": false,
+  "remote_ci": false,
+  "public_release": false
+}
