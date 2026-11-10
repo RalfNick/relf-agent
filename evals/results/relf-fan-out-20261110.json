@@ -1,0 +1,86 @@
+{
+  "date": "2026-11-10",
+  "base": "aa77b902e20c796e94f9fad2ce78f870bc2a01e3",
+  "status": "accepted selected bounded fan-out subset",
+  "scope": "explicit bounded FanOutDAGPlanner over original DAG authorities",
+  "version": "0.1.0a8+fanout.b4d9e82927e77bf2",
+  "products": 466,
+  "execution_inputs": 1588,
+  "wheel": {
+    "path": "dist/fan-out-20261110/sdk-artifacts/relf_agent-0.1.0a8+fanout.b4d9e82927e77bf2-py3-none-any.whl",
+    "sha256": "786d4c6189d7bdd0b6706963ddbb1dd7023bbe90c42e0e5901cc5aa315e45dce"
+  },
+  "sdist": {
+    "path": "dist/fan-out-20261110/sdk-artifacts/relf_agent-0.1.0a8+fanout.b4d9e82927e77bf2.tar.gz",
+    "sha256": "bb7699c3495e4c3fe1acd9a7fb9e6c312671c12996cc6d1f9c5d1657ba1e8247"
+  },
+  "targeted": {
+    "source": {
+      "cases": 498,
+      "seconds": 97.007
+    },
+    "installed": {
+      "cases": 498,
+      "seconds": 100.624
+    },
+    "same_ids": true,
+    "skipped": 0
+  },
+  "real_temporal_service": {
+    "source": 2,
+    "installed": 2,
+    "same_ids": true,
+    "source_seconds": 33.574,
+    "installed_seconds": 39.13,
+    "scope": "Two actual Service cases, deterministic read-only maths, original parent/child authority and saved replay evidence; cold restart only at approval-quiescent window, not active physical handler recovery or arbitrary external-write exactly-once/model quality",
+    "audit": "dist/fan-out-20261110/service/audit.json"
+  },
+  "runtime_only_commands": 15,
+  "sdist_equal_products": 466,
+  "guide_python_block_unchanged": true,
+  "example_duplicate_new_business_calls": 0,
+  "compatibility": {
+    "catalogs": 8,
+    "selected_metadata_only": true,
+    "default_planner_tables_same": true
+  },
+  "complete_offline": {
+    "cases": 16731,
+    "counts": {
+      "passed": 15816,
+      "skipped": 915
+    },
+    "new_ids": 100,
+    "previous_ids": 16631,
+    "targeted_all_pass": true,
+    "junit_seconds": 2513.344,
+    "runner_seconds": 2516.291958665941,
+    "original_child_deadline_seconds": 10,
+    "whole_watchdog_seconds": 7200,
+    "verification": "dist/fan-out-20261110/final-allowed/verification.json"
+  },
+  "preservation": {
+    "original_artifacts": {
+      "count": 311,
+      "changed": []
+    },
+    "unowned_files": {
+      "count": 35,
+      "changed": []
+    },
+    "closed_evidence": {
+      "count": 133,
+      "changed": []
+    }
+  },
+  "service_recorded_processes_gone": true,
+  "offline_guard_gone": true,
+  "real_model_quality": false,
+  "full_r01_r26": false,
+  "new_platform_qualification": false,
+  "arbitrary_history_or_private_helper_migration_qualification": false,
+  "commit": "Git is authoritative; local only, single-invocation hooks override",
+  "push": false,
+  "remote_ci": false,
+  "public_release": false
+}

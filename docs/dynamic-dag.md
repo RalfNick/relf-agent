@@ -1,4 +1,16 @@
-# Dynamic DAG and nested orchestration — dev15
+# Dynamic DAG and nested orchestration
+
+## 当前能力入口：2026-11-10
+
+开发源码基线为已登记推送的 `aa77b90`。现有动态 DAG、嵌套成员和原父子 Run 协议继续使用；Local 通用受管理异步节点，以及 Temporal 所选无会话串并行／混合图和 Team／Dynamic 嵌套 executor 已有实现与分层证据，见[Local 节点](managed-async-nodes.md)、[Temporal 节点](temporal-managed-nodes.md)及[当前交付](current-delivery.md)。不能把下方 dev15 的 Temporal 拒绝范围当作当前源码总能力。
+
+本批增加显式 `FanOutDAGPlanner`，将有限列表编译为原 DAG 的独立 Worker 和可选汇总成员；不新增调度权威或绑定格式。结果按输入索引的稳定 `map-0000` 等键收集，汇总节点计入原步骤／预算限制。完整无模型应用、SDK 与 JSON／TOML 入口见[有界分发指南](fan-out-workflows.md)，实际成绩见[本批验收](../architecture/reviews/2026-11-10-fan-out-planning.md)。本批按源码／准确安装及所选真实服务的有限范围完成验收，原推荐包不自动包含它。
+
+循环、共享可变状态 reducer 和逐记录流式 Workflow 仍不由此提供；Session／Turn、Coding、部署准入等组合继续按各后端已有契约选用或拒绝。框架与其他项目的当前能力对照见[2026-11-10 复核](../architecture/reviews/2026-11-10-framework-alignment.md)。
+
+## 历史说明：dev15
+
+以下保留 dev15 原文及当时支持／升级边界；其中“current”“Temporal refuses”等表述只说明该历史批次，不覆盖上方当前实现与验收。
 
 The default local SDK needs no broker or database service. `DynamicWorkflowSpec`
 keeps its original flat mode; opt into `plan_mode="dag"` for dependency plans.

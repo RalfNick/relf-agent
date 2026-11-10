@@ -648,6 +648,9 @@ class ComponentRegistry:
         from .workflow_node_factories import register_workflow_nodes
 
         register_workflow_nodes(self)
+        from .fan_out_factories import register_fan_out_factory
+
+        register_fan_out_factory(self)
 
     def register(self, kind, name, factory, *, validator=None):
         self._register(kind, name, factory, validator, asynchronous=False)

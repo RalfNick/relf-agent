@@ -1,6 +1,16 @@
 # Ordered framework alignment roadmap
 
-## 当前复核：2026-11-05
+## 当前复核：2026-11-10
+
+开发源码基线为 `aa77b90`，与 `ec23ae5` 均已登记推送到 `codex/callable-preview-fixes` 并保留 `[skip ci]`。公开 main、官网、推荐安装组合和历史 Alpha 继续按各自快照解释，不能根据源码分支推导它们包含新能力，见[当前交付](current-delivery.md)。
+
+Local／Temporal 已有 DAG、团队、动态规划和嵌套基础；Temporal executor 不再整体列为缺失。当前已交付子集是无会话的静态串并行 executor 图、显式 Agent 混合图及原 Team／Dynamic 嵌套，配有显式工厂、原 History／预算／审批／回执恢复和所选容量背压证据。Session／Turn／成员会话树／跨 Turn 历史、Coding composition、部署准入和含 executor 图的 parent completion policy 仍需按[Temporal 节点范围](temporal-managed-nodes.md)拒绝或另行验收，不由已有基础推导完成。
+
+本批选择显式 `FanOutDAGPlanner`，补有限列表分发、稳定结果映射和可选汇总成员的默认接入路径，继续复用原 DAG 与父子执行权威；所选源码／准确安装、恢复与真实服务子集已通过，完整R项与更广组合仍开放。用法见[有界批处理](fan-out-workflows.md)，准确证据见[本批验收](../architecture/reviews/2026-11-10-fan-out-planning.md)。原默认 planner 表、原包与推荐组合保持，不推送或公开发布本批增量。
+
+与 LangChain／LangGraph、AgentScope 的剩余差距主要是通用循环／共享状态合并、完整模型／工具／子图增量、多模态、默认集成、长期应用治理与外部采用证据。普通汇总成员不等于通用共享 reducer，模型／工具进度也不等于逐记录 Workflow 数据流。当前官方参考、版本范围及本批选择见[2026-11-10 对齐复核](../architecture/reviews/2026-11-10-framework-alignment.md)；没有对等任务或性能实验支持整体达到／超过这些框架。完整 R01–R26 和真实质量门槛保持各自状态。
+
+## 历史复核：2026-11-05
 
 基线更新为开发分支 `e317a48`，已推送且保留 `[skip ci]`；公开 main 与各安装包仍按各自快照解释。Local 通用受管理异步节点已经补齐，不再作为整体缺失项。Temporal executor、循环／reducer、逐记录数据流、多模态、生态／应用治理与对等质量仍开放。最新逐项比较及本轮接入边界维护见[能力复核](../architecture/reviews/2026-11-05-framework-alignment.md)，准确交付见[当前入口](current-delivery.md)。
 

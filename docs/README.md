@@ -4,6 +4,8 @@
 
 本轮唯一推荐包、精确提交／哈希、安装命令、支持矩阵和剩余状态见[当前交付入口](current-delivery.md)。本地候选已组合事件／展示流、连续应用及组件替换、Local无模型Tool配置与必要维护修复；不与原Alpha或历史私有包混用资格。
 
+2026-11-10新增[有界批量工作流](fan-out-workflows.md)私有候选 `0.1.0a8+fanout.b4d9e82927e77bf2`，复用原DAG与Local／Temporal执行权威。源码／准确安装各498项、仅运行依赖15条及真实Service各2项通过；完整离线成绩与范围见[本批验收](../architecture/reviews/2026-11-10-fan-out-planning.md)。它不替换原推荐组合。
+
 2026-11-09容量背压／关闭诊断维护包已冻结为 `0.1.0a8+capacity.c5a29d8fa601a9ec`，所选源码／准确安装各884项、同5项Service及运行依赖16条检查通过，sdist重建464产品一致；完整离线15685通过／913条件跳过、零失败／错误，本轮有限维护已验收。它不替换11月1日推荐SDK／应用组合，使用前按[快照简表](current-delivery.md#先选择交付快照)选择。
 
 资料助手首版及此前维护源码e94c57c已合入main；后续源码、推荐SDK／应用与各批验证包保持各自精确版本，先按[当前交付简表](current-delivery.md#先选择交付快照)选择。已推开发源码和本轮仅本地维护不等于更新了推荐包、官网或公开发行。安装见[资料助手交付](local-documents-assistant.md)；独立采用与历史资格继续分开记录。
@@ -60,6 +62,7 @@
 - [有界并行 Workflow](parallel-workflows.md)：并行节点、共享预算与分支恢复。
 - [动态规划与团队](orchestration.md)：Plan／Team 入口及可替换策略。
 - [动态 DAG 与嵌套编排](dynamic-dag.md)：计划补丁、依赖图及复合成员。
+- [有界批量工作流](fan-out-workflows.md)：显式列表分发／可选汇总成员，复用原动态DAG与Local／Temporal恢复契约。
 - [Plan／Team 业务完成验证](parent-completion.md)：以工具回执和规则验证业务结果。
 - [知识、召回与 Plan／Team 组合](h3-intelligent-combinations.md)：显式语义能力组合及边界。
 
@@ -108,7 +111,7 @@
 
 ## 评测、支持状态与贡献
 
-- **当前框架对齐：** [AgentScope／LangChain／LangGraph 能力 review](../architecture/reviews/2026-10-29-framework-alignment.md)，区分实现、验收和仍缺失的能力。
+- **当前框架对齐：** [AgentScope／LangChain／LangGraph 能力 review](../architecture/reviews/2026-11-10-framework-alignment.md)，区分实现、验收和仍缺失的能力。
 - **评测方法：** [业务任务](business-evaluation.md)、[规划质量](planning-evaluation.md)、[RAG 与编排完整任务](task-evaluation.md)。离线运行协议、真实模型质量和实际外部服务验证分别报告。
 - **当前支持：** [实现清单](implementation-status.md)、[剩余能力](remaining-work.md)、[阶段二矩阵](phase2-support-matrix.md)、[阶段三矩阵](phase3-support-matrix.md)。
 - **开发路线与门槛：** [能力对齐路线](agentscope-alignment.md)、[持续开发队列](continuous-development.md)、[交付门槛](delivery-gates.md)、[M1 验收协议](m1-acceptance.md)。

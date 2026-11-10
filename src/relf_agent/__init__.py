@@ -98,6 +98,7 @@ from .facts_adapter_contract import (
     FactsContractSession,
 )
 from .facts_adapter_contract_reference import offline_facts_fixture
+from .fan_out_planning import FanOutDAGPlanner
 from .file_artifacts import FileArtifactStore
 from .gemini_functions import GeminiFunctionProvider
 from .governance import DeploymentAdmissionPolicy, LocalExecutionPolicy, TemporalExecutionPolicy
@@ -662,6 +663,7 @@ __all__ += [
     "ModelDAGPlanner",
     "PlanningConclusion",
     "RuleDAGPlanner",
+    "FanOutDAGPlanner",
     "A2AApplication",
     "A2AClient",
     "A2AError",
