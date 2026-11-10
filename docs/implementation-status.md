@@ -1,5 +1,7 @@
 # Implementation status — Local SDK Alpha
 
+2026-11-10 固定 HTTP 写接口（有限验收完成）：在 `3965925` 基线补固定 PUT／PATCH 与严格 bool `allow_empty_204`，默认 POST／GET source 身份与传输实参保持。原 ToolPolicy、审批、unknown、线程所有权及 Local／Temporal 权威不变。源码／仓库外准确安装同12模块、280项各全过，零失败／跳过；原包／源码／安装所选 POST／GET Local 发布元数据一致。仅运行依赖9条检查含真实回环审批重开／重复回执、wheel／sdist 重建后运行；468产品一致。准确私有候选 `0.1.0a8+httpwrite.a4280abf0e1f6df9`，不替换推荐组合。原315份包、35份非本批文件与全部失败保留；本批未重跑全框架、真实Temporal／模型或平台矩阵，不关闭完整R项。见[工具指南](http-tools.md)、[能力对照](../architecture/reviews/2026-11-10-framework-comparison.md)与[验收](../architecture/reviews/2026-11-10-http-write-methods.md)。仅本地提交，不推送／公开发布。包内文档为冻结时快照，最终记录不重建原包。
+
 ## 当前交付摘要
 
 2026-11-10 有界循环（有限验收完成）：在 `085c0f5` 基线增加显式BoundedLoopPolicy及planners／plan_verifiers两个bounded-loop工厂。同一纯策略提出原单节点DAG并检查已采纳结果，使用原修订与父子Run，不新增执行权威或放开静态环。准确候选 `0.1.0a8+loop.1f1b6e386ee578cd` 固定468产品／1596执行输入；源码／目录外安装同26模块、692个ID全通过／零跳过；真实Temporal同2个ID各2/2通过，覆盖三轮收敛、第二轮审批静止窗口Worker进程重启、命令去重与History回放。仅运行依赖15条、指南首Python原文、完整审批应用及sdist468产品一致、所选8个catalog／普通发布与默认策略表兼容通过。同冻结输入完整离线自然退出0，16001通过／917条件跳过、零失败／错误，共16918项；旧16731个ID与原通过状态保持、新增187项、本批692项在整轮全过，原五个10秒恢复窗口通过。原313份包、35份非本批文件及封存证据SHA保持，pytest／guard与12个服务测试进程退出。原失败、推荐组合与Alpha保留，本轮仅本地提交，不推送／公开发布，不授予新平台、模型质量或完整R项。见[指南](bounded-loop-workflows.md)、[验收](../architecture/reviews/2026-11-10-bounded-loop.md)与[当前交付](current-delivery.md)。

@@ -1,5 +1,11 @@
 # Temporal 受管理异步 Workflow 节点
 
+## 当前组合澄清：2026-11-10
+
+开发源码 `3965925` 已在原无会话 executor 图／Team／Dynamic 子集中提供[有限列表分发和普通汇总成员](fan-out-workflows.md)，以及原 revision 驱动的[有界执行与检查](bounded-loop-workflows.md)，各自具有所选真实 Service 和恢复证据。它们复用原父子 Run；没有把静态 DAG 改成带环图，也没有引入共享可变状态 reducer。原包、推荐组合与当前源码分别固定，见[当前交付](current-delivery.md)。
+
+下方原节点批次的“循环、reducer 未扩展”按其当时范围保留，当前应区分上述有限策略与仍未提供的通用带环图／共享状态合并。Session／Turn、Coding、部署准入及 parent completion 等限制继续按所选节点组合生效；不能从一个默认策略推导更多组合已交付。
+
 2026-11-05 维护源码增加 `TemporalRuntime(workflow_executors=...)` 与 `GraphNode(executor=...)`。它复用 [Local 节点](managed-async-nodes.md)的 `NodeExecutorRegistry`、完整 JSON 输入、独立 config 和原 `InvocationContext`。源码和准确隔离 wheel 各13项真实 Temporal Service 恢复测试、各690项受影响离线回归已通过；原完整轮15479通过／1项旧夹具失败／908条件跳过，该夹具修复后源码／安装各8项通过，范围及证据见[本批验收](../architecture/reviews/2026-11-05-temporal-managed-nodes.md)。原 a8、推荐组合和此前节点验证包不包含本能力；准确制品和验收范围以[当前交付](current-delivery.md)为准。
 
 2026-11-09 容量背压／关闭诊断的准确候选 `0.1.0a8+capacity.c5a29d8fa601a9ec` 已通过源码／目录外安装各46模块884项、真实Service同5个ID各5项，以及运行依赖16条、sdist重建464产品一致与所选元数据兼容检查；完整源码回归15685通过／913条件跳过、零失败／错误，共16598项，本轮有限维护已验收；913跳过中的本次5个Service用例仍以独立实际运行成绩解释。原容量失败、原型冷重放失败及阶段修复分别保留，见[本轮验收](../architecture/reviews/2026-11-09-temporal-capacity-close.md)。原 History 权威和恢复身份保持，本轮不扩展未支持的 Session／Coding 等组合；关闭只读呈现与原实例重试见[诊断指南](close-diagnostics.md)。

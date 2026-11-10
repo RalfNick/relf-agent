@@ -80,10 +80,10 @@ def _query_name(value):
 
 
 def _query_configuration(method, parameters):
-    if type(method) is not str or method not in {"POST", "GET"}:
-        raise ValidationError("HTTP tool method must be POST or GET")
-    if method == "POST" and parameters is not None:
-        raise ValidationError("HTTP POST tools cannot configure query parameters")
+    if type(method) is not str or method not in {"POST", "GET", "PUT", "PATCH"}:
+        raise ValidationError("HTTP tool method must be POST, GET, PUT or PATCH")
+    if method != "GET" and parameters is not None:
+        raise ValidationError(f"HTTP {method} tools cannot configure query parameters")
     if parameters is None:
         return None
     if type(parameters) is not dict:
@@ -138,9 +138,12 @@ class HTTPToolSource:
         max_output_bytes=1048576,
         method="POST",
         query_parameters=None,
+        allow_empty_204=False,
     ):
         if not isinstance(descriptor, ToolDescriptor):
             raise ValidationError("HTTP source requires one explicit ToolDescriptor")
+        if type(allow_empty_204) is not bool:
+            raise ValidationError("HTTP allow_empty_204 must be a boolean")
         self._headers = _configuration(
             url, version, headers, timeout, max_input_bytes, max_output_bytes
         )
@@ -148,6 +151,7 @@ class HTTPToolSource:
         if method == "GET" and any(delimiter in url for delimiter in ("?", "#")):
             raise ValidationError("HTTP GET endpoint cannot contain query or fragment delimiters")
         self._method = method
+        self._allow_empty_204 = allow_empty_204
         self._descriptor = ToolDescriptor(**descriptor.to_dict())
         self._url, self._version = url, version
         self._timeout, self._input_limit, self._output_limit = (
@@ -176,6 +180,8 @@ class HTTPToolSource:
         }
         if self._method == "GET":
             result["query_parameters"] = copy.deepcopy(self._query_parameters)
+        if self._allow_empty_204:
+            result["allow_empty_204"] = self._allow_empty_204
         return result
 
     def _check(self):
@@ -193,21 +199,20 @@ class HTTPToolSource:
         if token is not None and not self._tracker._begin(token):
             return None
         try:
-            if self._method == "POST":
-                result = http_tool_transport.execute(
-                    self._url, self._headers, payload, self._timeout, self._output_limit, stopped
-                )
-            else:
-                result = http_tool_transport.execute(
-                    self._url,
-                    self._headers,
-                    None,
-                    self._timeout,
-                    self._output_limit,
-                    stopped,
-                    method="GET",
-                    query=payload,
-                )
+            options = {} if self._method == "POST" else {"method": self._method}
+            if self._method == "GET":
+                options["query"] = payload
+            if self._allow_empty_204:
+                options["allow_empty_204"] = True
+            result = http_tool_transport.execute(
+                self._url,
+                self._headers,
+                None if self._method == "GET" else payload,
+                self._timeout,
+                self._output_limit,
+                stopped,
+                **options,
+            )
             if self._descriptor.output_schema is not None and not is_valid(
                 result, self._descriptor.output_schema
             ):

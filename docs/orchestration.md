@@ -1,5 +1,11 @@
 # 动态规划与多 Agent
 
+## 当前组合入口：2026-11-10
+
+开发源码 `3965925` 的 Team／Dynamic 成员已可组合原 Agent、顺序 Workflow、Graph、Team 和 Dynamic，支持有限嵌套、动态 DAG 及原 pending-node patch，详见[动态 DAG](dynamic-dag.md)。默认接入另有[有限列表分发／汇总](fan-out-workflows.md)与[有界执行／检查](bounded-loop-workflows.md)。Local／Temporal 保持各自原执行权威和明确的组合限制，不把一种后端的支持自动授予另一种。
+
+下文 dev14 的“成员限定 AgentSpec”“不是动态 DAG”等表述只描述原批次，后面的 dev15／dev17 追加及上述指南说明后续范围；历史正文与成绩保留。当前快照见[交付入口](current-delivery.md)。有界迭代必须同时选择 Planner／Verifier，不能据此放开静态环检查、重复 Team 成员、共享 reducer 或逐记录流式 Workflow。
+
 `TeamSpec`／`DynamicWorkflowSpec`可以显式设置 `completion_policy="name"`。原父权威冻结业务子Run和回执，再采纳纯gate及可选受管理模型验证；模型验证不能放宽gate或替换候选结果。Plan反馈进入下一次实际规划，Team仅accept/reject。接口、默认参考链路、配置与恢复边界见[业务完成验证](parent-completion.md)。未选中政策的旧定义保持。
 
 dev14 的 TeamSpec 和 DynamicWorkflowSpec 使用受管理父子 Run。各成员仍是 AgentSpec，使用同一 Harness、模型、工具、上下文、记忆、审批及效果恢复。父级保存委派与 PlanRevision；策略只提出方案，LocalEngine 提交执行事实。

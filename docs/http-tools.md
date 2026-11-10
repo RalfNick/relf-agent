@@ -1,7 +1,7 @@
 # 固定目标 HTTP JSON 工具
 
 `HTTPToolSource` 通过原 ToolSource／ToolRegistry 接入可信业务 HTTP 接口。
-宿主固定 URL、POST／GET、Schema、版本和显式头；模型只提供 JSON 参数。
+宿主固定 URL、POST／GET／PUT／PATCH、Schema、版本和显式头；模型只提供 JSON 参数。
 授权、审批、effect key、未知效果与恢复仍由原 Engine／Temporal History 管理。
 
 ## SDK 注入
@@ -39,7 +39,8 @@ API 不接受运行输入提供 URL、方法或头，不跟随重定向，不自
 
 默认方法为 `POST`，原 identity、canonical JSON 请求正文和传输调用保持兼容。
 默认输入和响应正文各限1 MiB，可设1–16777216字节。输入是 canonical UTF-8 JSON，
-响应必须为HTTP 2xx、一个有限 UTF-8 JSON 值，并符合可选输出Schema；重复键、
+响应默认必须为HTTP 2xx、一个有限 UTF-8 JSON 值，并符合可选输出Schema；
+显式空204例外见下文。重复键、
 孤立surrogate、非有限数字、无效／过量正文均拒绝。错误不携带URI、头、正文或
 服务诊断。POST的Content-Type固定JSON，Accept-Encoding固定identity；压缩响应拒绝，
 避免无界解压。显式头禁止Host／Content-Length／Transfer-Encoding／Content-Type／
@@ -62,7 +63,7 @@ source = HTTPToolSource(
 # 实际查询：enabled=true&q=a+b&tag=a%26b&tag=%E4%B8%AD%E6%96%87
 ```
 
-仅接受精确大写 `POST`／`GET`；POST 不允许配置 `query_parameters`。
+仅接受精确大写 `POST`／`GET`／`PUT`／`PATCH`；只有 GET 允许配置 `query_parameters`。
 GET 固定 URL 不得包含裸 `?`／`#`，包括末尾空分隔符；配置阶段即拒绝，避免查询进入 fragment 或改变参数名。
 GET 按 argument 键排序，列表保留顺序并编码为重复参数。字符串、有限数字和布尔值
 可单独使用或放入非空列表；布尔值编码为 `true`／`false`，字符串空值保留。
@@ -78,6 +79,39 @@ null、对象、嵌套／空列表、非法名称和未映射的实际 argument 
 
 GET 不自动更改效果分类或审批要求；宿主仍必须注册明确的 `ToolPolicy`。
 需要审批的 GET 继续等待原 Action 审批，保留稳定 effect key、关闭重开与重复回执语义。
+
+## 固定 PUT／PATCH 与空 204
+
+更新已有资源可显式选择 `method="PUT"` 或 `method="PATCH"`，请求使用与 POST
+相同的 canonical JSON 正文、字节限制和固定 JSON Content-Type，不接受查询映射。
+方法不会自动决定幂等性、效果分类或审批要求；这些仍由宿主的 `ToolPolicy`
+和下游业务实现负责。PUT 本身不能证明操作可以安全重试。
+
+业务接口只返回无正文 204 时，可设置 `allow_empty_204=True`。只有精确的 bool
+值受支持；默认 False 保持原响应要求。启用后，空 204 转为 Python `None`
+（JSON null），仍须符合输出 Schema。例如：
+
+```python
+source = HTTPToolSource(
+    ToolDescriptor(
+        "update", "Update a fixed record", {"type": "object"}, {"type": "null"}
+    ),
+    "https://your-business.example/records/fixed-id",
+    version="update-v1",
+    method="PATCH",
+    allow_empty_204=True,
+)
+# 按原 register_tool_source 显式注册 ToolPolicy；直接注册时应用负责关闭 Source。
+```
+
+空的 200、空白或非法 JSON、可观察正文非空的 204，以及带非零 Content-Length 或
+Transfer-Encoding 的 204 继续拒绝；压缩响应和响应字节上限也保持。此选项
+只接受无内容回执，不代表业务效果已经核验。HTTP 解析器可能不交付违反204协议的
+尾随字节，因此此检查不证明原始线上绝无非法尾随数据。默认 POST／GET 的 source identity
+和旧传输调用形状保持；启用选项会将其固定进 identity，历史 Run 应保留原配置。
+这不承诺任意私有方法指纹或旧 History 可跨包迁移。
+JSON／TOML 声明新增字段（即使值为 false）仍按原规则参与配置摘要；
+Source 身份相同不等于整个 Profile／Release 身份相同，应保留历史声明和版本。
 
 ## 生命周期与效果
 
@@ -96,7 +130,7 @@ JSON工厂不接受Python reconciler；可查询写入由宿主使用SDK自定�
 
 `RuntimeBuilder.abuild`和`TemporalRuntimeBuilder.abuild`共用`tools/http-json`。
 组件config只接受1–256个tools；每项必须有descriptor/url/version/policy，另可有
-prefix/headers/timeout/max_input_bytes/max_output_bytes/method/query_parameters。未知字段、
+prefix/headers/timeout/max_input_bytes/max_output_bytes/method/query_parameters/allow_empty_204。未知字段、
 非法方法／映射和重复名称在分配前拒绝，工厂通过原owned ledger关闭Source，
 部分构造失败也排空已拥有资源。
 同步装配在分配前拒绝并提示abuild。
@@ -130,5 +164,7 @@ query = "q"
 
 Temporal写工具仍需耐久EffectJournal；本适配器不增加执行数据库／Authority。
 可以用另一ToolSource或显式组件工厂替换接口。CLI完整起步示例见[CLI指南](cli-tools.md)。
-本轮[验收记录](../architecture/reviews/2026-10-11-fixed-business-tools.md)区分离线／
-本机真实服务／安装恢复证据和未完成门槛。完整R12及框架对齐继续开放。
+原 HTTP 工具批次的[历史验收](../architecture/reviews/2026-10-11-fixed-business-tools.md)
+区分当时的离线／本机服务／安装恢复证据和未完成门槛。本批 PUT／PATCH／空204
+的准确验证包与有限结果见[当前验收](../architecture/reviews/2026-11-10-http-write-methods.md)。
+完整R12及框架对齐继续开放。

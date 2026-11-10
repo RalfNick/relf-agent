@@ -8,7 +8,18 @@ from .tool_json import decode_output
 from .tool_sources import ToolSourceError
 
 
-def execute(url, headers, payload, timeout, output_limit, stopped, *, method="POST", query=None):
+def execute(
+    url,
+    headers,
+    payload,
+    timeout,
+    output_limit,
+    stopped,
+    *,
+    method="POST",
+    query=None,
+    allow_empty_204=False,
+):
     deadline = time.monotonic() + timeout
 
     def check():
@@ -18,7 +29,7 @@ def execute(url, headers, payload, timeout, output_limit, stopped, *, method="PO
     try:
         check()
         with httpx.Client(timeout=timeout, follow_redirects=False, trust_env=False) as client:
-            if method == "POST":
+            if method in {"POST", "PUT", "PATCH"}:
                 options = {
                     "content": payload,
                     "headers": {
@@ -40,6 +51,13 @@ def execute(url, headers, payload, timeout, output_limit, stopped, *, method="PO
                     raise ToolSourceError("HTTP tool request returned an unsuccessful status")
                 if response.headers.get("Content-Encoding", "identity").lower() != "identity":
                     raise ToolSourceError("HTTP tool response requires identity encoding")
+                if response.status_code == 204:
+                    length = response.headers.get("Content-Length")
+                    if "Transfer-Encoding" in response.headers or (
+                        length is not None
+                        and (not length.isascii() or not length.isdecimal() or int(length) != 0)
+                    ):
+                        raise ToolSourceError("HTTP empty response has invalid framing")
                 output = bytearray()
                 for chunk in response.iter_raw():
                     check()
@@ -47,6 +65,12 @@ def execute(url, headers, payload, timeout, output_limit, stopped, *, method="PO
                         raise ToolSourceError("HTTP tool response exceeds its byte limit")
                     output.extend(chunk)
                 check()
+                if response.status_code == 204:
+                    if not allow_empty_204 or output:
+                        raise ToolSourceError(
+                            "HTTP empty response requires explicit empty acceptance"
+                        )
+                    return None
                 return decode_output(output)
     except (httpx.HTTPError, httpx.InvalidURL, OSError, ValueError, RecursionError):
         raise ToolSourceError("HTTP tool transport or JSON response failed") from None

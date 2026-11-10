@@ -263,7 +263,7 @@ def test_get_failures_never_retry_redirect_or_expose_queries(mode):
     "options",
     [
         {"method": "get"},
-        {"method": "PUT"},
+        {"method": "DELETE"},
         {"method": None},
         {"method": "POST", "query_parameters": {}},
         {"method": "GET", "query_parameters": []},

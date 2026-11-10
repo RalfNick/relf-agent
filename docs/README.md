@@ -1,5 +1,7 @@
 # Relf-Agent 文档
 
+2026-11-10 框架对照更新见[LangChain／AgentScope／AutoGen 比较](../architecture/reviews/2026-11-10-framework-comparison.md)；固定 HTTP 写方法见[工具指南](http-tools.md)。这不改变原推荐组合。
+
 > 2026-11-01 示例交付更新：[本地资料助手首版已按所选门槛验收并冻结](local-documents-assistant.md)，提供精确制品与完整安装／审批／恢复流程。本批维护候选与首版原包分别固定，准确版本以当前交付入口为准。
 
 本轮唯一推荐包、精确提交／哈希、安装命令、支持矩阵和剩余状态见[当前交付入口](current-delivery.md)。本地候选已组合事件／展示流、连续应用及组件替换、Local无模型Tool配置与必要维护修复；不与原Alpha或历史私有包混用资格。

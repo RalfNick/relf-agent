@@ -6,7 +6,15 @@ from .tool_sources import ToolDescriptor, ToolPolicy, _caller_schema, register_t
 from .tools import ToolRegistry, ToolSpec
 
 SOURCE_FIELDS = frozenset(
-    {"headers", "timeout", "max_input_bytes", "max_output_bytes", "method", "query_parameters"}
+    {
+        "headers",
+        "timeout",
+        "max_input_bytes",
+        "max_output_bytes",
+        "method",
+        "query_parameters",
+        "allow_empty_204",
+    }
 )
 POLICY_FIELDS = frozenset({"version", "effect", "requires_approval", "cost", "effect_key_argument"})
 

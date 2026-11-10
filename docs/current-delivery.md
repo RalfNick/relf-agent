@@ -7,7 +7,8 @@
 | 使用目标 | 准确快照 | 范围与选择 |
 | --- | --- | --- |
 | 运行当前推荐 SDK／资料助手 | SDK `0.1.0a8+maintenance.a97223496646bac0` ＋应用 `0.1.0+local.3d98685c70e5` | 保持 2026-11-01 原组合；[精确 SHA 与安装](#原推荐组合与来源)，不包含其后各批增量 |
-| 阅读最新已推开发源码 | `aa77b90`（含 `ec23ae5`），`codex/callable-preview-fixes` | 已推送、保留 `[skip ci]`，2026-11-09推送回执核验两提交 CI 均为0；包含容量／诊断及节点／检索维护；本轮批量规划仍仅本地，推送不等于上传安装包 |
+| 阅读最新已推开发源码 | `aa77b90`（含 `ec23ae5`），`codex/callable-preview-fixes` | 已推送、保留 `[skip ci]`，2026-11-09推送回执核验两提交 CI 均为0；包含容量／诊断及节点／检索维护；其后批量／有界循环及HTTP增量仍仅本地，推送不等于上传安装包 |
+| 检查固定 HTTP 更新接口 | `0.1.0a8+httpwrite.a4280abf0e1f6df9` | PUT／PATCH与显式空204，所选本地／安装验收；[本批记录](../architecture/reviews/2026-11-10-http-write-methods.md)，不替换推荐组合 |
 | 阅读公开 main | 2026-11-09推送回执观察为 `096f554` | 相对 `e94c57c` 仅网站增量，SDK源码／测试相同；与开发分支分开，不能据 main 链接推导最新开发能力已合入 |
 | 检查节点扩展接入 | `0.1.0a8+ncontracts.4335e907afe20318` | [有限 Local 读取型检查](node-adapter-contracts.md)，仅本地验证，不替换推荐组合 |
 | 验证容量背压／关闭诊断 | `0.1.0a8+capacity.c5a29d8fa601a9ec`，基线 `4bb46fe` | 464产品私有验证包；源码／准确安装各884项及各5项Service、完整离线15685通过／913条件跳过；不替换推荐组合 |
@@ -15,6 +16,20 @@
 | 验证有界动态批处理 | `0.1.0a8+fanout.b4d9e82927e77bf2`，基线 `aa77b90` | 466产品私有验证包；源码／安装各498项、真实Service各2项及完整离线15816通过／915条件跳过；不替换推荐组合 |
 | 验证有界迭代／结果检查 | `0.1.0a8+loop.1f1b6e386ee578cd`，基线 `085c0f5` | 468产品私有验证包；源码／安装各692项、真实Service各2项及完整离线16001通过／917条件跳过；不替换推荐组合 |
 | 核对官网／公开发行 | 原官网固定教程、原 Alpha 和公开安装记录 | 本轮不部署官网、上传制品或公开发布；与上述本地验证分开 |
+
+## 2026-11-10 固定 HTTP 写方法（有限验收完成）
+
+2026-11-10 固定 HTTP 写接口（有限验收完成）：在 `3965925` 基线补固定 PUT／PATCH 与严格 bool `allow_empty_204`，默认 POST／GET source 身份与传输实参保持。原 ToolPolicy、审批、unknown、线程所有权及 Local／Temporal 权威不变。源码／仓库外准确安装同12模块、280项各全过，零失败／跳过；原包／源码／安装所选 POST／GET Local 发布元数据一致。仅运行依赖9条检查含真实回环审批重开／重复回执、wheel／sdist 重建后运行；468产品一致。准确私有候选 `0.1.0a8+httpwrite.a4280abf0e1f6df9`，不替换推荐组合。原315份包、35份非本批文件与全部失败保留；本批未重跑全框架、真实Temporal／模型或平台矩阵，不关闭完整R项。见[工具指南](http-tools.md)、[能力对照](../architecture/reviews/2026-11-10-framework-comparison.md)与[验收](../architecture/reviews/2026-11-10-http-write-methods.md)。仅本地提交，不推送／公开发布。包内文档为冻结时快照，最终记录不重建原包。
+
+| 本批私有制品 | 准确值 |
+| --- | --- |
+| SDK | `0.1.0a8+httpwrite.a4280abf0e1f6df9`；468产品／1599执行输入 |
+| wheel | `dist/http-write-methods-20261110/sdk-artifacts/relf_agent-0.1.0a8+httpwrite.a4280abf0e1f6df9-py3-none-any.whl` |
+| wheel SHA256 | `602b6cf3144b958fd7a58c406b55106817dfb41982a71e14ccbdf920b0c7bd89` |
+| sdist | `dist/http-write-methods-20261110/sdk-artifacts/relf_agent-0.1.0a8+httpwrite.a4280abf0e1f6df9.tar.gz` |
+| sdist SHA256 | `4bff95ec018aa341e083971c47850087474082a9edf94131ca87cf5fe27b3bdb` |
+
+源码／安装JUnit为39.331／39.879秒。新恢复14项覆盖实际回环写、独立SQLite效果台账、审批重开／重复命令、丢响应的两类效果策略、null Schema及取消后关闭重试；未执行真实进程崩溃或新Temporal服务测试。旧POST／GET元数据对照无业务调用，不授予任意旧History或私有函数指纹迁移。声明显式新增false字段仍可能改变Profile摘要，须保留原声明。原受限回环RED和验证器提前启动（无测试开始）等工具失败完整保留，见验收。原推荐、Alpha、所有历史失败和后置资格不变。
 
 ## 2026-11-10 有界迭代组合（有限验收完成）
 

@@ -1,0 +1,152 @@
+{
+  "status": "passed_selected_scope",
+  "base_commit": "39659257c2b4abef6c81b4b6edaa71ea13eed812",
+  "version": "0.1.0a8+httpwrite.a4280abf0e1f6df9",
+  "wheel": "dist/http-write-methods-20261110/sdk-artifacts/relf_agent-0.1.0a8+httpwrite.a4280abf0e1f6df9-py3-none-any.whl",
+  "wheel_sha256": "602b6cf3144b958fd7a58c406b55106817dfb41982a71e14ccbdf920b0c7bd89",
+  "sdist": "dist/http-write-methods-20261110/sdk-artifacts/relf_agent-0.1.0a8+httpwrite.a4280abf0e1f6df9.tar.gz",
+  "sdist_sha256": "4bff95ec018aa341e083971c47850087474082a9edf94131ca87cf5fe27b3bdb",
+  "product_files": 468,
+  "execution_input_files": 1599,
+  "matrices": {
+    "source-final": {
+      "cases": 280,
+      "passed": 280,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit_seconds": 39.331,
+      "xml": "dist/http-write-methods-20261110/source-final.xml",
+      "xml_sha256": "d8b2c2ffe0aba7a5cff9db8e501be63796d9792e4f0867b21d50666b69b4c7cb",
+      "run": {
+        "command": [
+          "/Users/bytedance/Codex-Projects/ralf-agent/.venv/bin/python",
+          "-m",
+          "pytest",
+          "tests/test_http_write_methods.py",
+          "tests/test_http_write_recovery.py",
+          "tests/test_http_tools.py",
+          "tests/test_http_tool_configuration.py",
+          "tests/test_http_get_tools.py",
+          "tests/test_http_get_empty_delimiters.py",
+          "tests/test_http_get_stream_integration.py",
+          "tests/test_tool_sources.py",
+          "tests/test_thread_execution.py",
+          "tests/test_runtime_builder.py",
+          "tests/test_cli_tools.py",
+          "tests/test_cli_tool_configuration.py",
+          "-q",
+          "-ra",
+          "-W",
+          "error",
+          "--junitxml=/Users/bytedance/Codex-Projects/ralf-agent/dist/http-write-methods-20261110/source-final.xml"
+        ],
+        "cwd": "/Users/bytedance/Codex-Projects/ralf-agent",
+        "elapsed_seconds": 40.19230570923537,
+        "exit_code": 0,
+        "timed_out": false,
+        "models_or_external_services_configured": false,
+        "network_used": true,
+        "network_scope": "owned_loopback_only",
+        "external_network_used": false
+      }
+    },
+    "installed-final": {
+      "cases": 280,
+      "passed": 280,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit_seconds": 39.879,
+      "xml": "dist/http-write-methods-20261110/installed-final.xml",
+      "xml_sha256": "6af62d00a15e15a6897db69637162a86321692f278efe4f18faffc269304323c",
+      "run": {
+        "command": [
+          "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-http-write-methods-20261110-et5vrbzz/venv/bin/python",
+          "-m",
+          "pytest",
+          "tests/test_http_write_methods.py",
+          "tests/test_http_write_recovery.py",
+          "tests/test_http_tools.py",
+          "tests/test_http_tool_configuration.py",
+          "tests/test_http_get_tools.py",
+          "tests/test_http_get_empty_delimiters.py",
+          "tests/test_http_get_stream_integration.py",
+          "tests/test_tool_sources.py",
+          "tests/test_thread_execution.py",
+          "tests/test_runtime_builder.py",
+          "tests/test_cli_tools.py",
+          "tests/test_cli_tool_configuration.py",
+          "-q",
+          "-ra",
+          "-W",
+          "error",
+          "--junitxml=/Users/bytedance/Codex-Projects/ralf-agent/dist/http-write-methods-20261110/installed-final.xml"
+        ],
+        "cwd": "/var/folders/22/3kpt4wq55234j3tf77xs091w0000gn/T/relf-http-write-methods-20261110-et5vrbzz/checks",
+        "elapsed_seconds": 40.58625470800325,
+        "exit_code": 0,
+        "timed_out": false,
+        "models_or_external_services_configured": false,
+        "network_used": true,
+        "network_scope": "owned_loopback_only",
+        "external_network_used": false
+      }
+    }
+  },
+  "runtime_only_commands": 9,
+  "preserved": {
+    "original_packages": 315,
+    "unowned_files": 35
+  },
+  "checks": {
+    "source_installed_same_280_ids": true,
+    "frozen-products.json": true,
+    "frozen-inputs.json": true,
+    "unowned_preserved": true,
+    "original_artifacts_preserved": true,
+    "wheel_preserved": true,
+    "sdist_preserved": true,
+    "runtime_only_sdist": true,
+    "selected_legacy_metadata": true,
+    "base_unchanged": true
+  },
+  "full_framework_regression_rerun": false,
+  "real_temporal_or_model_qualification": false,
+  "platform_scope": "current macOS ARM64 Python 3.12 only",
+  "remote_ci": false,
+  "push": false,
+  "public_release": false,
+  "original_failures_preserved": true,
+  "initial_failures": [
+    {
+      "record": "dist/http-write-methods-20261110/product-red-run.json",
+      "classification": "sandbox loopback EPERM, not valid capability RED"
+    },
+    {
+      "record": "dist/http-write-methods-20261110/product-red-loopback-run.json",
+      "classification": "valid RED: 54 failed,57 passed"
+    },
+    {
+      "record": "dist/http-write-methods-20261110/recovery-red-run.json",
+      "classification": "initial two unsupported-verb RED cases"
+    },
+    {
+      "record": "dist/http-write-methods-20261110/source-premature-start.json",
+      "classification": "root verifier orchestration mistake; candidate not ready; no tests started"
+    },
+    {
+      "record": "dist/http-write-methods-20261110/doc-finalize-initial-failure.json",
+      "classification": "root document finalizer heading assumption; continued only unfinished sections, no product/test/package change"
+    }
+  ],
+  "package_docs": "frozen build-time snapshot; final checkout documentation/evidence updated without rebuilding packages",
+  "evidence_metadata_correction": "Original wrapper used network_used=false to mean no external services; originals retained as *-run.initial-metadata.json. Correct scope is owned loopback network only.",
+  "review_closed_findings": [
+    {
+      "priority": "P3",
+      "issue": "HTTP guide called the old 2026-10-11 acceptance current",
+      "resolution": "Labelled historical and linked the current 2026-11-10 record; no product or package changed."
+    }
+  ]
+}
